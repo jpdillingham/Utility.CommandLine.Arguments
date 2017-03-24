@@ -54,7 +54,7 @@ using System.Text.RegularExpressions;
 
 [assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed.")]
 
-namespace CommandLine
+namespace Utility.CommandLine
 {
     /// <summary>
     ///     Indicates that the property is to be used as a target for automatic population of values from command line arguments

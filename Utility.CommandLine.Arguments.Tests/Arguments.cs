@@ -68,25 +68,25 @@ namespace Utility.CommandLine.Tests
         #region Private Properties
 
         /// <summary>
-        ///     Test property.
+        ///     Gets or sets a value indicating whether the test property has been set.
         /// </summary>
         [CommandLine.Argument("bool")]
         private static bool Bool { get; set; }
 
         /// <summary>
-        ///     Test property.
+        ///     Gets or sets a test property.
         /// </summary>
         [CommandLine.Argument("integer")]
         private static int Integer { get; set; }
 
         /// <summary>
-        ///     Test property.
+        ///     Gets or sets a test property.
         /// </summary>
         [CommandLine.Argument("parentProcessId")]
         private static string ParentProcessID { get; set; }
 
         /// <summary>
-        ///     Test property.
+        ///     Gets or sets a test property.
         /// </summary>
         [CommandLine.Argument("test-prop")]
         private static string TestProp { get; set; }

@@ -57,37 +57,6 @@ using System.Text.RegularExpressions;
 namespace Utility.CommandLine
 {
     /// <summary>
-    ///     Indicates that the property is to be used as a target for automatic population of values from command line arguments
-    ///     when invoking the <see cref="Arguments.Populate(string)"/> method.
-    /// </summary>
-    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed.")]
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class ArgumentAttribute : Attribute
-    {
-        #region Public Constructors
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ArgumentAttribute"/> class.
-        /// </summary>
-        /// <param name="name">The name of the argument, as appears in the list of the command line arguments.</param>
-        public ArgumentAttribute(string name)
-        {
-            Name = name;
-        }
-
-        #endregion Public Constructors
-
-        #region Public Properties
-
-        /// <summary>
-        ///     Gets or sets the name of the argument, as appears in the list of the command line arguments.
-        /// </summary>
-        public string Name { get; set; }
-
-        #endregion Public Properties
-    }
-
-    /// <summary>
     ///     Provides static methods used to retrieve the command line arguments with which the application was started.
     /// </summary>
     public static class Arguments
@@ -276,5 +245,35 @@ namespace Utility.CommandLine
         }
 
         #endregion Private Methods
+    }
+
+    /// <summary>
+    ///     Indicates that the property is to be used as a target for automatic population of values from command line arguments
+    ///     when invoking the <see cref="Arguments.Populate(string)"/> method.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class ArgumentAttribute : Attribute
+    {
+        #region Public Constructors
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ArgumentAttribute"/> class.
+        /// </summary>
+        /// <param name="name">The name of the argument, as appears in the list of the command line arguments.</param>
+        public ArgumentAttribute(string name)
+        {
+            Name = name;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        /// <summary>
+        ///     Gets or sets the name of the argument, as appears in the list of the command line arguments.
+        /// </summary>
+        public string Name { get; set; }
+
+        #endregion Public Properties
     }
 }

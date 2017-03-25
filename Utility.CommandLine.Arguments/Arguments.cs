@@ -1,14 +1,14 @@
 ﻿/*
       █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀  ▀  ▀      ▀▀
       █
-      █   ▄████████                                                               ▄█                                  ▄████████
-      █   ███    ███                                                             ███                                  ███    ███
-      █   ███    █▀   ██████     ▄▄██▄▄▄     ▄▄██▄▄▄    ▄█████  ██▄▄▄▄  ██████▄  ███        █  ██▄▄▄▄     ▄█████      ███    ███    █████    ▄████▄  ██   █     ▄▄██▄▄▄     ▄█████ ██▄▄▄▄      ██      ▄█████
-      █   ███        ██    ██  ▄█▀▀██▀▀█▄  ▄█▀▀██▀▀█▄   ██   ██ ██▀▀▀█▄ ██   ▀██ ███       ██  ██▀▀▀█▄   ██   █       ███    ███   ██  ██   ██    ▀  ██   ██  ▄█▀▀██▀▀█▄   ██   █  ██▀▀▀█▄ ▀███████▄   ██  ▀
-      █   ███        ██    ██  ██  ██  ██  ██  ██  ██   ██   ██ ██   ██ ██    ██ ███       ██▌ ██   ██  ▄██▄▄       ▀███████████  ▄██▄▄█▀  ▄██       ██   ██  ██  ██  ██  ▄██▄▄    ██   ██     ██  ▀   ██
-      █   ███    █▄  ██    ██  ██  ██  ██  ██  ██  ██ ▀████████ ██   ██ ██    ██ ███       ██  ██   ██ ▀▀██▀▀         ███    ███ ▀███████ ▀▀██ ███▄  ██   ██  ██  ██  ██ ▀▀██▀▀    ██   ██     ██    ▀███████
-      █   ███    ███ ██    ██  ██  ██  ██  ██  ██  ██   ██   ██ ██   ██ ██   ▄██ ███▌    ▄ ██  ██   ██   ██   █       ███    ███   ██  ██   ██    ██ ██   ██  ██  ██  ██   ██   █  ██   ██     ██       ▄  ██
-      █   ████████▀   ██████    █  ██  █    █  ██  █    ██   █▀  █   █  ██████▀  █████▄▄██ █    █   █    ███████ ██   ███    █▀    ██  ██   ██████▀  ██████    █  ██  █    ███████  █   █     ▄██▀    ▄████▀
+      █     ▄████████
+      █     ███    ███
+      █     ███    ███    █████    ▄████▄  ██   █     ▄▄██▄▄▄     ▄█████ ██▄▄▄▄      ██      ▄█████
+      █     ███    ███   ██  ██   ██    ▀  ██   ██  ▄█▀▀██▀▀█▄   ██   █  ██▀▀▀█▄ ▀███████▄   ██  ▀
+      █   ▀███████████  ▄██▄▄█▀  ▄██       ██   ██  ██  ██  ██  ▄██▄▄    ██   ██     ██  ▀   ██
+      █     ███    ███ ▀███████ ▀▀██ ███▄  ██   ██  ██  ██  ██ ▀▀██▀▀    ██   ██     ██    ▀███████
+      █     ███    ███   ██  ██   ██    ██ ██   ██  ██  ██  ██   ██   █  ██   ██     ██       ▄  ██
+      █     ███    █▀    ██  ██   ██████▀  ██████    █  ██  █    ███████  █   █     ▄██▀    ▄████▀
       █
  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄  ▄▄ ▄▄   ▄▄▄▄ ▄▄     ▄▄     ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄ ▄
  █████████████████████████████████████████████████████████████ ███████████████ ██  ██ ██   ████ ██     ██     ████████████████ █ █
@@ -90,7 +90,7 @@ namespace Utility.CommandLine
     /// <summary>
     ///     Provides static methods used to retrieve the command line arguments with which the application was started.
     /// </summary>
-    public class Arguments
+    public static class Arguments
     {
         #region Private Fields
 
@@ -127,7 +127,9 @@ namespace Utility.CommandLine
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
         public static void Populate(string commandLineString = "")
         {
-            Populate(new StackFrame(1).GetMethod().DeclaringType, Environment.CommandLine);
+            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
+
+            Populate(new StackFrame(1).GetMethod().DeclaringType, commandLineString);
         }
 
         /// <summary>
@@ -158,7 +160,7 @@ namespace Utility.CommandLine
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);
 
             // retrieve the command line parameters
-            Dictionary<string, string> argumentDictionary = Parse();
+            Dictionary<string, string> argumentDictionary = Parse(commandLineString);
 
             // iterate over the property dictionary
             foreach (string propertyName in properties.Keys)
@@ -227,10 +229,11 @@ namespace Utility.CommandLine
                 // ensure the match contains three groups; the key/value pair (0), the key (1), and the value (2)
                 if (match.Groups.Count == 3)
                 {
-                    // add the argument and value to the dictionary if it doesn't already exist.
+                    // add the argument and value to the dictionary if it doesn't already exist. trim enclosing double and single
+                    // quotes from the value.
                     if (!argumentDictionary.ContainsKey(match.Groups[1].Value))
                     {
-                        argumentDictionary.Add(match.Groups[1].Value, match.Groups[2].Value);
+                        argumentDictionary.Add(match.Groups[1].Value, match.Groups[2].Value.Trim('"', '\''));
                     }
                 }
             }

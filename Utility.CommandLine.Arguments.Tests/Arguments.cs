@@ -194,7 +194,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Populate()
         {
-            CommandLine.Arguments.Populate();
+            CommandLine.Arguments.Populate("-b");
         }
 
         /// <summary>

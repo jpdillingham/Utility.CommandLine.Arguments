@@ -82,6 +82,12 @@ namespace Utility.CommandLine.Tests
         /// <summary>
         ///     Gets or sets a test property.
         /// </summary>
+        [CommandLine.Argument('c', "case-sensitive")]
+        private static string LowerCase { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
         [CommandLine.Argument('p', "parentProcessId")]
         private static string ParentProcessID { get; set; }
 
@@ -91,11 +97,11 @@ namespace Utility.CommandLine.Tests
         [CommandLine.Argument('t', "test-prop")]
         private static string TestProp { get; set; }
 
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
         [CommandLine.Argument('C', "CASE-SENSITIVE")]
         private static string UpperCase { get; set; }
-
-        [CommandLine.Argument('c', "case-sensitive")]
-        private static string LowerCase { get; set; }
 
         #endregion Private Properties
 
@@ -110,6 +116,64 @@ namespace Utility.CommandLine.Tests
             Dictionary<string, string> test = CommandLine.Arguments.Parse();
 
             Assert.NotEmpty(test);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
+        ///     containing a mixture of upper and lower case arguments.
+        /// </summary>
+        [Fact]
+        public void ParseCaseSensitive()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc");
+
+            Assert.True(test.ContainsKey("TEST"));
+            Assert.False(test.ContainsKey("test"));
+
+            Assert.True(test.ContainsKey("a"));
+            Assert.False(test.ContainsKey("A"));
+
+            Assert.True(test.ContainsKey("B"));
+            Assert.False(test.ContainsKey("b"));
+
+            Assert.True(test.ContainsKey("c"));
+            Assert.False(test.ContainsKey("C"));
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
+        ///     containing a mixture of short and long arguments.
+        /// </summary>
+        [Fact]
+        public void ParseLongAndShortMix()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4");
+
+            Assert.Equal("1", test["one"]);
+            Assert.True(test.ContainsKey("a"));
+            Assert.True(test.ContainsKey("b"));
+            Assert.Equal("2", test["b"]);
+            Assert.Equal("3", test["three"]);
+            Assert.Equal("4", test["4"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
+        ///     containing only short parameters.
+        /// </summary>
+        [Fact]
+        public void ParseShorts()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'");
+
+            Assert.True(test.ContainsKey("a"));
+            Assert.Equal(string.Empty, test["a"]);
+
+            Assert.True(test.ContainsKey("b"));
+            Assert.Equal(string.Empty, test["b"]);
+
+            Assert.True(test.ContainsKey("c"));
+            Assert.Equal("hello world", test["c"]);
         }
 
         /// <summary>
@@ -130,52 +194,6 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("5 5", test["five"]);
         }
 
-        [Fact]
-        public void ParseShorts()
-        {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'");
-
-            Assert.True(test.ContainsKey("a"));
-            Assert.Equal(string.Empty, test["a"]);
-
-            Assert.True(test.ContainsKey("b"));
-            Assert.Equal(string.Empty, test["b"]);
-
-            Assert.True(test.ContainsKey("c"));
-            Assert.Equal("hello world", test["c"]);
-        }
-
-        [Fact]
-        public void ParseCaseSensitive()
-        {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc");
-
-            Assert.True(test.ContainsKey("TEST"));
-            Assert.False(test.ContainsKey("test"));
-
-            Assert.True(test.ContainsKey("a"));
-            Assert.False(test.ContainsKey("A"));
-
-            Assert.True(test.ContainsKey("B"));
-            Assert.False(test.ContainsKey("b"));
-
-            Assert.True(test.ContainsKey("c"));
-            Assert.False(test.ContainsKey("C"));
-        }
-
-        [Fact]
-        public void ParseMix()
-        {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4");
-
-            Assert.Equal("1", test["one"]);
-            Assert.True(test.ContainsKey("a"));
-            Assert.True(test.ContainsKey("b"));
-            Assert.Equal("2", test["b"]);
-            Assert.Equal("3", test["three"]);
-            Assert.Equal("4", test["4"]);
-        }
-
         /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with the default values.
         /// </summary>
@@ -185,6 +203,37 @@ namespace Utility.CommandLine.Tests
             CommandLine.Arguments.Populate();
 
             Assert.NotEqual(string.Empty, ParentProcessID);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit command line string
+        ///     containing both upper and lower case arguments.
+        /// </summary>
+        [Fact]
+        public void PopulateCaseSensitive()
+        {
+            CommandLine.Arguments.Populate("-c lower -C upper");
+
+            Assert.Equal("lower", LowerCase);
+            Assert.Equal("upper", UpperCase);
+
+            CommandLine.Arguments.Populate("--case-sensitive lower --CASE-SENSITIVE upper");
+
+            Assert.Equal("lower", LowerCase);
+            Assert.Equal("upper", UpperCase);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit command line string
+        ///     containing multiple short names.
+        /// </summary>
+        [Fact]
+        public void PopulateShortNames()
+        {
+            CommandLine.Arguments.Populate("-bi 3");
+
+            Assert.True(Bool);
+            Assert.Equal(3, Integer);
         }
 
         /// <summary>
@@ -198,29 +247,6 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("hello world!", TestProp);
             Assert.True(Bool);
             Assert.Equal(5, Integer);
-        }
-
-        [Fact]
-        public void PopulateShortNames()
-        {
-            CommandLine.Arguments.Populate("-bi 3");
-
-            Assert.True(Bool);
-            Assert.Equal(3, Integer);
-        }
-
-        [Fact]
-        public void PopulateCaseSensitive()
-        {
-            CommandLine.Arguments.Populate("-c lower -C upper");
-
-            Assert.Equal("lower", LowerCase);
-            Assert.Equal("upper", UpperCase);
-
-            CommandLine.Arguments.Populate("--case-sensitive lower --CASE-SENSITIVE upper");
-
-            Assert.Equal("lower", LowerCase);
-            Assert.Equal("upper", UpperCase);
         }
 
         /// <summary>

@@ -92,46 +92,61 @@ namespace Utility.CommandLine
 
         /// <summary>
         ///     Populates the properties in the invoking class marked with the
-        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> and sets the value to the corresponding value specified in
-        ///     the list of command line arguments, if present.
+        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the list of command line
+        ///     arguments, if present.
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
         public static void Populate(string commandLineString = "")
         {
             commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
 
-            Populate(new StackFrame(1).GetMethod().DeclaringType, commandLineString);
+            Populate(new StackFrame(1).GetMethod().DeclaringType, Parse(commandLineString));
         }
 
         /// <summary>
-        ///     Populates the properties in the invoking class marked with the
-        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> and sets the value to the corresponding value specified in
-        ///     the list of command line arguments, if present.
-        /// </summary>
-        /// <param name="type">
-        ///     The Type for which the static properties matching the list of command line arguments are to be populated.
-        /// </param>
-        public static void Populate(Type type)
-        {
-            Populate(type, Environment.CommandLine);
-        }
-
-        /// <summary>
-        ///     Populates the properties in the invoking class marked with the
-        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> and sets the value to the corresponding value specified in
-        ///     the list of command line arguments, if present.
+        ///     Populates the properties in the specified Type marked with the
+        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the list of command line
+        ///     arguments, if present.
         /// </summary>
         /// <param name="type">
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
         /// </param>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(Type type, string commandLineString)
+        public static void Populate(Type type, string commandLineString = "")
+        {
+            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
+
+            Populate(type, Parse(commandLineString));
+        }
+
+        /// <summary>
+        ///     Populates the properties in the invoking class marked with the
+        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the specified argument
+        ///     dictionary, if present.
+        /// </summary>
+        /// <param name="argumentDictionary">
+        ///     The dictionary containing the argument-value pairs with which the destination properties should be populated
+        /// </param>
+        public static void Populate(Dictionary<string, string> argumentDictionary)
+        {
+            Populate(new StackFrame(1).GetMethod().DeclaringType, argumentDictionary);
+        }
+
+        /// <summary>
+        ///     Populates the properties in the specified Type marked with the
+        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the specified argument
+        ///     dictionary, if present.
+        /// </summary>
+        /// <param name="type">
+        ///     The Type for which the static properties matching the list of command line arguments are to be populated.
+        /// </param>
+        /// <param name="argumentDictionary">
+        ///     The dictionary containing the argument-value pairs with which the destination properties should be populated
+        /// </param>
+        public static void Populate(Type type, Dictionary<string, string> argumentDictionary)
         {
             // fetch any properties in the specified type marked with the ArgumentAttribute attribute
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);
-
-            // retrieve the command line parameters
-            Dictionary<string, string> argumentDictionary = Parse(commandLineString);
 
             // iterate over the property dictionary
             foreach (string propertyName in properties.Keys)
@@ -182,6 +197,21 @@ namespace Utility.CommandLine
         #region Private Methods
 
         /// <summary>
+        ///     Adds the specified key to the specified dictionary with the specified value, but only if the specified key is not
+        ///     already present in the dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to which they specified key and value are to be added.</param>
+        /// <param name="key">The key to add to the dictionary.</param>
+        /// <param name="value">The value corresponding to the specified key.</param>
+        private static void ExclusiveAdd(this Dictionary<string, string> dictionary, string key, string value)
+        {
+            if (!dictionary.ContainsKey(key))
+            {
+                dictionary.Add(key, value);
+            }
+        }
+
+        /// <summary>
         ///     Populates and returns a dictionary containing the values specified in the command line arguments with which the
         ///     application was started, keyed by argument name.
         /// </summary>
@@ -225,14 +255,6 @@ namespace Utility.CommandLine
             }
 
             return argumentDictionary;
-        }
-
-        private static void ExclusiveAdd(this Dictionary<string, string> dictionary, string key, string value)
-        {
-            if (!dictionary.ContainsKey(key))
-            {
-                dictionary.Add(key, value);
-            }
         }
 
         /// <summary>
@@ -286,7 +308,8 @@ namespace Utility.CommandLine
         /// <summary>
         ///     Initializes a new instance of the <see cref="ArgumentAttribute"/> class.
         /// </summary>
-        /// <param name="name">The name of the argument, as appears in the list of the command line arguments.</param>
+        /// <param name="shortName">The short name of the argument, represented as a single character.</param>
+        /// <param name="longName">The long name of the argument.</param>
         public ArgumentAttribute(char shortName, string longName)
         {
             ShortName = shortName;

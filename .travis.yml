@@ -1,0 +1,10 @@
+os:
+  - linux
+  - osx
+language: csharp
+solution: Utility.CommandLine.Arguments.sln
+install:
+  - nuget restore Utility.CommandLine.Arguments.sln
+script:
+  - xbuild /p:Configuration=Release Utility.CommandLine.Arguments.sln
+  - mono ./packages/xunit.runner.console.2.1.0/tools/xunit.console.exe ./Utility.CommandLine.Arguments.Tests/bin/Release/Utility.CommandLine.Arguments.Tests.dll

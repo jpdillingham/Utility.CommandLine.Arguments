@@ -3,13 +3,55 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/936bilffko47p63b?svg=true)](https://ci.appveyor.com/project/jpdillingham/utility-commandline-arguments)
 [![Build Status](https://travis-ci.org/jpdillingham/Utility.CommandLine.Arguments.svg?branch=master)](https://travis-ci.org/jpdillingham/Utility.CommandLine.Arguments)
 [![codecov](https://codecov.io/gh/jpdillingham/Utility.CommandLine.Arguments/branch/master/graph/badge.svg)](https://codecov.io/gh/jpdillingham/Utility.CommandLine.Arguments)
+[![NuGet version](https://img.shields.io/nuget/v/Utility.CommandLine.Arguments.svg)](https://www.nuget.org/packages/Utility.CommandLine.Arguments/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/jpdillingham/Utility.CommandLine.Arguments/blob/master/LICENSE)
 
-A C# .NET Class Library containing tools for parsing command line arguments for console applications.
+A C# .NET Class Library containing tools for parsing the command line arguments of console applications.
 
 ## Why?
 
 I needed a solution for parsing command line arguments and didn't like the existing options.
+
+## Installation
+
+Install from the NuGet gallery GUI or with the Package Manager Console using the following command:
+
+```Install-Package Utility.CommandLine.Arguments```
+
+## Quick Start
+
+Create private static properties in the class containing your ```Main()``` and mark them with the ```Argument``` attribute, assigning short and long names.  Invoke
+the ```Arguments.Populate()``` method within ```Main()```, then implement the rest of your logic.  
+
+The library will populate your properties with the values
+specified in the command line arguments.
+
+```c#
+internal class Program
+{
+    [Argument('b', "boolean")]
+    private static bool Bool { get; set; }
+
+    [Argument('f', "float")]
+    private static double Double { get; set; }
+
+    [Argument('i', "integer")]
+    private static int Int { get; set; }
+
+    [Argument('s', "string")]
+    private static string String { get; set; }
+
+    private static void Main(string[] args)
+    {
+        Arguments.Populate();
+
+        Console.WriteLine("String: " + String);
+        Console.WriteLine("Bool: " + Bool);
+        Console.WriteLine("Int: " + Int);
+        Console.WriteLine("Double: " + Double);
+    }
+}
+```
 
 ## Grammar
 
@@ -19,7 +61,7 @@ located [here](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap1
 
 Each argument is treated as a key-value pair, regardless of whether a value is present.  The general format is as follows:
 
-```[-|--|/]argument-name[=|:| ]["|']value['|"]```
+```<-|--|/>argument-name<=|:| >["|']value['|"]```
 
 The key-value pair may begin with a single dash, a pair of dashes (double dash), or a forward slash.  Single and double dashes indicate the use of short
 or long names, respectively, which are covered below.  The forward slash may represent either, but does not allow for the grouping of parameterless

@@ -66,7 +66,9 @@ namespace Utility.CommandLine
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
-        private const string RegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\".*\\\"|\\\'.*\\\')?";
+        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\".*\\\"|\\\'.*\\\')?";
+
+        private const string GroupRegEx = "^-[^-]+";
 
         #endregion Private Fields
 
@@ -193,21 +195,44 @@ namespace Utility.CommandLine
             Dictionary<string, string> argumentDictionary = new Dictionary<string, string>();
 
             // iterate over the collection of matches to the parsing regular expression
-            foreach (Match match in Regex.Matches(commandLineString, RegEx))
+            foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
                 // ensure the match contains three groups; the key/value pair (0), the key (1), and the value (2)
                 if (match.Groups.Count == 3)
                 {
-                    // add the argument and value to the dictionary if it doesn't already exist. trim enclosing double and single
-                    // quotes from the value.
-                    if (!argumentDictionary.ContainsKey(match.Groups[1].Value))
+                    string fullMatch = match.Groups[0].Value;
+                    string argument = match.Groups[1].Value;
+                    string value = match.Groups[2].Value.Trim('"', '\'');
+
+                    // check to see if the argument uses a single dash. if so, split the argument name into a char array and add
+                    // each to the dictionary. if a value is specified, it belongs to the final character.
+                    if (Regex.IsMatch(fullMatch, GroupRegEx))
                     {
-                        argumentDictionary.Add(match.Groups[1].Value, match.Groups[2].Value.Trim('"', '\''));
+                        char[] charArray = argument.ToCharArray();
+
+                        // iterate over the characters backwards to more easily assign the value
+                        for (int i = 0; i < charArray.Length; i++)
+                        {
+                            argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
+                        }
+                    }
+                    else
+                    {
+                        // add the argument and value to the dictionary if it doesn't already exist.
+                        argumentDictionary.ExclusiveAdd(argument, value);
                     }
                 }
             }
 
             return argumentDictionary;
+        }
+
+        private static void ExclusiveAdd(this Dictionary<string, string> dictionary, string key, string value)
+        {
+            if (!dictionary.ContainsKey(key))
+            {
+                dictionary.Add(key, value);
+            }
         }
 
         /// <summary>
@@ -232,11 +257,13 @@ namespace Utility.CommandLine
                 // if found, extract the Name property and add it to the dictionary
                 if (attribute != default(CustomAttributeData))
                 {
-                    string displayName = (string)attribute.ConstructorArguments[0].Value;
+                    char shortName = (char)attribute.ConstructorArguments[0].Value;
+                    string longName = (string)attribute.ConstructorArguments[1].Value;
 
-                    if (!properties.ContainsKey(displayName))
+                    if (!properties.ContainsKey(shortName.ToString()) && !properties.ContainsKey(longName))
                     {
-                        properties.Add(displayName, property);
+                        properties.Add(shortName.ToString(), property);
+                        properties.Add(longName, property);
                     }
                 }
             }
@@ -260,9 +287,10 @@ namespace Utility.CommandLine
         ///     Initializes a new instance of the <see cref="ArgumentAttribute"/> class.
         /// </summary>
         /// <param name="name">The name of the argument, as appears in the list of the command line arguments.</param>
-        public ArgumentAttribute(string name)
+        public ArgumentAttribute(char shortName, string longName)
         {
-            Name = name;
+            ShortName = shortName;
+            LongName = longName;
         }
 
         #endregion Public Constructors
@@ -270,9 +298,14 @@ namespace Utility.CommandLine
         #region Public Properties
 
         /// <summary>
-        ///     Gets or sets the name of the argument, as appears in the list of the command line arguments.
+        ///     Gets or sets the long name of the argument.
         /// </summary>
-        public string Name { get; set; }
+        public string LongName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the short name of the argument.
+        /// </summary>
+        public char ShortName { get; set; }
 
         #endregion Public Properties
     }

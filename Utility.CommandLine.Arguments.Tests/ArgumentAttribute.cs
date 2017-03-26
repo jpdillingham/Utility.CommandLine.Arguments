@@ -71,9 +71,10 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Constructor()
         {
-            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute("name");
+            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute('n', "name");
 
-            Assert.Equal("name", test.Name);
+            Assert.Equal('n', test.ShortName);
+            Assert.Equal("name", test.LongName);
         }
 
         #endregion Public Methods

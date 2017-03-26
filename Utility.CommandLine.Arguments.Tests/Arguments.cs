@@ -70,26 +70,32 @@ namespace Utility.CommandLine.Tests
         /// <summary>
         ///     Gets or sets a value indicating whether the test property has been set.
         /// </summary>
-        [CommandLine.Argument("bool")]
+        [CommandLine.Argument('b', "bool")]
         private static bool Bool { get; set; }
 
         /// <summary>
         ///     Gets or sets a test property.
         /// </summary>
-        [CommandLine.Argument("integer")]
+        [CommandLine.Argument('i', "integer")]
         private static int Integer { get; set; }
 
         /// <summary>
         ///     Gets or sets a test property.
         /// </summary>
-        [CommandLine.Argument("parentProcessId")]
+        [CommandLine.Argument('p', "parentProcessId")]
         private static string ParentProcessID { get; set; }
 
         /// <summary>
         ///     Gets or sets a test property.
         /// </summary>
-        [CommandLine.Argument("test-prop")]
+        [CommandLine.Argument('t', "test-prop")]
         private static string TestProp { get; set; }
+
+        [CommandLine.Argument('C', "CASE-SENSITIVE")]
+        private static string UpperCase { get; set; }
+
+        [CommandLine.Argument('c', "case-sensitive")]
+        private static string LowerCase { get; set; }
 
         #endregion Private Properties
 
@@ -107,12 +113,13 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
+        ///     containing only long parameters.
         /// </summary>
         [Fact]
-        public void ParseString()
+        public void ParseStringOfLongs()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("-one 1 --two=2 /three:3 -four \"4 4\" -five='5 5'");
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'");
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
@@ -121,6 +128,52 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("3", test["three"]);
             Assert.Equal("4 4", test["four"]);
             Assert.Equal("5 5", test["five"]);
+        }
+
+        [Fact]
+        public void ParseShorts()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'");
+
+            Assert.True(test.ContainsKey("a"));
+            Assert.Equal(string.Empty, test["a"]);
+
+            Assert.True(test.ContainsKey("b"));
+            Assert.Equal(string.Empty, test["b"]);
+
+            Assert.True(test.ContainsKey("c"));
+            Assert.Equal("hello world", test["c"]);
+        }
+
+        [Fact]
+        public void ParseCaseSensitive()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc");
+
+            Assert.True(test.ContainsKey("TEST"));
+            Assert.False(test.ContainsKey("test"));
+
+            Assert.True(test.ContainsKey("a"));
+            Assert.False(test.ContainsKey("A"));
+
+            Assert.True(test.ContainsKey("B"));
+            Assert.False(test.ContainsKey("b"));
+
+            Assert.True(test.ContainsKey("c"));
+            Assert.False(test.ContainsKey("C"));
+        }
+
+        [Fact]
+        public void ParseMix()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4");
+
+            Assert.Equal("1", test["one"]);
+            Assert.True(test.ContainsKey("a"));
+            Assert.True(test.ContainsKey("b"));
+            Assert.Equal("2", test["b"]);
+            Assert.Equal("3", test["three"]);
+            Assert.Equal("4", test["4"]);
         }
 
         /// <summary>
@@ -145,6 +198,29 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("hello world!", TestProp);
             Assert.True(Bool);
             Assert.Equal(5, Integer);
+        }
+
+        [Fact]
+        public void PopulateShortNames()
+        {
+            CommandLine.Arguments.Populate("-bi 3");
+
+            Assert.True(Bool);
+            Assert.Equal(3, Integer);
+        }
+
+        [Fact]
+        public void PopulateCaseSensitive()
+        {
+            CommandLine.Arguments.Populate("-c lower -C upper");
+
+            Assert.Equal("lower", LowerCase);
+            Assert.Equal("upper", UpperCase);
+
+            CommandLine.Arguments.Populate("--case-sensitive lower --CASE-SENSITIVE upper");
+
+            Assert.Equal("lower", LowerCase);
+            Assert.Equal("upper", UpperCase);
         }
 
         /// <summary>

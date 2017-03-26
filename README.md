@@ -125,7 +125,7 @@ a |
 b |
 foo | bar
 
-Note that boolean values should be checked with ```Dictionary.ContainsKey("name")```; the result will property indicate
+Note that boolean values should be checked with ```Dictionary.ContainsKey("name")```; the result will indicate
 whether the argument was encountered in the command line arguments.  All other values are retrieved with ```Dictionary["key"]```.
 
 ## Populating

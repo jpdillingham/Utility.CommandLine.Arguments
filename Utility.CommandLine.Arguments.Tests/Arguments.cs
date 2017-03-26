@@ -88,12 +88,6 @@ namespace Utility.CommandLine.Tests
         /// <summary>
         ///     Gets or sets a test property.
         /// </summary>
-        [CommandLine.Argument('p', "parentProcessId")]
-        private static string ParentProcessID { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a test property.
-        /// </summary>
         [CommandLine.Argument('t', "test-prop")]
         private static string TestProp { get; set; }
 
@@ -201,8 +195,6 @@ namespace Utility.CommandLine.Tests
         public void Populate()
         {
             CommandLine.Arguments.Populate();
-
-            Assert.NotEqual(string.Empty, ParentProcessID);
         }
 
         /// <summary>
@@ -221,6 +213,20 @@ namespace Utility.CommandLine.Tests
 
             Assert.Equal("lower", LowerCase);
             Assert.Equal("upper", UpperCase);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, string})"/> method.
+        /// </summary>
+        [Fact]
+        public void PopulateDictionary()
+        {
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            dict.Add("i", "1");
+
+            CommandLine.Arguments.Populate(dict);
+
+            Assert.Equal(1, Integer);
         }
 
         /// <summary>
@@ -255,9 +261,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateType()
         {
-            CommandLine.Arguments.Populate(GetType());
+            CommandLine.Arguments.Populate(GetType(), "--integer 5");
 
-            Assert.NotEqual(string.Empty, ParentProcessID);
+            Assert.Equal(5, Integer);
         }
 
         /// <summary>

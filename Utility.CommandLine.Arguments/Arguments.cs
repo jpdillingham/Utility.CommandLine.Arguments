@@ -227,30 +227,26 @@ namespace Utility.CommandLine
             // iterate over the collection of matches to the parsing regular expression
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
-                // ensure the match contains three groups; the key/value pair (0), the key (1), and the value (2)
-                if (match.Groups.Count == 3)
+                string fullMatch = match.Groups[0].Value;
+                string argument = match.Groups[1].Value;
+                string value = match.Groups[2].Value.Trim('"', '\'');
+
+                // check to see if the argument uses a single dash. if so, split the argument name into a char array and add each
+                // to the dictionary. if a value is specified, it belongs to the final character.
+                if (Regex.IsMatch(fullMatch, GroupRegEx))
                 {
-                    string fullMatch = match.Groups[0].Value;
-                    string argument = match.Groups[1].Value;
-                    string value = match.Groups[2].Value.Trim('"', '\'');
+                    char[] charArray = argument.ToCharArray();
 
-                    // check to see if the argument uses a single dash. if so, split the argument name into a char array and add
-                    // each to the dictionary. if a value is specified, it belongs to the final character.
-                    if (Regex.IsMatch(fullMatch, GroupRegEx))
+                    // iterate over the characters backwards to more easily assign the value
+                    for (int i = 0; i < charArray.Length; i++)
                     {
-                        char[] charArray = argument.ToCharArray();
-
-                        // iterate over the characters backwards to more easily assign the value
-                        for (int i = 0; i < charArray.Length; i++)
-                        {
-                            argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
-                        }
+                        argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
                     }
-                    else
-                    {
-                        // add the argument and value to the dictionary if it doesn't already exist.
-                        argumentDictionary.ExclusiveAdd(argument, value);
-                    }
+                }
+                else
+                {
+                    // add the argument and value to the dictionary if it doesn't already exist.
+                    argumentDictionary.ExclusiveAdd(argument, value);
                 }
             }
 

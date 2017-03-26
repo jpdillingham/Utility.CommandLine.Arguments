@@ -97,6 +97,17 @@ namespace Utility.CommandLine.Tests
         [CommandLine.Argument('C', "CASE-SENSITIVE")]
         private static string UpperCase { get; set; }
 
+        /// <summary>
+        ///     Gets or sets a property with no attribute.
+        /// </summary>
+        private static string NonArgumentProperty { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a property with an attribute other than Argument
+        /// </summary>
+        [Obsolete]
+        private static string PlainProperty { get; set; }
+
         #endregion Private Properties
 
         #region Public Methods

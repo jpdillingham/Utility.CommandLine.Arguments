@@ -68,6 +68,9 @@ namespace Utility.CommandLine
         /// </summary>
         private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\".*\\\"|\\\'.*\\\')?";
 
+        /// <summary>
+        ///     The regular expression with which to parse argument-value groups.
+        /// </summary>
         private const string GroupRegEx = "^-[^-]+";
 
         #endregion Private Fields

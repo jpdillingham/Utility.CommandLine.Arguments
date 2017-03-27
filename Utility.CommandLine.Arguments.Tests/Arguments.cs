@@ -200,6 +200,20 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string containing multiple pairs of arguments containing quoted values.
+        /// </summary>
+        [Fact]
+        public void ParseMultipleQuotes()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'");
+
+            Assert.Equal("1", test["test1"]);
+            Assert.Equal("2", test["test2"]);
+            Assert.Equal("3", test["test3"]);
+            Assert.Equal("4", test["test4"]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with the default values.
         /// </summary>
         [Fact]

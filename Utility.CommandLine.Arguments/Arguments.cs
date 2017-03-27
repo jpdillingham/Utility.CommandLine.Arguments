@@ -66,7 +66,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
-        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\".*\\\"|\\\'.*\\\')?";
+        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\"[^\".]*\\\"|\\\'[^'.]*\\\')?";
 
         /// <summary>
         ///     The regular expression with which to parse argument-value groups.
@@ -232,7 +232,17 @@ namespace Utility.CommandLine
             {
                 string fullMatch = match.Groups[0].Value;
                 string argument = match.Groups[1].Value;
-                string value = match.Groups[2].Value.Trim('"', '\'');
+                string value = match.Groups[2].Value;
+
+                // trim outer quotes, if present
+                if (value.StartsWith("\"") && value.EndsWith("\""))
+                {
+                    value = value.Trim('"');
+                }
+                else if (value.StartsWith("'") && value.EndsWith("'"))
+                {
+                    value = value.Trim('\'');
+                }
 
                 // check to see if the argument uses a single dash. if so, split the argument name into a char array and add each
                 // to the dictionary. if a value is specified, it belongs to the final character.

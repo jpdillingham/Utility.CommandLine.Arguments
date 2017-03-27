@@ -86,6 +86,17 @@ namespace Utility.CommandLine.Tests
         private static string LowerCase { get; set; }
 
         /// <summary>
+        ///     Gets or sets a property with no attribute.
+        /// </summary>
+        private static string NonArgumentProperty { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a property with an attribute other than Argument
+        /// </summary>
+        [Obsolete]
+        private static string PlainProperty { get; set; }
+
+        /// <summary>
         ///     Gets or sets a test property.
         /// </summary>
         [CommandLine.Argument('t', "test-prop")]
@@ -96,17 +107,6 @@ namespace Utility.CommandLine.Tests
         /// </summary>
         [CommandLine.Argument('C', "CASE-SENSITIVE")]
         private static string UpperCase { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a property with no attribute.
-        /// </summary>
-        private static string NonArgumentProperty { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a property with an attribute other than Argument
-        /// </summary>
-        [Obsolete]
-        private static string PlainProperty { get; set; }
 
         #endregion Private Properties
 
@@ -146,6 +146,19 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an exclicit command line string
+        ///     containing values with inner quoted strings.
+        /// </summary>
+        [Fact]
+        public void ParseInnerQuotedStrings()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'");
+
+            Assert.Equal("test \'1\'", test["test1"]);
+            Assert.Equal("test \"2\"", test["test2"]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing a mixture of short and long arguments.
         /// </summary>
@@ -160,6 +173,21 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("2", test["b"]);
             Assert.Equal("3", test["three"]);
             Assert.Equal("4", test["4"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
+        ///     containing multiple pairs of arguments containing quoted values.
+        /// </summary>
+        [Fact]
+        public void ParseMultipleQuotes()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'");
+
+            Assert.Equal("1", test["test1"]);
+            Assert.Equal("2", test["test2"]);
+            Assert.Equal("3", test["test3"]);
+            Assert.Equal("4", test["test4"]);
         }
 
         /// <summary>
@@ -197,20 +225,6 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("3", test["three"]);
             Assert.Equal("4 4", test["four"]);
             Assert.Equal("5 5", test["five"]);
-        }
-
-        /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string containing multiple pairs of arguments containing quoted values.
-        /// </summary>
-        [Fact]
-        public void ParseMultipleQuotes()
-        {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'");
-
-            Assert.Equal("1", test["test1"]);
-            Assert.Equal("2", test["test2"]);
-            Assert.Equal("3", test["test3"]);
-            Assert.Equal("4", test["test4"]);
         }
 
         /// <summary>

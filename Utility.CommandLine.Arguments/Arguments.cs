@@ -57,16 +57,78 @@ using System.Text.RegularExpressions;
 namespace Utility.CommandLine
 {
     /// <summary>
+    ///     Provides extension method(s) for the Argument namespace.
+    /// </summary>
+    public static class Extensions
+    {
+        #region Internal Methods
+
+        /// <summary>
+        ///     Adds the specified key to the specified dictionary with the specified value, but only if the specified key is not
+        ///     already present in the dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to which they specified key and value are to be added.</param>
+        /// <param name="key">The key to add to the dictionary.</param>
+        /// <param name="value">The value corresponding to the specified key.</param>
+        internal static void ExclusiveAdd(this Dictionary<string, string> dictionary, string key, string value)
+        {
+            if (!dictionary.ContainsKey(key))
+            {
+                dictionary.Add(key, value);
+            }
+        }
+
+        #endregion Internal Methods
+    }
+
+    /// <summary>
+    ///     Indicates that the property is to be used as a target for automatic population of values from command line arguments
+    ///     when invoking the <see cref="Arguments.Populate(string)"/> method.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class ArgumentAttribute : Attribute
+    {
+        #region Public Constructors
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ArgumentAttribute"/> class.
+        /// </summary>
+        /// <param name="shortName">The short name of the argument, represented as a single character.</param>
+        /// <param name="longName">The long name of the argument.</param>
+        public ArgumentAttribute(char shortName, string longName)
+        {
+            ShortName = shortName;
+            LongName = longName;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        /// <summary>
+        ///     Gets or sets the long name of the argument.
+        /// </summary>
+        public string LongName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the short name of the argument.
+        /// </summary>
+        public char ShortName { get; set; }
+
+        #endregion Public Properties
+    }
+
+    /// <summary>
     ///     Provides static methods used to retrieve the command line arguments with which the application was started.
     /// </summary>
-    public static class Arguments
+    public class Arguments
     {
         #region Private Fields
 
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
-        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\"[^\".]*\\\"|\\\'[^'.]*\\\')?";
+        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\"[^\".]*\\\"|\\\'[^'.]*\\\')?|([^- ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
 
         /// <summary>
         ///     The regular expression with which to parse argument-value groups.
@@ -74,6 +136,58 @@ namespace Utility.CommandLine
         private const string GroupRegEx = "^-[^-]+";
 
         #endregion Private Fields
+
+        #region Private Constructors
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Arguments"/> class with the specified argument dictionary and operand list.
+        /// </summary>
+        /// <param name="argumentDictionary">
+        ///     The dictionary containing the arguments and values specified in the command line arguments with which the
+        ///     application was started.
+        /// </param>
+        /// <param name="operands">
+        ///     The list containing the operands specified in the command line arguments with which the application was started.
+        /// </param>
+        private Arguments(Dictionary<string, string> argumentDictionary, List<string> operands)
+        {
+            ArgumentDictionary = argumentDictionary;
+            Operand = operands;
+        }
+
+        #endregion Private Constructors
+
+        #region Public Properties
+
+        /// <summary>
+        ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
+        ///     application was started.
+        /// </summary>
+        public Dictionary<string, string> ArgumentDictionary { get; private set; }
+
+        /// <summary>
+        ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
+        /// </summary>
+        public List<string> Operand { get; private set; }
+
+        #endregion Public Properties
+
+        #region Public Indexers
+
+        /// <summary>
+        ///     Gets the argument value corresponding to the specified key from the <see cref="ArgumentDictionary"/> property.
+        /// </summary>
+        /// <param name="index">The key for which the value is to be retrieved.</param>
+        /// <returns>The argument value corresponding to the specified key.</returns>
+        public string this[string index]
+        {
+            get
+            {
+                return ArgumentDictionary[index];
+            }
+        }
+
+        #endregion Public Indexers
 
         #region Public Methods
 
@@ -86,11 +200,11 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Dictionary<string, string> Parse(string commandLineString = "")
+        public static Arguments Parse(string commandLineString = "")
         {
             commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
 
-            return GetArgumentDictionary(commandLineString);
+            return new Arguments(GetArgumentDictionary(commandLineString), GetOperands(commandLineString));
         }
 
         /// <summary>
@@ -132,7 +246,7 @@ namespace Utility.CommandLine
         /// </param>
         public static void Populate(Dictionary<string, string> argumentDictionary)
         {
-            Populate(new StackFrame(1).GetMethod().DeclaringType, argumentDictionary);
+            Populate(new StackFrame(1).GetMethod().DeclaringType, new Arguments(argumentDictionary, new List<string>()));
         }
 
         /// <summary>
@@ -143,10 +257,11 @@ namespace Utility.CommandLine
         /// <param name="type">
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
         /// </param>
-        /// <param name="argumentDictionary">
-        ///     The dictionary containing the argument-value pairs with which the destination properties should be populated
+        /// <param name="arguments">
+        ///     The arguments object containing the dictionary containing the argument-value pairs with which the destination
+        ///     properties should be populated and the list of operands.
         /// </param>
-        public static void Populate(Type type, Dictionary<string, string> argumentDictionary)
+        public static void Populate(Type type, Arguments arguments)
         {
             // fetch any properties in the specified type marked with the ArgumentAttribute attribute
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);
@@ -155,14 +270,14 @@ namespace Utility.CommandLine
             foreach (string propertyName in properties.Keys)
             {
                 // if the argument dictionary contains a matching argument
-                if (argumentDictionary.ContainsKey(propertyName))
+                if (arguments.ArgumentDictionary.ContainsKey(propertyName))
                 {
                     // retrieve the property and type
                     PropertyInfo property = properties[propertyName];
                     Type propertyType = property.PropertyType;
 
                     // retrieve the value from the argument dictionary
-                    string value = argumentDictionary[propertyName];
+                    string value = arguments.ArgumentDictionary[propertyName];
 
                     object convertedValue;
 
@@ -200,21 +315,6 @@ namespace Utility.CommandLine
         #region Private Methods
 
         /// <summary>
-        ///     Adds the specified key to the specified dictionary with the specified value, but only if the specified key is not
-        ///     already present in the dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary to which they specified key and value are to be added.</param>
-        /// <param name="key">The key to add to the dictionary.</param>
-        /// <param name="value">The value corresponding to the specified key.</param>
-        private static void ExclusiveAdd(this Dictionary<string, string> dictionary, string key, string value)
-        {
-            if (!dictionary.ContainsKey(key))
-            {
-                dictionary.Add(key, value);
-            }
-        }
-
-        /// <summary>
         ///     Populates and returns a dictionary containing the values specified in the command line arguments with which the
         ///     application was started, keyed by argument name.
         /// </summary>
@@ -230,6 +330,12 @@ namespace Utility.CommandLine
             // iterate over the collection of matches to the parsing regular expression
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
+                // a match on a key/value pair contains three groups
+                if (match.Groups.Count != 4)
+                {
+                    continue;
+                }
+
                 string fullMatch = match.Groups[0].Value;
                 string argument = match.Groups[1].Value;
                 string value = match.Groups[2].Value;
@@ -302,43 +408,93 @@ namespace Utility.CommandLine
             return properties;
         }
 
+        /// <summary>
+        ///     Populates and returns a list containing the operands specified in the command line arguments with which the
+        ///     application was started.
+        /// </summary>
+        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
+        /// <returns>
+        ///     A list containing the operands specified in the command line arguments with which the application was started.
+        /// </returns>
+        private static List<string> GetOperands(string commandLineString)
+        {
+            List<string> operands = new List<string>();
+
+            // iterate over the collection of matches to the parsing regular expression
+            foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
+            {
+                // an operand match has two groups.
+                if (match.Groups.Count != 4)
+                {
+                    continue;
+                }
+
+                string fullMatch = match.Groups[0].Value;
+                string operand = match.Groups[4].Value;
+
+                operand = TrimOuterQuotes(operand);
+
+                operands.Add(operand);
+            }
+
+            return operands;
+        }
+
+        /// <summary>
+        ///     Retrieves the property in the target <see cref="Type"/> marked with the
+        ///     <see cref="OperandsAttribute"/><see cref="Attribute"/>, if one exists.
+        /// </summary>
+        /// <remarks>
+        ///     The target property <see cref="Type"/> of the designated property must be of type string[] or List{string}.
+        /// </remarks>
+        /// <param name="type">The Type for which the matching property is to be retrieved.</param>
+        /// <returns>The matching property, if one exists.</returns>
+        /// <exception cref="InvalidCastException">
+        ///     Thrown when the Type of the retrieved property is not string[] or List{string}.
+        /// </exception>
+        private static PropertyInfo GetOperandsProperty(Type type)
+        {
+            PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
+                .Where(p => p.CustomAttributes
+                    .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name))
+                        .FirstOrDefault();
+
+            if (property.PropertyType != typeof(string[]) || property.PropertyType != typeof(List<string>))
+            {
+                throw new InvalidCastException("The target for the Operands attribute must be a string[] or List<string>.");
+            }
+
+            return property;
+        }
+
+        /// <summary>
+        ///     Returns the specified string with outer single or double quotes trimmed, if the string starts and ends with them.
+        /// </summary>
+        /// <param name="value">The string from which to trim outer single or double quotes.</param>
+        /// <returns>The string with outer single or double quotes trimmed.</returns>
+        private static string TrimOuterQuotes(string value)
+        {
+            if (value.StartsWith("\"") && value.EndsWith("\""))
+            {
+                value = value.Trim('"');
+            }
+            else if (value.StartsWith("'") && value.EndsWith("'"))
+            {
+                value = value.Trim('\'');
+            }
+
+            return value;
+        }
+
         #endregion Private Methods
     }
 
     /// <summary>
-    ///     Indicates that the property is to be used as a target for automatic population of values from command line arguments
-    ///     when invoking the <see cref="Arguments.Populate(string)"/> method.
+    ///     Indicates that the property is to be used as the target for automatic population of command line operands when invoking
+    ///     the <see cref="Arguments.Populate(string)"/> method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class ArgumentAttribute : Attribute
+    public class OperandsAttribute : Attribute
     {
-        #region Public Constructors
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ArgumentAttribute"/> class.
-        /// </summary>
-        /// <param name="shortName">The short name of the argument, represented as a single character.</param>
-        /// <param name="longName">The long name of the argument.</param>
-        public ArgumentAttribute(char shortName, string longName)
-        {
-            ShortName = shortName;
-            LongName = longName;
-        }
-
-        #endregion Public Constructors
-
-        #region Public Properties
-
-        /// <summary>
-        ///     Gets or sets the long name of the argument.
-        /// </summary>
-        public string LongName { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the short name of the argument.
-        /// </summary>
-        public char ShortName { get; set; }
-
-        #endregion Public Properties
     }
 }

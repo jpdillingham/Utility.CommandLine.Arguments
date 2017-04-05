@@ -76,7 +76,6 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="ArgumentAttribute.cs" />
     <Compile Include="Arguments.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

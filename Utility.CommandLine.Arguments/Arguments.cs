@@ -146,13 +146,13 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </param>
-        /// <param name="operands">
+        /// <param name="operandList">
         ///     The list containing the operands specified in the command line arguments with which the application was started.
         /// </param>
-        private Arguments(Dictionary<string, string> argumentDictionary, List<string> operands)
+        private Arguments(Dictionary<string, string> argumentDictionary, List<string> operandList)
         {
             ArgumentDictionary = argumentDictionary;
-            Operand = operands;
+            OperandList = operandList;
         }
 
         #endregion Private Constructors
@@ -168,7 +168,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
         /// </summary>
-        public List<string> Operand { get; private set; }
+        public List<string> OperandList { get; private set; }
 
         #endregion Public Properties
 
@@ -308,6 +308,17 @@ namespace Utility.CommandLine
                     property.SetValue(null, convertedValue);
                 }
             }
+
+            PropertyInfo operandsProperty = GetOperandsProperty(type);
+
+            if (operandsProperty.PropertyType.IsAssignableFrom(typeof(List<string>)))
+            {
+                operandsProperty.SetValue(null, arguments.OperandList);
+            }
+            else
+            {
+                operandsProperty.SetValue(null, arguments.OperandList.ToArray());
+            }
         }
 
         #endregion Public Methods
@@ -327,11 +338,10 @@ namespace Utility.CommandLine
         {
             Dictionary<string, string> argumentDictionary = new Dictionary<string, string>();
 
-            // iterate over the collection of matches to the parsing regular expression
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
-                // a match on a key/value pair contains three groups
-                if (match.Groups.Count != 4)
+                // the first match of the regular expression used to parse the string will contain the argument name, if one was matched.
+                if (match.Groups[1].Value == default(string) || match.Groups[1].Value == string.Empty)
                 {
                     continue;
                 }
@@ -340,15 +350,7 @@ namespace Utility.CommandLine
                 string argument = match.Groups[1].Value;
                 string value = match.Groups[2].Value;
 
-                // trim outer quotes, if present
-                if (value.StartsWith("\"") && value.EndsWith("\""))
-                {
-                    value = value.Trim('"');
-                }
-                else if (value.StartsWith("'") && value.EndsWith("'"))
-                {
-                    value = value.Trim('\'');
-                }
+                value = TrimOuterQuotes(value);
 
                 // check to see if the argument uses a single dash. if so, split the argument name into a char array and add each
                 // to the dictionary. if a value is specified, it belongs to the final character.
@@ -385,7 +387,6 @@ namespace Utility.CommandLine
         {
             Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
 
-            // iterate over the private static properties in the specified type
             foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Static))
             {
                 // attempt to fetch the ArgumentAttribute of the property
@@ -420,21 +421,18 @@ namespace Utility.CommandLine
         {
             List<string> operands = new List<string>();
 
-            // iterate over the collection of matches to the parsing regular expression
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
-                // an operand match has two groups.
-                if (match.Groups.Count != 4)
+                // the 4th match of the regular expression used to parse the string will contain the operand, if one was matched.
+                if (match.Groups[3].Value == default(string) || match.Groups[3].Value == string.Empty)
                 {
                     continue;
                 }
 
                 string fullMatch = match.Groups[0].Value;
-                string operand = match.Groups[4].Value;
+                string operand = match.Groups[3].Value;
 
-                operand = TrimOuterQuotes(operand);
-
-                operands.Add(operand);
+                operands.Add(TrimOuterQuotes(operand));
             }
 
             return operands;
@@ -459,9 +457,9 @@ namespace Utility.CommandLine
                     .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name))
                         .FirstOrDefault();
 
-            if (property.PropertyType != typeof(string[]) || property.PropertyType != typeof(List<string>))
+            if (property.PropertyType != typeof(string[]) && property.PropertyType != typeof(List<string>))
             {
-                throw new InvalidCastException("The target for the Operands attribute must be a string[] or List<string>.");
+                throw new InvalidCastException("The target for the Operands attribute must be of string[] or List<string>.");
             }
 
             return property;

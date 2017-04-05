@@ -1,6 +1,5 @@
 os:
   - linux
-  - osx
 language: csharp
 solution: Utility.CommandLine.Arguments.sln
 install:

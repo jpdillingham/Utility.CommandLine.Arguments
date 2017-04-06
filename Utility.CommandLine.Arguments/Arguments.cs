@@ -13,7 +13,8 @@
  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄  ▄▄ ▄▄   ▄▄▄▄ ▄▄     ▄▄     ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄ ▄
  █████████████████████████████████████████████████████████████ ███████████████ ██  ██ ██   ████ ██     ██     ████████████████ █ █
       ▄
-      █  Provides static methods used to retrieve the command line arguments with which the application was started.
+      █  Provides static methods used to retrieve the command line arguments and operands with which the application was started,
+      █  as well as a Type to contain them.
       █
       █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀ ▀ ▀▀▀     ▀▀               ▀
       █  The MIT License (MIT)
@@ -119,7 +120,8 @@ namespace Utility.CommandLine
     }
 
     /// <summary>
-    ///     Provides static methods used to retrieve the command line arguments with which the application was started.
+    ///     Provides static methods used to retrieve the command line arguments and operands with which the application was
+    ///     started, as well as a Type to contain them.
     /// </summary>
     public class Arguments
     {
@@ -258,7 +260,7 @@ namespace Utility.CommandLine
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
         /// </param>
         /// <param name="arguments">
-        ///     The arguments object containing the dictionary containing the argument-value pairs with which the destination
+        ///     The Arguments object containing the dictionary containing the argument-value pairs with which the destination
         ///     properties should be populated and the list of operands.
         /// </param>
         public static void Populate(Type type, Arguments arguments)
@@ -266,7 +268,6 @@ namespace Utility.CommandLine
             // fetch any properties in the specified type marked with the ArgumentAttribute attribute
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);
 
-            // iterate over the property dictionary
             foreach (string propertyName in properties.Keys)
             {
                 // if the argument dictionary contains a matching argument
@@ -423,7 +424,7 @@ namespace Utility.CommandLine
 
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
-                // the 4th match of the regular expression used to parse the string will contain the operand, if one was matched.
+                // the 3rd match of the regular expression used to parse the string will contain the operand, if one was matched.
                 if (match.Groups[3].Value == default(string) || match.Groups[3].Value == string.Empty)
                 {
                     continue;

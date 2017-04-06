@@ -55,10 +55,36 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
+
+[assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed.")]
 
 namespace Utility.CommandLine.Tests
 {
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.ArgumentAttribute"/> class.
+    /// </summary>
+    [Collection("ArgumentAttribute")]
+    public class ArgumentAttribute
+    {
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the constructor and all properties.
+        /// </summary>
+        [Fact]
+        public void Constructor()
+        {
+            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute('n', "name");
+
+            Assert.Equal('n', test.ShortName);
+            Assert.Equal("name", test.LongName);
+        }
+
+        #endregion Public Methods
+    }
+
     /// <summary>
     ///     Unit tests for the <see cref="Utility.CommandLine.Arguments"/> class.
     /// </summary>
@@ -91,6 +117,12 @@ namespace Utility.CommandLine.Tests
         private static string NonArgumentProperty { get; set; }
 
         /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Operands]
+        private static List<string> Operands { get; set; }
+
+        /// <summary>
         ///     Gets or sets a property with an attribute other than Argument
         /// </summary>
         [Obsolete]
@@ -113,12 +145,24 @@ namespace Utility.CommandLine.Tests
         #region Public Methods
 
         /// <summary>
+        ///     Tests the <see cref="Indexer"/> of <see cref="Utility.CommandLine.Arguments"/>.
+        /// </summary>
+        [Fact]
+        public void Indexer()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one --two three");
+
+            Assert.Equal("one", test["test"]);
+            Assert.Equal("three", test["two"]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with the default values.
         /// </summary>
         [Fact]
         public void Parse()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse();
+            Dictionary<string, string> test = CommandLine.Arguments.Parse().ArgumentDictionary;
 
             Assert.NotEmpty(test);
         }
@@ -130,7 +174,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseCaseSensitive()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc");
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("TEST"));
             Assert.False(test.ContainsKey("test"));
@@ -146,13 +190,13 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an exclicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing values with inner quoted strings.
         /// </summary>
         [Fact]
         public void ParseInnerQuotedStrings()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'");
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
 
             Assert.Equal("test \'1\'", test["test1"]);
             Assert.Equal("test \"2\"", test["test2"]);
@@ -165,7 +209,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseLongAndShortMix()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4");
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
 
             Assert.Equal("1", test["one"]);
             Assert.True(test.ContainsKey("a"));
@@ -176,18 +220,71 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a mixture of arguments and operands.
+        /// </summary>
+        [Fact]
+        public void ParseMixedArgumentsAndOperands()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two --three four");
+
+            Assert.Equal("one", test.ArgumentDictionary["test"]);
+            Assert.Equal("two", test.OperandList[0]);
+            Assert.Equal("four", test.ArgumentDictionary["three"]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing multiple pairs of arguments containing quoted values.
         /// </summary>
         [Fact]
         public void ParseMultipleQuotes()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'");
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
 
             Assert.Equal("1", test["test1"]);
             Assert.Equal("2", test["test2"]);
             Assert.Equal("3", test["test3"]);
             Assert.Equal("4", test["test4"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string containing only a series
+        ///     of operands.
+        /// </summary>
+        [Fact]
+        public void ParseOnlyOperands()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("hello world!");
+
+            Assert.Equal(2, test.OperandList.Count);
+            Assert.Equal("hello", test.OperandList[0]);
+            Assert.Equal("world!", test.OperandList[1]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string containing an operand.
+        /// </summary>
+        [Fact]
+        public void ParseOperand()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two");
+
+            Assert.Equal("one", test.ArgumentDictionary["test"]);
+            Assert.Equal("two", test.OperandList[0]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string containing multiple operands.
+        /// </summary>
+        [Fact]
+        public void ParseOperands()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two three four");
+
+            Assert.Equal(3, test.OperandList.Count);
+            Assert.Equal("two", test.OperandList[0]);
+            Assert.Equal("three", test.OperandList[1]);
+            Assert.Equal("four", test.OperandList[2]);
         }
 
         /// <summary>
@@ -197,7 +294,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseShorts()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'");
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("a"));
             Assert.Equal(string.Empty, test["a"]);
@@ -216,7 +313,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStringOfLongs()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'");
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
@@ -269,6 +366,19 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit command line
+        ///     string containing two operands.
+        /// </summary>
+        [Fact]
+        public void PopulateOperands()
+        {
+            CommandLine.Arguments.Populate(GetType(), "--test one two three");
+
+            Assert.Equal("two", Operands[0]);
+            Assert.Equal("three", Operands[1]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit command line string
         ///     containing multiple short names.
         /// </summary>
@@ -316,6 +426,102 @@ namespace Utility.CommandLine.Tests
 
             Assert.NotNull(ex);
             Assert.IsType<ArgumentException>(ex);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.OperandsAttribute"/> class.
+    /// </summary>
+    [Collection("OperandsAttribute")]
+    public class OperandsAttribute
+    {
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the constructor and all properties.
+        /// </summary>
+        [Fact]
+        public void Constructor()
+        {
+            CommandLine.OperandsAttribute test = new CommandLine.OperandsAttribute();
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>
+    ///     Used to facilitate testing of a property marked with the Operands attribute which is not of type string[] or List{string}
+    /// </remarks>
+    [Collection("Arguments")]
+    public class TestClassWithArrayOperands
+    {
+        #region Private Properties
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Operands]
+        private static string[] Operands { get; set; }
+
+        #endregion Private Properties
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing two operands, and with a Type containing a property of type <see cref="string[]"/> marked with the
+        ///     <see cref="Operands"/> attribute.
+        /// </summary>
+        [Fact]
+        public void PopulateOperands()
+        {
+            CommandLine.Arguments.Populate(GetType(), "one two");
+
+            Assert.Equal("one", Operands[0]);
+            Assert.Equal("two", Operands[1]);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>
+    ///     Used to facilitate testing of a property marked with the Operands attribute which is not of type string[] or List{string}
+    /// </remarks>
+    [Collection("Arguments")]
+    public class TestClassWithBadOperands
+    {
+        #region Private Properties
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether .. nothing actually. this is a test and this documentation is appeasing StyleCop.
+        /// </summary>
+        [CommandLine.Operands]
+        private static bool Operands { get; set; }
+
+        #endregion Private Properties
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing two operands, and with a Type containing a property marked with the <see cref="Operands"/> attribute but
+        ///     that is not of type <see cref="string[]"/> or <see cref="List{string}&gt;"/>}"/&gt; .
+        /// </summary>
+        [Fact]
+        public void PopulateOperands()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "one two"));
+
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidCastException>(ex);
         }
 
         #endregion Public Methods

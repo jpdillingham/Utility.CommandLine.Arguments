@@ -20,6 +20,9 @@ namespace Examples
         [Argument('i', "integer")]
         private static int Int { get; set; }
 
+        [Operands]
+        private static string[] Operands { get; set; }
+
         [Argument('s', "string")]
         private static string String { get; set; }
 
@@ -71,7 +74,7 @@ namespace Examples
             Console.WriteLine("\r\nArgument\tValue");
             Console.WriteLine("-------\t\t-------");
 
-            Dictionary<string, string> argumentDictionary = Arguments.Parse(commandLine);
+            Dictionary<string, string> argumentDictionary = Arguments.Parse(commandLine).ArgumentDictionary;
 
             foreach (string key in argumentDictionary.Keys)
             {
@@ -85,6 +88,13 @@ namespace Examples
             Console.WriteLine("Bool\t\t" + Bool);
             Console.WriteLine("Int\t\t" + Int);
             Console.WriteLine("Double\t\t" + Double);
+
+            Console.WriteLine("\r\nOperands\n-------");
+
+            for (int i = 0; i < Operands.Length; i++)
+            {
+                Console.WriteLine(i + ".\t" + Operands[i]);
+            }
         }
 
         /// <summary>

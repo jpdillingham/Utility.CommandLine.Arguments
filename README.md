@@ -18,6 +18,8 @@ Install from the NuGet gallery GUI or with the Package Manager Console using the
 
 ```Install-Package Utility.CommandLine.Arguments```
 
+The code is also designed to be incorporated into your project as a single source file (Arguments.cs).
+
 ## Quick Start
 
 Create private static properties in the class containing your ```Main()``` and mark them with the ```Argument``` attribute, assigning short and long names.  Invoke
@@ -41,6 +43,9 @@ internal class Program
     [Argument('s', "string")]
     private static string String { get; set; }
 
+    [Operands]
+    private static string[] Operands { get; set; }
+
     private static void Main(string[] args)
     {
         Arguments.Populate();
@@ -49,6 +54,11 @@ internal class Program
         Console.WriteLine("Bool: " + Bool);
         Console.WriteLine("Int: " + Int);
         Console.WriteLine("Double: " + Double);
+
+        foreach (string operand in Operands) 
+        {
+            Console.WriteLine("\r\n Operand:" + operand);
+        }
     }
 }
 ```
@@ -61,7 +71,7 @@ located [here](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap1
 
 Each argument is treated as a key-value pair, regardless of whether a value is present.  The general format is as follows:
 
-```<-|--|/>argument-name<=|:| >["|']value['|"]```
+```<-|--|/>argument-name<=|:| >["|']value['|"] [operand] ... [operand]```
 
 The key-value pair may begin with a single dash, a pair of dashes (double dash), or a forward slash.  Single and double dashes indicate the use of short
 or long names, respectively, which are covered below.  The forward slash may represent either, but does not allow for the grouping of parameterless
@@ -72,6 +82,9 @@ The argument name may be a single character when using short names, or any alpha
 The value delimiter may be an equals sign, a colon, or a space.
 
 Values may be any alphanumeric sequence, however if a value contains a space it must be enclosed in either single or double quotes.
+
+Any word, or phrase enclosed in single or double quotes, will be parsed as an operand.  The official specification requires operands to appear last, however this library will
+parse them in any position.
 
 ### Short Names
 
@@ -143,6 +156,23 @@ c | foo
 hello | world
 new | slashes are ok too
 
+### Operands
+
+Any text in the string that doesn't match the argument-value format is considered an operand.
+
+#### Example
+
+```-a foo bar "hello world" -b```
+
+Key | Value
+--- | ---
+a | foo
+b | 
+
+Operands
+1. bar
+2. "hello world"
+
 ## Parsing
 
 Argument key-value pairs can be parsed from any string using the ```Parse(string)``` method.  This method returns a 
@@ -175,6 +205,9 @@ whether the argument was encountered in the command line arguments.  All other v
 The ```Populate()``` method uses reflection to populate private static properties in the target Type with the argument
 values matching properties marked with the ```Argument``` attribute.
 
+The list of operands is placed into a single property marked with the ```Operands``` attribute.  This property must be
+of type ```string[]``` or ```List<string>```.
+
 ### Creating Target Properties
 
 Use the ```Argument``` attribute to designate properties to be populated.  The constructor of ```Argument``` accepts a ```char``` and a 
@@ -184,6 +217,9 @@ Note that the name of the property doesn't matter; only the attribute values are
 
 The Type of the property does matter; the code attempts to convert argument values from string to the specified Type, and if the conversion fails
 an ```ArgumentException``` is thrown.
+
+The ```Operands``` property accepts no parameters.  If the property type is not ```string[]``` or ```List<string>```, an 
+```InvalidCastException``` will be thrown.
 
 #### Examples
 
@@ -196,6 +232,9 @@ private static integer MyNumber { get; set; }
 
 [Argument('b', "bool")]
 private static bool TrueOrFalse { get; set; }
+
+[Operands]
+private static List<string> Operands { get; set; }
 ```
 
 Given the argument string ```-bf "bar" --number=5```, the resulting property values would be as follows:

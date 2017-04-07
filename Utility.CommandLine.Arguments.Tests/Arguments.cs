@@ -325,6 +325,19 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
+        ///     containing arguments with values enclosed in quotes and containing a period.
+        /// </summary>
+        [Fact]
+        public void ParseValueWithQuotedPeriod()
+        {
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2.'").ArgumentDictionary;
+
+            Assert.Equal("test.test", test["test"]);
+            Assert.Equal("test2.test2", test["test2"]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with the default values.
         /// </summary>
         [Fact]

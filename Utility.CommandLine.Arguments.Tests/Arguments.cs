@@ -331,7 +331,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueWithQuotedPeriod()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2.'").ArgumentDictionary;
+            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
 
             Assert.Equal("test.test", test["test"]);
             Assert.Equal("test2.test2", test["test2"]);

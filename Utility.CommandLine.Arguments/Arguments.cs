@@ -312,13 +312,18 @@ namespace Utility.CommandLine
 
             PropertyInfo operandsProperty = GetOperandsProperty(type);
 
-            if (operandsProperty.PropertyType.IsAssignableFrom(typeof(List<string>)))
+            // check to ensure the target class has a property marked with the Operands attribute; if not GetOperandsProperty()
+            // will return null.
+            if (operandsProperty != default(PropertyInfo))
             {
-                operandsProperty.SetValue(null, arguments.OperandList);
-            }
-            else
-            {
-                operandsProperty.SetValue(null, arguments.OperandList.ToArray());
+                if (operandsProperty.PropertyType.IsAssignableFrom(typeof(List<string>)))
+                {
+                    operandsProperty.SetValue(null, arguments.OperandList);
+                }
+                else
+                {
+                    operandsProperty.SetValue(null, arguments.OperandList.ToArray());
+                }
             }
         }
 
@@ -458,7 +463,7 @@ namespace Utility.CommandLine
                     .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name))
                         .FirstOrDefault();
 
-            if (property.PropertyType != typeof(string[]) && property.PropertyType != typeof(List<string>))
+            if (property != default(PropertyInfo) && property.PropertyType != typeof(string[]) && property.PropertyType != typeof(List<string>))
             {
                 throw new InvalidCastException("The target for the Operands attribute must be of string[] or List<string>.");
             }

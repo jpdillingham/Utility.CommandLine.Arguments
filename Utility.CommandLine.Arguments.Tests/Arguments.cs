@@ -539,4 +539,28 @@ namespace Utility.CommandLine.Tests
 
         #endregion Public Methods
     }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class with no properties.</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithNoProperties
+    {
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single argument/value pair, and with a Type containing no properties.
+        /// </summary>
+        [Fact]
+        public void Populate()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--hello world one two"));
+
+            Assert.Null(ex);
+        }
+
+        #endregion Public Methods
+    }
 }

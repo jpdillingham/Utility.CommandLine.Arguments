@@ -74,7 +74,7 @@ namespace Examples
             Console.WriteLine("\r\nArgument\tValue");
             Console.WriteLine("-------\t\t-------");
 
-            Dictionary<string, List<string>> argumentDictionary = Arguments.Parse(commandLine).ArgumentDictionary;
+            Dictionary<string, ArgumentValue> argumentDictionary = Arguments.Parse(commandLine).ArgumentDictionary;
 
             foreach (string key in argumentDictionary.Keys)
             {

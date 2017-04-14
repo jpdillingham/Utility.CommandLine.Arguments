@@ -49,6 +49,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -80,6 +81,69 @@ namespace Utility.CommandLine
         }
 
         #endregion Internal Methods
+    }
+
+
+    public class ArgumentValue
+    {
+        private List<string> argumentValues;
+
+        public ArgumentValue()
+        {
+            this.argumentValues = new List<string>();
+        }
+
+        public ArgumentValue(List<string> values)
+        {
+            this.argumentValues = values;
+        }
+
+        public void AddValue(string value)
+        {
+            this.argumentValues.Add(value);
+        }
+
+        public bool IsEmpty {
+            get { return argumentValues == null || argumentValues.Count == 0; }
+            private set {}
+        }
+
+        public bool IsSingle
+        {
+            get { return argumentValues != null && argumentValues.Count == 1; }
+            private set { }
+        }
+
+        public bool IsMultiple
+        {
+            get { return argumentValues != null && argumentValues.Count > 1; }
+            private set { }
+        }
+
+        public int Count
+        {
+            get { return argumentValues.Count; }
+            private set {}
+        }
+
+
+        public string SingleValue
+        {
+            get { return IsSingle ? argumentValues[0] : null; }
+            set {}
+        }
+
+        public List<string> MultipleValues
+        {
+            get { return argumentValues; }
+            private set {}
+        }
+
+        public override string ToString()
+        {
+            return "("+this.argumentValues.Aggregate("", (v1, v2) => v1 + ", " + v2)+")";
+
+        }
     }
 
     /// <summary>
@@ -151,7 +215,7 @@ namespace Utility.CommandLine
         /// <param name="operandList">
         ///     The list containing the operands specified in the command line arguments with which the application was started.
         /// </param>
-        private Arguments(Dictionary<string, string> argumentDictionary, List<string> operandList)
+        private Arguments(Dictionary<string, ArgumentValue> argumentDictionary, List<string> operandList)
         {
             ArgumentDictionary = argumentDictionary;
             OperandList = operandList;
@@ -165,7 +229,7 @@ namespace Utility.CommandLine
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </summary>
-        public Dictionary<string, string> ArgumentDictionary { get; private set; }
+        public Dictionary<string, ArgumentValue> ArgumentDictionary { get; private set; }
 
         /// <summary>
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
@@ -181,7 +245,7 @@ namespace Utility.CommandLine
         /// </summary>
         /// <param name="index">The key for which the value is to be retrieved.</param>
         /// <returns>The argument value corresponding to the specified key.</returns>
-        public string this[string index]
+        public ArgumentValue this[string index]
         {
             get
             {
@@ -246,7 +310,7 @@ namespace Utility.CommandLine
         /// <param name="argumentDictionary">
         ///     The dictionary containing the argument-value pairs with which the destination properties should be populated
         /// </param>
-        public static void Populate(Dictionary<string, string> argumentDictionary)
+        public static void Populate(Dictionary<string, ArgumentValue> argumentDictionary)
         {
             Populate(new StackFrame(1).GetMethod().DeclaringType, new Arguments(argumentDictionary, new List<string>()));
         }
@@ -278,27 +342,60 @@ namespace Utility.CommandLine
                     Type propertyType = property.PropertyType;
 
                     // retrieve the value from the argument dictionary
-                    string value = arguments.ArgumentDictionary[propertyName];
+                    ArgumentValue values = arguments.ArgumentDictionary[propertyName];
 
                     object convertedValue;
+                    object newValue = null;
 
                     // if the type of the property is bool and the argument value is empty set the property value to true,
                     // indicating the argument is present
-                    if (propertyType == typeof(bool) && value == string.Empty)
+                    if (propertyType == typeof(bool) && values != null && values.IsSingle)
                     {
                         convertedValue = true;
+                        newValue = convertedValue;
                     }
                     else
                     {
                         // try to cast the argument value string to the destination type
                         try
                         {
-                            convertedValue = Convert.ChangeType(value, propertyType);
+                            if (values != null)
+                            {
+                                var name = "temp";
+                                var genList = typeof(List<>);
+                                var ssubgen = propertyType.IsSubclassOf(genList);
+                                var assignableFromIList = typeof(System.Collections.IList).IsAssignableFrom(propertyType);
+                                Console.WriteLine($"type {name} - subofgen:{ssubgen} - assignable:{assignableFromIList}");
+
+                                if (!assignableFromIList)
+                                {
+                                    if (!values.IsEmpty)
+                                    {
+                                        string single = values.SingleValue;
+                                        convertedValue = Convert.ChangeType(single, propertyType);
+                                        newValue = convertedValue;
+                                    }
+                                }
+                                else
+                                {
+                                    Type itemType = propertyType.GetGenericArguments()[0];
+                                    var listType = typeof(List<>);
+                                    var constructedListType = listType.MakeGenericType(itemType);
+                                    var instance = Activator.CreateInstance(constructedListType);
+                                    System.Collections.IList population =(System.Collections.IList)instance;
+                                    foreach (string v in values.MultipleValues)
+                                    {
+                                        convertedValue = Convert.ChangeType(v, itemType);
+                                        population.Add(convertedValue);
+                                    }
+                                    newValue = population;
+                                }
+                            }
                         }
                         catch (Exception ex)
                         {
                             // if the cast fails, throw an exception
-                            string message = $"Specified value '{value}' for argument '{propertyName}' (type: {property.PropertyType.Name}).  ";
+                            string message = $"Specified value '{values?.ToString()}' for argument '{propertyName}' (type: {property.PropertyType.Name}).  ";
                             message += "See inner exception for details.";
 
                             throw new ArgumentException(message, ex);
@@ -306,7 +403,7 @@ namespace Utility.CommandLine
                     }
 
                     // set the target properties' value to the converted value from the argument string
-                    property.SetValue(null, convertedValue);
+                    property.SetValue(null, newValue);
                 }
             }
 
@@ -340,9 +437,9 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        private static Dictionary<string, string> GetArgumentDictionary(string commandLineString)
+        private static Dictionary<string, ArgumentValue> GetArgumentDictionary(string commandLineString)
         {
-            Dictionary<string, string> argumentDictionary = new Dictionary<string, string>();
+            Dictionary<string, ArgumentValue> argumentDictionary = new Dictionary<string, ArgumentValue>();
 
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
@@ -367,17 +464,30 @@ namespace Utility.CommandLine
                     // iterate over the characters backwards to more easily assign the value
                     for (int i = 0; i < charArray.Length; i++)
                     {
-                        argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
+                        AddArgValue(argumentDictionary,charArray[i].ToString(),i == charArray.Length - 1 ? value : string.Empty);
+//                        argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
                     }
                 }
                 else
                 {
                     // add the argument and value to the dictionary if it doesn't already exist.
-                    argumentDictionary.ExclusiveAdd(argument, value);
+                   AddArgValue(argumentDictionary,argument,value);
                 }
             }
 
             return argumentDictionary;
+        }
+
+
+        private static void AddArgValue(Dictionary<string, ArgumentValue> args, string name, string value)
+        {
+            ArgumentValue values = new ArgumentValue();
+            if (args.ContainsKey(name))
+            {
+                values = args[name];
+            }
+            values.AddValue(value);
+            args[name] = values;
         }
 
         /// <summary>

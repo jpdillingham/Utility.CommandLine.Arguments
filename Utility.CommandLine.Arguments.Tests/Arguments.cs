@@ -56,7 +56,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xunit;
+using Assert = Xunit.Assert;
 
 [assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed.")]
 
@@ -111,6 +113,12 @@ namespace Utility.CommandLine.Tests
         [CommandLine.Argument('c', "case-sensitive")]
         private static string LowerCase { get; set; }
 
+        [CommandLine.Argument('m', "multiStr")]
+        private static List<string> MultiStr { get; set; }
+
+        [CommandLine.Argument('z', "multiInt")]
+        private static List<int> MultiInt { get; set; }
+
         /// <summary>
         ///     Gets or sets a property with no attribute.
         /// </summary>
@@ -152,8 +160,8 @@ namespace Utility.CommandLine.Tests
         {
             CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one --two three");
 
-            Assert.Equal("one", test["test"]);
-            Assert.Equal("three", test["two"]);
+            Assert.Equal("one", test["test"].SingleValue);
+            Assert.Equal("three", test["two"].SingleValue);
         }
 
         /// <summary>
@@ -162,9 +170,40 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Parse()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse().ArgumentDictionary;
-
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse().ArgumentDictionary;
+            ;
             Assert.NotEmpty(test);
+        }
+
+        [Fact]
+        public void ParseMultiValue()
+        {
+            string args = "--multiStr a --multiStr bb --multiStr ccc --multiInt 1 --multiInt 2 --multiInt 3";
+            CommandLine.Arguments test = CommandLine.Arguments.Parse(args);
+
+            Assert.True(test.ArgumentDictionary.ContainsKey("multiStr"));
+            ArgumentValue strvalues = test.ArgumentDictionary["multiStr"];
+            Assert.Equal(strvalues.Count, 3);
+            Assert.Equal(new List<string>() {"a","bb","ccc"}, strvalues.MultipleValues);
+            Assert.True(test.ArgumentDictionary.ContainsKey("multiInt"));
+            ArgumentValue intvalues = test.ArgumentDictionary["multiInt"];
+            Assert.Equal(intvalues.Count, 3);
+            Assert.Equal(new List<string>() {"1","2","3"}, intvalues.MultipleValues);
+        }
+
+        [Fact]
+        public void PopulateMultiValue()
+        {
+            string args = "--multiStr a --multiStr bb --multiStr ccc --multiInt 1 --multiInt 2 --multiInt 3";
+            CommandLine.Arguments.Populate(args);
+            Assert.NotEmpty(MultiStr);
+            Assert.Equal(3,MultiStr.Count);
+            Assert.Equal(new List<string>() {"a","bb","ccc"}, MultiStr);
+            Assert.NotEmpty(MultiInt);
+            Assert.Equal(3,MultiStr.Count);
+            Assert.Equal(new List<int>() {1,2,3}, MultiInt);
+            ;
+
         }
 
         /// <summary>
@@ -174,7 +213,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseCaseSensitive()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("TEST"));
             Assert.False(test.ContainsKey("test"));
@@ -196,10 +235,10 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseInnerQuotedStrings()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
 
-            Assert.Equal("test \'1\'", test["test1"]);
-            Assert.Equal("test \"2\"", test["test2"]);
+            Assert.Equal("test \'1\'", test["test1"].SingleValue);
+            Assert.Equal("test \"2\"", test["test2"].SingleValue);
         }
 
         /// <summary>
@@ -209,14 +248,14 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseLongAndShortMix()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
 
-            Assert.Equal("1", test["one"]);
+            Assert.Equal("1", test["one"].SingleValue);
             Assert.True(test.ContainsKey("a"));
             Assert.True(test.ContainsKey("b"));
-            Assert.Equal("2", test["b"]);
-            Assert.Equal("3", test["three"]);
-            Assert.Equal("4", test["4"]);
+            Assert.Equal("2", test["b"].SingleValue);
+            Assert.Equal("3", test["three"].SingleValue);
+            Assert.Equal("4", test["4"].SingleValue);
         }
 
         /// <summary>
@@ -227,9 +266,9 @@ namespace Utility.CommandLine.Tests
         {
             CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two --three four");
 
-            Assert.Equal("one", test.ArgumentDictionary["test"]);
+            Assert.Equal("one", test.ArgumentDictionary["test"].SingleValue);
             Assert.Equal("two", test.OperandList[0]);
-            Assert.Equal("four", test.ArgumentDictionary["three"]);
+            Assert.Equal("four", test.ArgumentDictionary["three"].SingleValue);
         }
 
         /// <summary>
@@ -239,12 +278,12 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseMultipleQuotes()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
 
-            Assert.Equal("1", test["test1"]);
-            Assert.Equal("2", test["test2"]);
-            Assert.Equal("3", test["test3"]);
-            Assert.Equal("4", test["test4"]);
+            Assert.Equal("1", test["test1"].SingleValue);
+            Assert.Equal("2", test["test2"].SingleValue);
+            Assert.Equal("3", test["test3"].SingleValue);
+            Assert.Equal("4", test["test4"].SingleValue);
         }
 
         /// <summary>
@@ -269,7 +308,7 @@ namespace Utility.CommandLine.Tests
         {
             CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two");
 
-            Assert.Equal("one", test.ArgumentDictionary["test"]);
+            Assert.Equal("one", test.ArgumentDictionary["test"].SingleValue);
             Assert.Equal("two", test.OperandList[0]);
         }
 
@@ -294,16 +333,16 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseShorts()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("a"));
-            Assert.Equal(string.Empty, test["a"]);
+            Assert.Equal(string.Empty, test["a"].SingleValue);
 
             Assert.True(test.ContainsKey("b"));
-            Assert.Equal(string.Empty, test["b"]);
+            Assert.Equal(string.Empty, test["b"].SingleValue);
 
             Assert.True(test.ContainsKey("c"));
-            Assert.Equal("hello world", test["c"]);
+            Assert.Equal("hello world", test["c"].SingleValue);
         }
 
         /// <summary>
@@ -313,15 +352,15 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStringOfLongs()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
-            Assert.Equal("1", test["one"]);
-            Assert.Equal("2", test["two"]);
-            Assert.Equal("3", test["three"]);
-            Assert.Equal("4 4", test["four"]);
-            Assert.Equal("5 5", test["five"]);
+            Assert.Equal("1", test["one"].SingleValue);
+            Assert.Equal("2", test["two"].SingleValue);
+            Assert.Equal("3", test["three"].SingleValue);
+            Assert.Equal("4 4", test["four"].SingleValue);
+            Assert.Equal("5 5", test["five"].SingleValue);
         }
 
         /// <summary>
@@ -331,10 +370,10 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueWithQuotedPeriod()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
+            Dictionary<string, ArgumentValue> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
 
-            Assert.Equal("test.test", test["test"]);
-            Assert.Equal("test2.test2", test["test2"]);
+            Assert.Equal("test.test", test["test"].SingleValue);
+            Assert.Equal("test2.test2", test["test2"].SingleValue);
         }
 
         /// <summary>
@@ -370,8 +409,8 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateDictionary()
         {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            dict.Add("i", "1");
+            Dictionary<string, ArgumentValue> dict = new Dictionary<string, ArgumentValue>();
+            dict.Add("i", new ArgumentValue(new List<string>(){"1"}));
 
             CommandLine.Arguments.Populate(dict);
 

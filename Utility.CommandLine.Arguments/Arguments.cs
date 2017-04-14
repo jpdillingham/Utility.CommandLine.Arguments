@@ -61,27 +61,7 @@ namespace Utility.CommandLine
     /// <summary>
     ///     Provides extension method(s) for the Argument namespace.
     /// </summary>
-    public static class Extensions
-    {
-        #region Internal Methods
 
-        /// <summary>
-        ///     Adds the specified key to the specified dictionary with the specified value, but only if the specified key is not
-        ///     already present in the dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary to which they specified key and value are to be added.</param>
-        /// <param name="key">The key to add to the dictionary.</param>
-        /// <param name="value">The value corresponding to the specified key.</param>
-        internal static void ExclusiveAdd(this Dictionary<string, string> dictionary, string key, string value)
-        {
-            if (!dictionary.ContainsKey(key))
-            {
-                dictionary.Add(key, value);
-            }
-        }
-
-        #endregion Internal Methods
-    }
 
 
     public class ArgumentValue
@@ -103,46 +83,22 @@ namespace Utility.CommandLine
             this.argumentValues.Add(value);
         }
 
-        public bool IsEmpty {
-            get { return argumentValues == null || argumentValues.Count == 0; }
-            private set {}
-        }
+        public bool IsEmpty => argumentValues == null || argumentValues.Count == 0;
 
-        public bool IsSingle
-        {
-            get { return argumentValues != null && argumentValues.Count == 1; }
-            private set { }
-        }
+        public bool IsSingle => argumentValues != null && argumentValues.Count == 1;
 
-        public bool IsMultiple
-        {
-            get { return argumentValues != null && argumentValues.Count > 1; }
-            private set { }
-        }
+        public bool IsMultiple => argumentValues != null && argumentValues.Count > 1;
 
-        public int Count
-        {
-            get { return argumentValues.Count; }
-            private set {}
-        }
+        public int Count => argumentValues.Count;
 
 
-        public string SingleValue
-        {
-            get { return IsSingle ? argumentValues[0] : null; }
-            set {}
-        }
+        public string SingleValue => IsSingle ? argumentValues[0] : null;
 
-        public List<string> MultipleValues
-        {
-            get { return argumentValues; }
-            private set {}
-        }
+        public List<string> MultipleValues => argumentValues;
 
         public override string ToString()
         {
             return "("+this.argumentValues.Aggregate("", (v1, v2) => v1 + ", " + v2)+")";
-
         }
     }
 

@@ -87,8 +87,6 @@ namespace Utility.CommandLine
 
         public bool IsSingle => argumentValues != null && argumentValues.Count == 1;
 
-        public bool IsMultiple => argumentValues != null && argumentValues.Count > 1;
-
         public int Count => argumentValues.Count;
 
 

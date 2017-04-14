@@ -558,8 +558,7 @@ namespace Utility.CommandLine.Tests
         {
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--hello world"));
 
-            Assert.NotNull(ex);
-            Assert.IsType<InvalidCastException>(ex);
+            Assert.Null(ex);
         }
 
         /// <summary>
@@ -571,8 +570,7 @@ namespace Utility.CommandLine.Tests
         {
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "one two"));
 
-            Assert.NotNull(ex);
-            Assert.IsType<InvalidCastException>(ex);
+            Assert.Null(ex);
         }
 
         #endregion Public Methods

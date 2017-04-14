@@ -554,21 +554,9 @@ namespace Utility.CommandLine.Tests
         ///     containing a single argument/value pair, and with a Type containing no properties.
         /// </summary>
         [Fact]
-        public void PopulateArguments()
+        public void Populate()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--hello world"));
-
-            Assert.Null(ex);
-        }
-
-        /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
-        ///     containing two operands, and with a Type containing no properties.
-        /// </summary>
-        [Fact]
-        public void PopulateOperands()
-        {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "one two"));
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--hello world one two"));
 
             Assert.Null(ex);
         }

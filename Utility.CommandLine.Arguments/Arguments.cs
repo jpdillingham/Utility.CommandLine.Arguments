@@ -142,8 +142,8 @@ namespace Utility.CommandLine
         ///     operands, and strictly operands.
         /// </summary>
         /// <remarks>
-        ///     This regEx effectively splits a string into two parts; the part before the first "--", and the part after.
-        ///     Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
+        ///     This regular expression effectively splits a string into two parts; the part before the first "--", and the part
+        ///     after. Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?)[^\\\"\\\']\\B-{2}\\B[^\\\"\\\'](.*)";
 
@@ -228,18 +228,18 @@ namespace Utility.CommandLine
             MatchCollection matches = Regex.Matches(commandLineString, StrictOperandSplitRegEx);
 
             // if there is a match, the string contains the strict operand delimiter. parse the first and second matches accordingly.
-            if (matches.Count > 0)
+            if (matches.Count > 0 && matches[0].Groups.Count >= 1)
             {
                 // the first group of the first match will contain everything in the string prior to the strict operand delimiter,
                 // so extract the argument key/value pairs and list of operands from that string.
-                argumentDictionary = GetArgumentDictionary(matches[0].Groups[0].Value);
-                operandList = GetOperandList(matches[0].Groups[0].Value);
+                argumentDictionary = GetArgumentDictionary(matches[0].Groups[1].Value);
+                operandList = GetOperandList(matches[0].Groups[1].Value);
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
                 // extract the operands from that string using the strict method.
-                if (matches.Count > 1)
+                if (matches[0].Groups.Count > 1)
                 {
-                    List<string> operandListStrict = GetOperandListStrict(matches[1].Groups[0].Value);
+                    List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[2].Value);
 
                     // join the operand lists.
                     operandList.AddRange(operandListStrict);

@@ -137,6 +137,21 @@ namespace Utility.CommandLine
         /// </summary>
         private const string GroupRegEx = "^-[^-]+";
 
+        /// <summary>
+        ///     The regular expression with which to split the command line string explicitly among argument/value pairs and
+        ///     operands, and strictly operands.
+        /// </summary>
+        /// <remarks>
+        ///     This regular expression effectively splits a string into two parts; the part before the first "--", and the part
+        ///     after. Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
+        /// </remarks>
+        private const string StrictOperandSplitRegEx = "(.*?)[^\\\"\\\']\\B-{2}\\B[^\\\"\\\'](.*)";
+
+        /// <summary>
+        ///     The regular expression with which to parse strings strictly containing operands.
+        /// </summary>
+        private const string OperandRegEx = "([^ ([^'\\\"]+|\\\"[^\\\"]+\\\"|\\\'[^']+\\\')";
+
         #endregion Private Fields
 
         #region Private Constructors
@@ -206,7 +221,37 @@ namespace Utility.CommandLine
         {
             commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
 
-            return new Arguments(GetArgumentDictionary(commandLineString), GetOperands(commandLineString));
+            Dictionary<string, string> argumentDictionary;
+            List<string> operandList;
+
+            // use the strict operand regular expression to test for/extract the two halves of the string, if the operator is used.
+            MatchCollection matches = Regex.Matches(commandLineString, StrictOperandSplitRegEx);
+
+            // if there is a match, the string contains the strict operand delimiter. parse the first and second matches accordingly.
+            if (matches.Count > 0 && matches[0].Groups.Count >= 1)
+            {
+                // the first group of the first match will contain everything in the string prior to the strict operand delimiter,
+                // so extract the argument key/value pairs and list of operands from that string.
+                argumentDictionary = GetArgumentDictionary(matches[0].Groups[1].Value);
+                operandList = GetOperandList(matches[0].Groups[1].Value);
+
+                // the first group of the second match will contain everything in the string after the strict operand delimiter, so
+                // extract the operands from that string using the strict method.
+                if (matches[0].Groups.Count > 1)
+                {
+                    List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[2].Value);
+
+                    // join the operand lists.
+                    operandList.AddRange(operandListStrict);
+                }
+            }
+            else
+            {
+                argumentDictionary = GetArgumentDictionary(commandLineString);
+                operandList = GetOperandList(commandLineString);
+            }
+
+            return new Arguments(argumentDictionary, operandList);
         }
 
         /// <summary>
@@ -423,7 +468,7 @@ namespace Utility.CommandLine
         /// <returns>
         ///     A list containing the operands specified in the command line arguments with which the application was started.
         /// </returns>
-        private static List<string> GetOperands(string commandLineString)
+        private static List<string> GetOperandList(string commandLineString)
         {
             List<string> operands = new List<string>();
 
@@ -439,6 +484,28 @@ namespace Utility.CommandLine
                 string operand = match.Groups[3].Value;
 
                 operands.Add(TrimOuterQuotes(operand));
+            }
+
+            return operands;
+        }
+
+        /// <summary>
+        ///     Populates and returns a list containing the operands within the specified string grouped by whole words and groups
+        ///     of words contained within single or double quotes, treating strings that would otherwise be treated as argument
+        ///     keys as operands.
+        /// </summary>
+        /// <param name="operandListString">The string from which the list of operands is to be parsed.</param>
+        /// <returns>
+        ///     A list containing the operands within the specified string grouped by whole words and groups of words contained
+        ///     within single or double quotes, treating strings that would otherwise be treated as argument keys as operands.
+        /// </returns>
+        private static List<string> GetOperandListStrict(string operandListString)
+        {
+            List<string> operands = new List<string>();
+
+            foreach (Match match in Regex.Matches(operandListString, OperandRegEx))
+            {
+                operands.Add(match.Groups[0].Value);
             }
 
             return operands;

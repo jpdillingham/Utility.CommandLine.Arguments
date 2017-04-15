@@ -71,7 +71,7 @@ located [here](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap1
 
 Each argument is treated as a key-value pair, regardless of whether a value is present.  The general format is as follows:
 
-```<-|--|/>argument-name<=|:| >["|']value['|"] [operand] ... [operand]```
+```<-|--|/>argument-name<=|:| >["|']value['|"] [--] [operand] ... [operand]```
 
 The key-value pair may begin with a single dash, a pair of dashes (double dash), or a forward slash.  Single and double dashes indicate the use of short
 or long names, respectively, which are covered below.  The forward slash may represent either, but does not allow for the grouping of parameterless
@@ -85,6 +85,9 @@ Values may be any alphanumeric sequence, however if a value contains a space it 
 
 Any word, or phrase enclosed in single or double quotes, will be parsed as an operand.  The official specification requires operands to appear last, however this library will
 parse them in any position.
+
+A double-hyphen ```--```, not enclosed in single or double quotes, and appearing with whitespace on either side, designates the end of the argument list and beginning of 
+the operand list.  Anything appearing after this delimiter is treated as an operand, even if it begins with a hyphen, double-hyphen or forward slash.
 
 ### Short Names
 
@@ -158,11 +161,12 @@ new | slashes are ok too
 
 ### Operands
 
-Any text in the string that doesn't match the argument-value format is considered an operand.
+Any text in the string that doesn't match the argument-value format is considered an operand.  Any text which appears after a double-hyphen ```--```, not enclosed in single or double quotes, and with spaces on either side,
+is treated as an operand regardless of whether it matches the argument-value format.
 
 #### Example
 
-```-a foo bar "hello world" -b```
+```-a foo bar "hello world" -b -- -explicit operand```
 
 Key | Value
 --- | ---
@@ -172,6 +176,8 @@ b |
 Operands
 1. bar
 2. "hello world"
+3. -explicit
+4. operand
 
 ## Parsing
 

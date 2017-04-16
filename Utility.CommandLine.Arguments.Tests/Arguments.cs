@@ -494,6 +494,20 @@ namespace Utility.CommandLine.Tests
             Assert.IsType<ArgumentException>(ex);
         }
 
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a Type external to the
+        ///     calling class and with an explicit string.
+        /// </summary>
+        [Fact]
+        public void PopulateExternalClass()
+        {
+            CommandLine.Arguments.Populate(typeof(TestClassPublicProperties), "--test test! operand1 operand2");
+
+            Assert.Equal("test!", TestClassPublicProperties.Test);
+            Assert.Equal("operand1", TestClassPublicProperties.Operands[0]);
+            Assert.Equal("operand2", TestClassPublicProperties.Operands[1]);
+        }
+
         #endregion Public Methods
     }
 
@@ -532,7 +546,7 @@ namespace Utility.CommandLine.Tests
         ///     Gets or sets a test property.
         /// </summary>
         [CommandLine.Operands]
-        private static string[] Operands { get; set; }
+        public static string[] Operands { get; set; }
 
         #endregion Private Properties
 
@@ -615,5 +629,24 @@ namespace Utility.CommandLine.Tests
         }
 
         #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class with public properties.</remarks>
+    public class TestClassPublicProperties
+    {
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Argument('t', "test")]
+        public static string Test { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Operands]
+        public static string[] Operands { get; set; }
     }
 }

@@ -434,7 +434,7 @@ namespace Utility.CommandLine
         {
             Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
 
-            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Static))
+            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
             {
                 // attempt to fetch the ArgumentAttribute of the property
                 CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
@@ -521,7 +521,7 @@ namespace Utility.CommandLine
         /// </exception>
         private static PropertyInfo GetOperandsProperty(Type type)
         {
-            PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
+            PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 .Where(p => p.CustomAttributes
                     .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name))
                         .FirstOrDefault();

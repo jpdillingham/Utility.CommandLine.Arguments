@@ -237,7 +237,7 @@ namespace Utility.CommandLine
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
                 // extract the operands from that string using the strict method.
-                if (matches[0].Groups.Count > 1)
+                if (matches[0].Groups[2].Value != string.Empty)
                 {
                     List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[2].Value);
 

@@ -347,6 +347,19 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit operand delimiter, and
+        ///     nothing after the delimiter.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperandsEmpty()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- ");
+
+            Assert.Equal(1, test.OperandList.Count);
+            Assert.Equal("two", test.OperandList[0]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing only long parameters.
         /// </summary>

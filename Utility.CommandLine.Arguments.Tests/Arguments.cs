@@ -310,6 +310,18 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string coning a single operand
+        ///     which contains a dash.
+        /// </summary>
+        [Fact]
+        public void ParseDashedOperand()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("hello-world");
+
+            Assert.Equal("hello-world", test.OperandList[0]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing only short parameters.
         /// </summary>

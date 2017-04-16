@@ -168,24 +168,6 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit operand delimiter.
-        /// </summary>
-        [Fact]
-        public void ParseStrictOperands()
-        {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- three -four --five /six \"seven eight\" 'nine ten'");
-
-            Assert.Equal(7, test.OperandList.Count);
-            Assert.Equal("two", test.OperandList[0]);
-            Assert.Equal("three", test.OperandList[1]);
-            Assert.Equal("-four", test.OperandList[2]);
-            Assert.Equal("--five", test.OperandList[3]);
-            Assert.Equal("/six", test.OperandList[4]);
-            Assert.Equal("\"seven eight\"", test.OperandList[5]);
-            Assert.Equal("'nine ten'", test.OperandList[6]);
-        }
-
-        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing a mixture of upper and lower case arguments.
         /// </summary>
@@ -205,6 +187,17 @@ namespace Utility.CommandLine.Tests
 
             Assert.True(test.ContainsKey("c"));
             Assert.False(test.ContainsKey("C"));
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an empty string.
+        /// </summary>
+        [Fact]
+        public void ParseEmpty()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(string.Empty));
+
+            Assert.Null(ex);
         }
 
         /// <summary>
@@ -266,6 +259,17 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a null argument.
+        /// </summary>
+        [Fact]
+        public void ParseNull()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(null));
+
+            Assert.Null(ex);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string containing only a series
         ///     of operands.
         /// </summary>
@@ -322,6 +326,37 @@ namespace Utility.CommandLine.Tests
 
             Assert.True(test.ContainsKey("c"));
             Assert.Equal("hello world", test["c"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit operand delimiter.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperands()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- three -four --five /six \"seven eight\" 'nine ten'");
+
+            Assert.Equal(7, test.OperandList.Count);
+            Assert.Equal("two", test.OperandList[0]);
+            Assert.Equal("three", test.OperandList[1]);
+            Assert.Equal("-four", test.OperandList[2]);
+            Assert.Equal("--five", test.OperandList[3]);
+            Assert.Equal("/six", test.OperandList[4]);
+            Assert.Equal("\"seven eight\"", test.OperandList[5]);
+            Assert.Equal("'nine ten'", test.OperandList[6]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit operand delimiter, and
+        ///     nothing after the delimiter.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperandsEmpty()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- ");
+
+            Assert.Equal(1, test.OperandList.Count);
+            Assert.Equal("two", test.OperandList[0]);
         }
 
         /// <summary>
@@ -459,6 +494,20 @@ namespace Utility.CommandLine.Tests
             Assert.IsType<ArgumentException>(ex);
         }
 
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a Type external to the
+        ///     calling class and with an explicit string.
+        /// </summary>
+        [Fact]
+        public void PopulateExternalClass()
+        {
+            CommandLine.Arguments.Populate(typeof(TestClassPublicProperties), "--test test! operand1 operand2");
+
+            Assert.Equal("test!", TestClassPublicProperties.Test);
+            Assert.Equal("operand1", TestClassPublicProperties.Operands[0]);
+            Assert.Equal("operand2", TestClassPublicProperties.Operands[1]);
+        }
+
         #endregion Public Methods
     }
 
@@ -497,7 +546,7 @@ namespace Utility.CommandLine.Tests
         ///     Gets or sets a test property.
         /// </summary>
         [CommandLine.Operands]
-        private static string[] Operands { get; set; }
+        public static string[] Operands { get; set; }
 
         #endregion Private Properties
 
@@ -580,5 +629,24 @@ namespace Utility.CommandLine.Tests
         }
 
         #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class with public properties.</remarks>
+    public class TestClassPublicProperties
+    {
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Argument('t', "test")]
+        public static string Test { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Operands]
+        public static string[] Operands { get; set; }
     }
 }

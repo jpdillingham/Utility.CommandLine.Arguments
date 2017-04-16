@@ -138,6 +138,11 @@ namespace Utility.CommandLine
         private const string GroupRegEx = "^-[^-]+";
 
         /// <summary>
+        ///     The regular expression with which to parse strings strictly containing operands.
+        /// </summary>
+        private const string OperandRegEx = "([^ ([^'\\\"]+|\\\"[^\\\"]+\\\"|\\\'[^']+\\\')";
+
+        /// <summary>
         ///     The regular expression with which to split the command line string explicitly among argument/value pairs and
         ///     operands, and strictly operands.
         /// </summary>
@@ -146,11 +151,6 @@ namespace Utility.CommandLine
         ///     after. Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?)[^\\\"\\\']\\B-{2}\\B[^\\\"\\\'](.*)";
-
-        /// <summary>
-        ///     The regular expression with which to parse strings strictly containing operands.
-        /// </summary>
-        private const string OperandRegEx = "([^ ([^'\\\"]+|\\\"[^\\\"]+\\\"|\\\'[^']+\\\')";
 
         #endregion Private Fields
 
@@ -217,9 +217,9 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Arguments Parse(string commandLineString = "")
+        public static Arguments Parse(string commandLineString = default(string))
         {
-            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
+            commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
 
             Dictionary<string, string> argumentDictionary;
             List<string> operandList;
@@ -237,7 +237,7 @@ namespace Utility.CommandLine
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
                 // extract the operands from that string using the strict method.
-                if (matches[0].Groups.Count > 1)
+                if (matches[0].Groups[2].Value != string.Empty)
                 {
                     List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[2].Value);
 
@@ -260,10 +260,8 @@ namespace Utility.CommandLine
         ///     arguments, if present.
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(string commandLineString = "")
+        public static void Populate(string commandLineString = default(string))
         {
-            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
-
             Populate(new StackFrame(1).GetMethod().DeclaringType, Parse(commandLineString));
         }
 
@@ -276,10 +274,8 @@ namespace Utility.CommandLine
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
         /// </param>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(Type type, string commandLineString = "")
+        public static void Populate(Type type, string commandLineString = default(string))
         {
-            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
-
             Populate(type, Parse(commandLineString));
         }
 
@@ -438,7 +434,7 @@ namespace Utility.CommandLine
         {
             Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
 
-            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Static))
+            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
             {
                 // attempt to fetch the ArgumentAttribute of the property
                 CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
@@ -525,7 +521,7 @@ namespace Utility.CommandLine
         /// </exception>
         private static PropertyInfo GetOperandsProperty(Type type)
         {
-            PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
+            PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 .Where(p => p.CustomAttributes
                     .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name))
                         .FirstOrDefault();

@@ -138,6 +138,11 @@ namespace Utility.CommandLine
         private const string GroupRegEx = "^-[^-]+";
 
         /// <summary>
+        ///     The regular expression with which to parse strings strictly containing operands.
+        /// </summary>
+        private const string OperandRegEx = "([^ ([^'\\\"]+|\\\"[^\\\"]+\\\"|\\\'[^']+\\\')";
+
+        /// <summary>
         ///     The regular expression with which to split the command line string explicitly among argument/value pairs and
         ///     operands, and strictly operands.
         /// </summary>
@@ -146,11 +151,6 @@ namespace Utility.CommandLine
         ///     after. Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?)[^\\\"\\\']\\B-{2}\\B[^\\\"\\\'](.*)";
-
-        /// <summary>
-        ///     The regular expression with which to parse strings strictly containing operands.
-        /// </summary>
-        private const string OperandRegEx = "([^ ([^'\\\"]+|\\\"[^\\\"]+\\\"|\\\'[^']+\\\')";
 
         #endregion Private Fields
 
@@ -217,9 +217,9 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Arguments Parse(string commandLineString = "")
+        public static Arguments Parse(string commandLineString = default(string))
         {
-            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
+            commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
 
             Dictionary<string, string> argumentDictionary;
             List<string> operandList;

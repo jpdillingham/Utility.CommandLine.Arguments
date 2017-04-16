@@ -168,24 +168,6 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit operand delimiter.
-        /// </summary>
-        [Fact]
-        public void ParseStrictOperands()
-        {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- three -four --five /six \"seven eight\" 'nine ten'");
-
-            Assert.Equal(7, test.OperandList.Count);
-            Assert.Equal("two", test.OperandList[0]);
-            Assert.Equal("three", test.OperandList[1]);
-            Assert.Equal("-four", test.OperandList[2]);
-            Assert.Equal("--five", test.OperandList[3]);
-            Assert.Equal("/six", test.OperandList[4]);
-            Assert.Equal("\"seven eight\"", test.OperandList[5]);
-            Assert.Equal("'nine ten'", test.OperandList[6]);
-        }
-
-        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing a mixture of upper and lower case arguments.
         /// </summary>
@@ -205,6 +187,17 @@ namespace Utility.CommandLine.Tests
 
             Assert.True(test.ContainsKey("c"));
             Assert.False(test.ContainsKey("C"));
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an empty string.
+        /// </summary>
+        [Fact]
+        public void ParseEmpty()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(string.Empty));
+
+            Assert.Null(ex);
         }
 
         /// <summary>
@@ -266,6 +259,17 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a null argument.
+        /// </summary>
+        [Fact]
+        public void ParseNull()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(null));
+
+            Assert.Null(ex);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string containing only a series
         ///     of operands.
         /// </summary>
@@ -322,6 +326,24 @@ namespace Utility.CommandLine.Tests
 
             Assert.True(test.ContainsKey("c"));
             Assert.Equal("hello world", test["c"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit operand delimiter.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperands()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- three -four --five /six \"seven eight\" 'nine ten'");
+
+            Assert.Equal(7, test.OperandList.Count);
+            Assert.Equal("two", test.OperandList[0]);
+            Assert.Equal("three", test.OperandList[1]);
+            Assert.Equal("-four", test.OperandList[2]);
+            Assert.Equal("--five", test.OperandList[3]);
+            Assert.Equal("/six", test.OperandList[4]);
+            Assert.Equal("\"seven eight\"", test.OperandList[5]);
+            Assert.Equal("'nine ten'", test.OperandList[6]);
         }
 
         /// <summary>

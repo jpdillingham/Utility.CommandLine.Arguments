@@ -260,10 +260,8 @@ namespace Utility.CommandLine
         ///     arguments, if present.
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(string commandLineString = "")
+        public static void Populate(string commandLineString = default(string))
         {
-            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
-
             Populate(new StackFrame(1).GetMethod().DeclaringType, Parse(commandLineString));
         }
 
@@ -276,10 +274,8 @@ namespace Utility.CommandLine
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
         /// </param>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(Type type, string commandLineString = "")
+        public static void Populate(Type type, string commandLineString = default(string))
         {
-            commandLineString = commandLineString.Equals(string.Empty) ? Environment.CommandLine : commandLineString;
-
             Populate(type, Parse(commandLineString));
         }
 

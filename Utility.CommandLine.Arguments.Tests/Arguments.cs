@@ -190,6 +190,18 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string coning a single operand
+        ///     which contains a dash.
+        /// </summary>
+        [Fact]
+        public void ParseDashedOperand()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("hello-world");
+
+            Assert.Equal("hello-world", test.OperandList[0]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an empty string.
         /// </summary>
         [Fact]
@@ -307,18 +319,6 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("two", test.OperandList[0]);
             Assert.Equal("three", test.OperandList[1]);
             Assert.Equal("four", test.OperandList[2]);
-        }
-
-        /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a string coning a single operand
-        ///     which contains a dash.
-        /// </summary>
-        [Fact]
-        public void ParseDashedOperand()
-        {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("hello-world");
-
-            Assert.Equal("hello-world", test.OperandList[0]);
         }
 
         /// <summary>
@@ -445,6 +445,35 @@ namespace Utility.CommandLine.Tests
 
         /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit command line
+        ///     string and with a class containing duplicate properties.
+        /// </summary>
+        [Fact]
+        public void PopulateDuplicateProperties()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(typeof(TestClassDuplicateProperties), "--hello world"));
+
+            Assert.Null(ex);
+
+            Assert.Equal("world", TestClassDuplicateProperties.Test1);
+            Assert.Equal(default(string), TestClassDuplicateProperties.Test2);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a Type external to the
+        ///     calling class and with an explicit string.
+        /// </summary>
+        [Fact]
+        public void PopulateExternalClass()
+        {
+            CommandLine.Arguments.Populate(typeof(TestClassPublicProperties), "--test test! operand1 operand2");
+
+            Assert.Equal("test!", TestClassPublicProperties.Test);
+            Assert.Equal("operand1", TestClassPublicProperties.Operands[0]);
+            Assert.Equal("operand2", TestClassPublicProperties.Operands[1]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit command line
         ///     string containing two operands.
         /// </summary>
         [Fact]
@@ -506,20 +535,6 @@ namespace Utility.CommandLine.Tests
             Assert.IsType<ArgumentException>(ex);
         }
 
-        /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a Type external to the
-        ///     calling class and with an explicit string.
-        /// </summary>
-        [Fact]
-        public void PopulateExternalClass()
-        {
-            CommandLine.Arguments.Populate(typeof(TestClassPublicProperties), "--test test! operand1 operand2");
-
-            Assert.Equal("test!", TestClassPublicProperties.Test);
-            Assert.Equal("operand1", TestClassPublicProperties.Operands[0]);
-            Assert.Equal("operand2", TestClassPublicProperties.Operands[1]);
-        }
-
         #endregion Public Methods
     }
 
@@ -546,13 +561,33 @@ namespace Utility.CommandLine.Tests
     /// <summary>
     ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
     /// </summary>
-    /// <remarks>
-    ///     Used to facilitate testing of a property marked with the Operands attribute which is not of type string[] or List{string}
-    /// </remarks>
-    [Collection("Arguments")]
-    public class TestClassWithArrayOperands
+    /// <remarks>Used to facilitate testing of a class with duplicate properties.</remarks>
+    public class TestClassDuplicateProperties
     {
-        #region Private Properties
+        #region Public Properties
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Argument('h', "hello")]
+        public static string Test1 { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Argument('h', "hello")]
+        public static string Test2 { get; set; }
+
+        #endregion Public Properties
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class with public properties.</remarks>
+    public class TestClassPublicProperties
+    {
+        #region Public Properties
 
         /// <summary>
         ///     Gets or sets a test property.
@@ -560,7 +595,33 @@ namespace Utility.CommandLine.Tests
         [CommandLine.Operands]
         public static string[] Operands { get; set; }
 
-        #endregion Private Properties
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Argument('t', "test")]
+        public static string Test { get; set; }
+
+        #endregion Public Properties
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>
+    ///     Used to facilitate testing of a property marked with the Operands attribute which is not of type string[] or List{string}
+    /// </remarks>
+    [Collection("Arguments")]
+    public class TestClassWithArrayOperands
+    {
+        #region Public Properties
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
+        [CommandLine.Operands]
+        public static string[] Operands { get; set; }
+
+        #endregion Public Properties
 
         #region Public Methods
 
@@ -641,24 +702,5 @@ namespace Utility.CommandLine.Tests
         }
 
         #endregion Public Methods
-    }
-
-    /// <summary>
-    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
-    /// </summary>
-    /// <remarks>Used to facilitate testing of a class with public properties.</remarks>
-    public class TestClassPublicProperties
-    {
-        /// <summary>
-        ///     Gets or sets a test property.
-        /// </summary>
-        [CommandLine.Argument('t', "test")]
-        public static string Test { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a test property.
-        /// </summary>
-        [CommandLine.Operands]
-        public static string[] Operands { get; set; }
     }
 }

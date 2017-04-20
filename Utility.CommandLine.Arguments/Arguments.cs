@@ -130,7 +130,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
-        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
+        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([^=: ]+)[=: ]?(\\w\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
 
         /// <summary>
         ///     The regular expression with which to parse argument-value groups.
@@ -150,7 +150,7 @@ namespace Utility.CommandLine
         ///     This regular expression effectively splits a string into two parts; the part before the first "--", and the part
         ///     after. Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
         /// </remarks>
-        private const string StrictOperandSplitRegEx = "(.*?)[^\\\"\\\']\\B-{2}\\B[^\\\"\\\'](.*)";
+        private const string StrictOperandSplitRegEx = "(.*[^\\\"\\\'])?\\B-{2}\\B[^\\\"\\\'](.*)";
 
         #endregion Private Fields
 

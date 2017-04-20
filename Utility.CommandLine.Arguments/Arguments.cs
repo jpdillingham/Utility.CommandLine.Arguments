@@ -150,7 +150,7 @@ namespace Utility.CommandLine
         ///     This regular expression effectively splits a string into two parts; the part before the first "--", and the part
         ///     after. Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
         /// </remarks>
-        private const string StrictOperandSplitRegEx = "(.*[^\\\"\\\'])?\\B-{2}\\B[^\\\"\\\'](.*)";
+        private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
         #endregion Private Fields
 
@@ -228,7 +228,7 @@ namespace Utility.CommandLine
             MatchCollection matches = Regex.Matches(commandLineString, StrictOperandSplitRegEx);
 
             // if there is a match, the string contains the strict operand delimiter. parse the first and second matches accordingly.
-            if (matches.Count > 0 && matches[0].Groups.Count >= 1)
+            if (matches.Count > 0)
             {
                 // the first group of the first match will contain everything in the string prior to the strict operand delimiter,
                 // so extract the argument key/value pairs and list of operands from that string.
@@ -237,9 +237,9 @@ namespace Utility.CommandLine
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
                 // extract the operands from that string using the strict method.
-                if (matches[0].Groups[2].Value != string.Empty)
+                if (matches[0].Groups[3].Value != string.Empty)
                 {
-                    List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[2].Value);
+                    List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[3].Value);
 
                     // join the operand lists.
                     operandList.AddRange(operandListStrict);

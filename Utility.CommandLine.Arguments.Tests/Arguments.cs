@@ -341,6 +341,34 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a a string containing only the
+        ///     strict operand delimiter.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperandDelimiterOnly()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--");
+
+            Assert.Equal(0, test.OperandList.Count);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a a string containing multiple
+        ///     strict operand delimiters.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperandMultipleDelimiter()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("one -- two -- three");
+
+            Assert.Equal(4, test.OperandList.Count);
+            Assert.Equal("one", test.OperandList[0]);
+            Assert.Equal("two", test.OperandList[1]);
+            Assert.Equal("--", test.OperandList[2]);
+            Assert.Equal("three", test.OperandList[3]);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit operand delimiter.
         /// </summary>
         [Fact]
@@ -365,7 +393,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStrictOperandsEmpty()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- ");
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two --");
 
             Assert.Equal(1, test.OperandList.Count);
             Assert.Equal("two", test.OperandList[0]);

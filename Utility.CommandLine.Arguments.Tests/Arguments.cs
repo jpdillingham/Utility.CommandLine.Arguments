@@ -207,7 +207,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseEmpty()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(string.Empty));
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse());
 
             Assert.Null(ex);
         }
@@ -512,6 +512,19 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("test!", TestClassPublicProperties.Test);
             Assert.Equal("operand1", TestClassPublicProperties.Operands[0]);
             Assert.Equal("operand2", TestClassPublicProperties.Operands[1]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a string containing
+        ///     multiple values for an argument which is not backed by a collection.
+        /// </summary>
+        [Fact]
+        public void PopulateMultipleValuesNotCollectionBacked()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--integer 1 --integer 2"));
+
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidCastException>(ex);
         }
 
         /// <summary>

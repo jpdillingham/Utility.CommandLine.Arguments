@@ -41,7 +41,7 @@ internal class Program
     private static int Int { get; set; }
 
     [Argument('s', "string")]
-    private static string String { get; set; }
+    private static string[] String { get; set; }
 
     [Operands]
     private static string[] Operands { get; set; }
@@ -50,10 +50,14 @@ internal class Program
     {
         Arguments.Populate();
 
-        Console.WriteLine("String: " + String);
         Console.WriteLine("Bool: " + Bool);
         Console.WriteLine("Int: " + Int);
         Console.WriteLine("Double: " + Double);
+
+        foreach (string s in String)
+        {
+            Console.WriteLine("String: " + s);
+        }
 
         foreach (string operand in Operands) 
         {
@@ -159,6 +163,20 @@ c | foo
 hello | world
 new | slashes are ok too
 
+### Multiple Values
+
+Arguments can accept multiple values, and when parsed a ```List<object>``` is returned if more than one value is specified.  When using 
+the ```Populate()``` method, the underlying property for an argument accepting multiple values must be an array or List, otherwise
+an ```InvalidCastException``` is thrown.
+
+#### Example
+
+```--list 1 --list 2 --list 3```
+
+Key | Value
+--- | ---
+list | 1,2,3
+
 ### Operands
 
 Any text in the string that doesn't match the argument-value format is considered an operand.  Any text which appears after a double-hyphen ```--```, not enclosed in single or double quotes, and with spaces on either side,
@@ -222,7 +240,10 @@ Use the ```Argument``` attribute to designate properties to be populated.  The c
 Note that the name of the property doesn't matter; only the attribute values are used to match an argument key to a property.
 
 The Type of the property does matter; the code attempts to convert argument values from string to the specified Type, and if the conversion fails
-an ```ArgumentException``` is thrown.
+an ```ArgumentException``` is thrown.  
+
+Properties can accept lists of parameters, as long as they are backed by an array or ```List<>```.  Specifying multiple parameters for an argument backed 
+by an atomic Type (e.g. not an array or List) will result in an ```InvalidCastException```.
 
 The ```Operands``` property accepts no parameters.  If the property type is not ```string[]``` or ```List<string>```, an 
 ```InvalidCastException``` will be thrown.
@@ -239,16 +260,20 @@ private static integer MyNumber { get; set; }
 [Argument('b', "bool")]
 private static bool TrueOrFalse { get; set; }
 
+[Argument('l', "list")]
+private static string[] List { get; set; }
+
 [Operands]
 private static List<string> Operands { get; set; }
 ```
 
-Given the argument string ```-bf "bar" --number=5```, the resulting property values would be as follows:
+Given the argument string ```-bf "bar" --number=5 --list 1 --list 2```, the resulting property values would be as follows:
 
 Property | Value
 --- | ---
 Foo | bar
 MyNumber | 5
 TrueOrFalse | true
+List | 1,2
 
  

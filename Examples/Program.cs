@@ -92,7 +92,7 @@ namespace Examples
             Console.WriteLine("Bool\t\t" + Bool);
             Console.WriteLine("Int\t\t" + Int);
             Console.WriteLine("Double\t\t" + Double);
-            Console.WriteLine("List\t\t" + String.Join(",", List.Select(o => o.ToString()).ToArray()));
+            Console.WriteLine("List\t\t" + String.Join(",", List.Select(o => o.ToString())?.ToArray()));
 
             Console.WriteLine("\r\nOperands\n-------");
 
@@ -111,6 +111,7 @@ namespace Examples
             Bool = false;
             Int = 0;
             Double = 0;
+            List = new List<int>();
         }
 
         #endregion Private Methods

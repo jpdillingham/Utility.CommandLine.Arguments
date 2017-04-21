@@ -338,6 +338,8 @@ namespace Utility.CommandLine
                     // retrieve the value from the argument dictionary
                     object value = arguments.ArgumentDictionary[propertyName];
 
+                    bool valueIsArrayOrList = value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>);
+
                     object convertedValue;
 
                     // if the type of the property is bool and the argument value is empty set the property value to true,
@@ -350,7 +352,7 @@ namespace Utility.CommandLine
                     {
                         // if the property is an array or list, convert the value to an array or list of the matching type. start
                         // by converting atomic values to a list containing a single value, just to simplify processing.
-                        if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+                        if (valueIsArrayOrList)
                         {
                             convertedValue = value;
                         }
@@ -401,7 +403,13 @@ namespace Utility.CommandLine
                     }
                     else
                     {
-                        // if the target property Type is an atomic (non-array or list) Type, convert the value and populate it.
+                        // if the target property Type is an atomic (non-array or list) Type, convert the value and populate it,
+                        // but not if the value is an array or list.
+                        if (valueIsArrayOrList)
+                        {
+                            throw new InvalidCastException($"Multiple values were specified for argument '{propertyName}', however it is not backed by an array or List<T>.  Specify only one value.");
+                        }
+
                         convertedValue = ChangeType(value, propertyName, propertyType);
                     }
 

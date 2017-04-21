@@ -687,6 +687,55 @@ namespace Utility.CommandLine.Tests
     /// <summary>
     ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
     /// </summary>
+    /// <remarks>Used to facilitate testing of a class with an array property.</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithArrayProperty
+    {
+        #region Private Properties
+
+        [CommandLine.Argument('a', "array")]
+        private static string[] Array { get; set; }
+
+        #endregion Private Properties
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing multiple instances of the same argument.
+        /// </summary>
+        [Fact]
+        public void Populate()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one -a two -a three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, Array.Length);
+            Assert.Equal("one", Array[0]);
+            Assert.Equal("two", Array[1]);
+            Assert.Equal("three", Array[2]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single a single instance of an array-backed argument.
+        /// </summary>
+        [Fact]
+        public void PopulateSingle()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one"));
+
+            Assert.Null(ex);
+            Assert.Equal(1, Array.Length);
+            Assert.Equal("one", Array[0]);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
     /// <remarks>
     ///     Used to facilitate testing of a property marked with the Operands attribute which is not of type string[] or List{string}
     /// </remarks>
@@ -717,6 +766,55 @@ namespace Utility.CommandLine.Tests
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidCastException>(ex);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class with a List{T} property.</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithListProperty
+    {
+        #region Private Properties
+
+        [CommandLine.Argument('l', "list")]
+        private static List<string> List { get; set; }
+
+        #endregion Private Properties
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing multiple instances of a list-backed argument.
+        /// </summary>
+        [Fact]
+        public void Populate()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one -l two -l three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single a single instance of a list-backed argument.
+        /// </summary>
+        [Fact]
+        public void PopulateSingle()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one"));
+
+            Assert.Null(ex);
+            Assert.Equal(1, List.Count);
+            Assert.Equal("one", List[0]);
         }
 
         #endregion Public Methods

@@ -162,7 +162,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Parse()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse().ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse().ArgumentDictionary;
 
             Assert.NotEmpty(test);
         }
@@ -174,7 +174,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseCaseSensitive()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("TEST"));
             Assert.False(test.ContainsKey("test"));
@@ -219,7 +219,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseInnerQuotedStrings()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
 
             Assert.Equal("test \'1\'", test["test1"]);
             Assert.Equal("test \"2\"", test["test2"]);
@@ -232,7 +232,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseLongAndShortMix()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
 
             Assert.Equal("1", test["one"]);
             Assert.True(test.ContainsKey("a"));
@@ -262,7 +262,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseMultipleQuotes()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
 
             Assert.Equal("1", test["test1"]);
             Assert.Equal("2", test["test2"]);
@@ -328,7 +328,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseShorts()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("a"));
             Assert.Equal(string.Empty, test["a"]);
@@ -338,6 +338,34 @@ namespace Utility.CommandLine.Tests
 
             Assert.True(test.ContainsKey("c"));
             Assert.Equal("hello world", test["c"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a a string containing only the
+        ///     strict operand delimiter.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperandDelimiterOnly()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--");
+
+            Assert.Equal(0, test.OperandList.Count);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a a string containing multiple
+        ///     strict operand delimiters.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperandMultipleDelimiter()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("one -- two -- three");
+
+            Assert.Equal(4, test.OperandList.Count);
+            Assert.Equal("one", test.OperandList[0]);
+            Assert.Equal("two", test.OperandList[1]);
+            Assert.Equal("--", test.OperandList[2]);
+            Assert.Equal("three", test.OperandList[3]);
         }
 
         /// <summary>
@@ -365,10 +393,24 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStrictOperandsEmpty()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- ");
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two --");
 
             Assert.Equal(1, test.OperandList.Count);
             Assert.Equal("two", test.OperandList[0]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a a string beginning with the
+        ///     explicit operand delimiter.
+        /// </summary>
+        [Fact]
+        public void ParseStrictOperandsStart()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("-- one two");
+
+            Assert.Equal(2, test.OperandList.Count);
+            Assert.Equal("one", test.OperandList[0]);
+            Assert.Equal("two", test.OperandList[1]);
         }
 
         /// <summary>
@@ -378,7 +420,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStringOfLongs()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
@@ -396,7 +438,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueWithQuotedPeriod()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
 
             Assert.Equal("test.test", test["test"]);
             Assert.Equal("test2.test2", test["test2"]);
@@ -435,7 +477,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateDictionary()
         {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
+            Dictionary<string, object> dict = new Dictionary<string, object>();
             dict.Add("i", "1");
 
             CommandLine.Arguments.Populate(dict);
@@ -645,6 +687,55 @@ namespace Utility.CommandLine.Tests
     /// <summary>
     ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
     /// </summary>
+    /// <remarks>Used to facilitate testing of a class with an array property.</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithArrayProperty
+    {
+        #region Private Properties
+
+        [CommandLine.Argument('a', "array")]
+        private static string[] Array { get; set; }
+
+        #endregion Private Properties
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing multiple instances of the same argument.
+        /// </summary>
+        [Fact]
+        public void Populate()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one -a two -a three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, Array.Length);
+            Assert.Equal("one", Array[0]);
+            Assert.Equal("two", Array[1]);
+            Assert.Equal("three", Array[2]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single a single instance of an array-backed argument.
+        /// </summary>
+        [Fact]
+        public void PopulateSingle()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one"));
+
+            Assert.Null(ex);
+            Assert.Equal(1, Array.Length);
+            Assert.Equal("one", Array[0]);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
     /// <remarks>
     ///     Used to facilitate testing of a property marked with the Operands attribute which is not of type string[] or List{string}
     /// </remarks>
@@ -675,6 +766,55 @@ namespace Utility.CommandLine.Tests
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidCastException>(ex);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class with a List{T} property.</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithListProperty
+    {
+        #region Private Properties
+
+        [CommandLine.Argument('l', "list")]
+        private static List<string> List { get; set; }
+
+        #endregion Private Properties
+
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing multiple instances of a list-backed argument.
+        /// </summary>
+        [Fact]
+        public void Populate()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one -l two -l three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single a single instance of a list-backed argument.
+        /// </summary>
+        [Fact]
+        public void PopulateSingle()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one"));
+
+            Assert.Null(ex);
+            Assert.Equal(1, List.Count);
+            Assert.Equal("one", List[0]);
         }
 
         #endregion Public Methods

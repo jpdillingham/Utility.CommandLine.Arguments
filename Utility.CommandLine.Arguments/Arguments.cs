@@ -46,6 +46,7 @@
                                                                                                    ▀▀                            */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -66,16 +67,32 @@ namespace Utility.CommandLine
 
         /// <summary>
         ///     Adds the specified key to the specified dictionary with the specified value, but only if the specified key is not
-        ///     already present in the dictionary.
+        ///     already present in the dictionary. If it is present, a list is created and the new value is added to the list,
+        ///     along with all subsequent values.
         /// </summary>
         /// <param name="dictionary">The dictionary to which they specified key and value are to be added.</param>
         /// <param name="key">The key to add to the dictionary.</param>
         /// <param name="value">The value corresponding to the specified key.</param>
-        internal static void ExclusiveAdd(this Dictionary<string, string> dictionary, string key, string value)
+        internal static void ExclusiveAdd(this Dictionary<string, object> dictionary, string key, object value)
         {
             if (!dictionary.ContainsKey(key))
             {
                 dictionary.Add(key, value);
+            }
+            else
+            {
+                var type = dictionary[key].GetType();
+
+                if (dictionary[key].GetType() == typeof(List<object>))
+                {
+                    ((List<object>)dictionary[key]).Add(value);
+                }
+                else
+                {
+                    object existingValue = dictionary[key];
+
+                    dictionary[key] = new List<object>(new object[] { existingValue, value });
+                }
             }
         }
 
@@ -130,7 +147,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
-        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([\\w-]+)[=|:| ]?(\\w\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
+        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([^=: ]+)[=: ]?(\\w\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
 
         /// <summary>
         ///     The regular expression with which to parse argument-value groups.
@@ -150,7 +167,7 @@ namespace Utility.CommandLine
         ///     This regular expression effectively splits a string into two parts; the part before the first "--", and the part
         ///     after. Instances of "--" not surrounded by a word boundary and those enclosed in quotes are ignored.
         /// </remarks>
-        private const string StrictOperandSplitRegEx = "(.*?)[^\\\"\\\']\\B-{2}\\B[^\\\"\\\'](.*)";
+        private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
         #endregion Private Fields
 
@@ -166,7 +183,7 @@ namespace Utility.CommandLine
         /// <param name="operandList">
         ///     The list containing the operands specified in the command line arguments with which the application was started.
         /// </param>
-        private Arguments(Dictionary<string, string> argumentDictionary, List<string> operandList)
+        private Arguments(Dictionary<string, object> argumentDictionary, List<string> operandList)
         {
             ArgumentDictionary = argumentDictionary;
             OperandList = operandList;
@@ -180,7 +197,7 @@ namespace Utility.CommandLine
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </summary>
-        public Dictionary<string, string> ArgumentDictionary { get; private set; }
+        public Dictionary<string, object> ArgumentDictionary { get; private set; }
 
         /// <summary>
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
@@ -196,7 +213,7 @@ namespace Utility.CommandLine
         /// </summary>
         /// <param name="index">The key for which the value is to be retrieved.</param>
         /// <returns>The argument value corresponding to the specified key.</returns>
-        public string this[string index]
+        public object this[string index]
         {
             get
             {
@@ -221,14 +238,14 @@ namespace Utility.CommandLine
         {
             commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
 
-            Dictionary<string, string> argumentDictionary;
+            Dictionary<string, object> argumentDictionary;
             List<string> operandList;
 
             // use the strict operand regular expression to test for/extract the two halves of the string, if the operator is used.
             MatchCollection matches = Regex.Matches(commandLineString, StrictOperandSplitRegEx);
 
             // if there is a match, the string contains the strict operand delimiter. parse the first and second matches accordingly.
-            if (matches.Count > 0 && matches[0].Groups.Count >= 1)
+            if (matches.Count > 0)
             {
                 // the first group of the first match will contain everything in the string prior to the strict operand delimiter,
                 // so extract the argument key/value pairs and list of operands from that string.
@@ -237,9 +254,9 @@ namespace Utility.CommandLine
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
                 // extract the operands from that string using the strict method.
-                if (matches[0].Groups[2].Value != string.Empty)
+                if (matches[0].Groups[3].Value != string.Empty)
                 {
-                    List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[2].Value);
+                    List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[3].Value);
 
                     // join the operand lists.
                     operandList.AddRange(operandListStrict);
@@ -287,7 +304,7 @@ namespace Utility.CommandLine
         /// <param name="argumentDictionary">
         ///     The dictionary containing the argument-value pairs with which the destination properties should be populated
         /// </param>
-        public static void Populate(Dictionary<string, string> argumentDictionary)
+        public static void Populate(Dictionary<string, object> argumentDictionary)
         {
             Populate(new StackFrame(1).GetMethod().DeclaringType, new Arguments(argumentDictionary, new List<string>()));
         }
@@ -319,31 +336,73 @@ namespace Utility.CommandLine
                     Type propertyType = property.PropertyType;
 
                     // retrieve the value from the argument dictionary
-                    string value = arguments.ArgumentDictionary[propertyName];
+                    object value = arguments.ArgumentDictionary[propertyName];
 
                     object convertedValue;
 
                     // if the type of the property is bool and the argument value is empty set the property value to true,
                     // indicating the argument is present
-                    if (propertyType == typeof(bool) && value == string.Empty)
+                    if (propertyType == typeof(bool) && value.ToString() == string.Empty)
                     {
                         convertedValue = true;
                     }
+                    else if (propertyType.IsArray || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>)))
+                    {
+                        // if the property is an array or list, convert the value to an array or list of the matching type. start
+                        // by converting atomic values to a list containing a single value, just to simplify processing.
+                        if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+                        {
+                            convertedValue = value;
+                        }
+                        else
+                        {
+                            convertedValue = new List<object>(new object[] { value });
+                        }
+
+                        // next, create a list with the same type as the target property
+                        Type valueType;
+
+                        if (propertyType.IsArray)
+                        {
+                            valueType = propertyType.GetElementType();
+                        }
+                        else
+                        {
+                            valueType = propertyType.GetGenericArguments()[0];
+                        }
+
+                        // create a list to store converted values
+                        Type valueListType = typeof(List<>).MakeGenericType(valueType);
+                        var valueList = (IList)Activator.CreateInstance(valueListType);
+
+                        // populate the list
+                        foreach (object v in (List<object>)convertedValue)
+                        {
+                            valueList.Add(ChangeType(v, propertyName, valueType));
+                        }
+
+                        // if the target property is an array, create one and populate it from the list this is surprisingly
+                        // difficult here because we created the source list with the Activator and ToArray() won't work easily.
+                        if (propertyType.IsArray)
+                        {
+                            var valueArray = Array.CreateInstance(propertyType.GetElementType(), valueList.Count);
+
+                            for (int i = 0; i < valueArray.Length; i++)
+                            {
+                                valueArray.SetValue(valueList[i], i);
+                            }
+
+                            convertedValue = valueArray;
+                        }
+                        else
+                        {
+                            convertedValue = valueList;
+                        }
+                    }
                     else
                     {
-                        // try to cast the argument value string to the destination type
-                        try
-                        {
-                            convertedValue = Convert.ChangeType(value, propertyType);
-                        }
-                        catch (Exception ex)
-                        {
-                            // if the cast fails, throw an exception
-                            string message = $"Specified value '{value}' for argument '{propertyName}' (type: {property.PropertyType.Name}).  ";
-                            message += "See inner exception for details.";
-
-                            throw new ArgumentException(message, ex);
-                        }
+                        // if the target property Type is an atomic (non-array or list) Type, convert the value and populate it.
+                        convertedValue = ChangeType(value, propertyName, propertyType);
                     }
 
                     // set the target properties' value to the converted value from the argument string
@@ -373,6 +432,29 @@ namespace Utility.CommandLine
         #region Private Methods
 
         /// <summary>
+        ///     Converts the specified value for the specified argument to the specified Type.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <param name="argument">The argument for which the value is being converted.</param>
+        /// <param name="toType">The Type to which the value is being converted.</param>
+        /// <returns>The converted value.</returns>
+        private static object ChangeType(object value, string argument, Type toType)
+        {
+            try
+            {
+                return Convert.ChangeType(value, toType);
+            }
+            catch (Exception ex)
+            {
+                // if the cast fails, throw an exception
+                string message = $"Specified value '{value}' for argument '{argument}' (expected type: {toType}).  ";
+                message += "See inner exception for details.";
+
+                throw new ArgumentException(message, ex);
+            }
+        }
+
+        /// <summary>
         ///     Populates and returns a dictionary containing the values specified in the command line arguments with which the
         ///     application was started, keyed by argument name.
         /// </summary>
@@ -381,9 +463,9 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        private static Dictionary<string, string> GetArgumentDictionary(string commandLineString)
+        private static Dictionary<string, object> GetArgumentDictionary(string commandLineString)
         {
-            Dictionary<string, string> argumentDictionary = new Dictionary<string, string>();
+            Dictionary<string, object> argumentDictionary = new Dictionary<string, object>();
 
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {

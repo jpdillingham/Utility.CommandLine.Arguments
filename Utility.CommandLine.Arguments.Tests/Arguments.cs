@@ -450,7 +450,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Populate()
         {
-            CommandLine.Arguments.Populate("-b");
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate("-b"));
+
+            Assert.Null(ex);
         }
 
         /// <summary>
@@ -743,6 +745,22 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("one", Array[0]);
         }
 
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing multiple instances of an array-backed argument, and containing a change from short to long names and back.
+        /// </summary>
+        [Fact]
+        public void PopulateWithNameChange()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one --array two -a three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, Array.Length);
+            Assert.Equal("one", Array[0]);
+            Assert.Equal("two", Array[1]);
+            Assert.Equal("three", Array[2]);
+        }
+
         #endregion Public Methods
     }
 
@@ -828,6 +846,22 @@ namespace Utility.CommandLine.Tests
             Assert.Null(ex);
             Assert.Equal(1, List.Count);
             Assert.Equal("one", List[0]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing multiple instances of a list-backed argument, and containing a change from short to long names and back.
+        /// </summary>
+        [Fact]
+        public void PopulateWithNameChange()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
         }
 
         #endregion Public Methods

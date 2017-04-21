@@ -312,7 +312,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     Populates the properties in the specified Type marked with the
         ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the specified argument
-        ///     dictionary, if present.
+        ///     dictionary, if present. All property values are set to null at the start of the routine.
         /// </summary>
         /// <param name="type">
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
@@ -323,8 +323,10 @@ namespace Utility.CommandLine
         /// </param>
         public static void Populate(Type type, Arguments arguments)
         {
-            // fetch any properties in the specified type marked with the ArgumentAttribute attribute
+            // fetch any properties in the specified type marked with the ArgumentAttribute attribute and clear them
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);
+
+            ClearProperties(properties);
 
             foreach (string propertyName in properties.Keys)
             {
@@ -338,7 +340,7 @@ namespace Utility.CommandLine
                     // retrieve the value from the argument dictionary
                     object value = arguments.ArgumentDictionary[propertyName];
 
-                    bool valueIsArrayOrList = value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>);
+                    bool valueIsList = value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>);
 
                     object convertedValue;
 
@@ -352,7 +354,7 @@ namespace Utility.CommandLine
                     {
                         // if the property is an array or list, convert the value to an array or list of the matching type. start
                         // by converting atomic values to a list containing a single value, just to simplify processing.
-                        if (valueIsArrayOrList)
+                        if (valueIsList)
                         {
                             convertedValue = value;
                         }
@@ -405,7 +407,7 @@ namespace Utility.CommandLine
                     {
                         // if the target property Type is an atomic (non-array or list) Type, convert the value and populate it,
                         // but not if the value is an array or list.
-                        if (valueIsArrayOrList)
+                        if (valueIsList)
                         {
                             throw new InvalidCastException($"Multiple values were specified for argument '{propertyName}', however it is not backed by an array or List<T>.  Specify only one value.");
                         }
@@ -414,7 +416,7 @@ namespace Utility.CommandLine
                     }
 
                     // set the target properties' value to the converted value from the argument string
-                    property.SetValue(null, convertedValue);
+                    AppendPropertyValue(property, convertedValue);
                 }
             }
 
@@ -440,6 +442,23 @@ namespace Utility.CommandLine
         #region Private Methods
 
         /// <summary>
+        ///     Appends the value of the specified property with the specified value.
+        /// </summary>
+        /// <remarks>Assumes that only static properties are to be set.</remarks>
+        /// <param name="property">The property for which the value is to be set.</param>
+        /// <param name="value">The value to set.</param>
+        private static void AppendPropertyValue(PropertyInfo property, object value)
+        {
+            object currentValue = property.GetValue(null);
+
+            if (property.GetType() != typeof(bool))
+            {
+            }
+
+            property.SetValue(null, value);
+        }
+
+        /// <summary>
         ///     Converts the specified value for the specified argument to the specified Type.
         /// </summary>
         /// <param name="value">The value to convert.</param>
@@ -459,6 +478,18 @@ namespace Utility.CommandLine
                 message += "See inner exception for details.";
 
                 throw new ArgumentException(message, ex);
+            }
+        }
+
+        /// <summary>
+        ///     Sets the value of each property in the specified dictionary to null.
+        /// </summary>
+        /// <param name="properties">The dictionary containing the properties to clear.</param>
+        private static void ClearProperties(Dictionary<string, PropertyInfo> properties)
+        {
+            foreach (string key in properties.Keys)
+            {
+                properties[key].SetValue(null, null);
             }
         }
 

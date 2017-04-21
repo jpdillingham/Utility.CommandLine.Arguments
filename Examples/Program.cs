@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Utility.CommandLine;
 
 namespace Examples
@@ -19,6 +20,9 @@ namespace Examples
 
         [Argument('i', "integer")]
         private static int Int { get; set; }
+
+        [Argument('l', "list")]
+        private static List<int> List { get; set; }
 
         [Operands]
         private static string[] Operands { get; set; }
@@ -74,7 +78,7 @@ namespace Examples
             Console.WriteLine("\r\nArgument\tValue");
             Console.WriteLine("-------\t\t-------");
 
-            Dictionary<string, string> argumentDictionary = Arguments.Parse(commandLine).ArgumentDictionary;
+            Dictionary<string, object> argumentDictionary = Arguments.Parse(commandLine).ArgumentDictionary;
 
             foreach (string key in argumentDictionary.Keys)
             {
@@ -88,6 +92,7 @@ namespace Examples
             Console.WriteLine("Bool\t\t" + Bool);
             Console.WriteLine("Int\t\t" + Int);
             Console.WriteLine("Double\t\t" + Double);
+            Console.WriteLine("List\t\t" + String.Join(",", List.Select(o => o.ToString()).ToArray()));
 
             Console.WriteLine("\r\nOperands\n-------");
 

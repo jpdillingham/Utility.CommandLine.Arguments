@@ -162,7 +162,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Parse()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse().ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse().ArgumentDictionary;
 
             Assert.NotEmpty(test);
         }
@@ -174,7 +174,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseCaseSensitive()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("TEST"));
             Assert.False(test.ContainsKey("test"));
@@ -219,7 +219,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseInnerQuotedStrings()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
 
             Assert.Equal("test \'1\'", test["test1"]);
             Assert.Equal("test \"2\"", test["test2"]);
@@ -232,7 +232,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseLongAndShortMix()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
 
             Assert.Equal("1", test["one"]);
             Assert.True(test.ContainsKey("a"));
@@ -262,7 +262,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseMultipleQuotes()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
 
             Assert.Equal("1", test["test1"]);
             Assert.Equal("2", test["test2"]);
@@ -328,7 +328,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseShorts()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("a"));
             Assert.Equal(string.Empty, test["a"]);
@@ -420,7 +420,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStringOfLongs()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
@@ -438,7 +438,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueWithQuotedPeriod()
         {
-            Dictionary<string, string> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
 
             Assert.Equal("test.test", test["test"]);
             Assert.Equal("test2.test2", test["test2"]);
@@ -477,7 +477,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateDictionary()
         {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
+            Dictionary<string, object> dict = new Dictionary<string, object>();
             dict.Add("i", "1");
 
             CommandLine.Arguments.Populate(dict);

@@ -182,7 +182,7 @@ Operands
 ## Parsing
 
 Argument key-value pairs can be parsed from any string using the ```Parse(string)``` method.  This method returns a 
-```Dictionary<string, string>``` containing all argument-value pairs.
+```Dictionary<string, object>``` containing all argument-value pairs.
 
 If the string parameter is omitted, the value of ```Environment.CommandLine``` is used.
 
@@ -192,7 +192,7 @@ from property handling quoted strings.  There are generally very few instance in
 #### Example
 
 ```c#
-Dictionary<string, string> args = Arguments.Parse("-ab --foo bar");
+Dictionary<string, object> args = Arguments.Parse("-ab --foo bar");
 ```
 
 The example above would result in a dictionary ```args``` containing:

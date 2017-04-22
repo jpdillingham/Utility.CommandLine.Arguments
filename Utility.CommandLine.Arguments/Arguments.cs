@@ -416,7 +416,7 @@ namespace Utility.CommandLine
                     }
 
                     // set the target properties' value to the converted value from the argument string
-                    AppendPropertyValue(property, convertedValue);
+                    property.SetValue(null, convertedValue);
                 }
             }
 
@@ -440,23 +440,6 @@ namespace Utility.CommandLine
         #endregion Public Methods
 
         #region Private Methods
-
-        /// <summary>
-        ///     Appends the value of the specified property with the specified value.
-        /// </summary>
-        /// <remarks>Assumes that only static properties are to be set.</remarks>
-        /// <param name="property">The property for which the value is to be set.</param>
-        /// <param name="value">The value to set.</param>
-        private static void AppendPropertyValue(PropertyInfo property, object value)
-        {
-            object currentValue = property.GetValue(null);
-
-            if (property.GetType() != typeof(bool))
-            {
-            }
-
-            property.SetValue(null, value);
-        }
 
         /// <summary>
         ///     Converts the specified value for the specified argument to the specified Type.

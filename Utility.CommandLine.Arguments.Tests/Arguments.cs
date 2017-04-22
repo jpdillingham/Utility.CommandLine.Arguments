@@ -207,7 +207,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseEmpty()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse());
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(string.Empty));
 
             Assert.Null(ex);
         }
@@ -268,6 +268,17 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("2", test["test2"]);
             Assert.Equal("3", test["test3"]);
             Assert.Equal("4", test["test4"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with no argument.
+        /// </summary>
+        [Fact]
+        public void ParseNoArgument()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse());
+
+            Assert.Null(ex);
         }
 
         /// <summary>

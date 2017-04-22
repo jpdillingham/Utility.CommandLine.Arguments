@@ -12,21 +12,39 @@ namespace Examples
     {
         #region Private Properties
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the Bool argument was supplied.
+        /// </summary>
         [Argument('b', "boolean")]
         private static bool Bool { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the value of the Double argument.
+        /// </summary>
         [Argument('f', "float")]
         private static double Double { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the value of the Int argument
+        /// </summary>
         [Argument('i', "integer")]
         private static int Int { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the value of the List argument.
+        /// </summary>
         [Argument('l', "list")]
         private static List<int> List { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the list of operands.
+        /// </summary>
         [Operands]
         private static string[] Operands { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the String argument.
+        /// </summary>
         [Argument('s', "string")]
         private static string String { get; set; }
 
@@ -41,7 +59,7 @@ namespace Examples
         private static void Main(string[] args)
         {
             // enable ctrl+c
-            Console.CancelKeyPress += delegate
+            Console.CancelKeyPress += (o, e) =>
             {
                 Environment.Exit(1);
             };
@@ -92,7 +110,7 @@ namespace Examples
             Console.WriteLine("Bool\t\t" + Bool);
             Console.WriteLine("Int\t\t" + Int);
             Console.WriteLine("Double\t\t" + Double);
-            Console.WriteLine("List\t\t" + String.Join(",", List.Select(o => o.ToString())?.ToArray()));
+            Console.WriteLine("List\t\t" + string.Join(",", List.Select(o => o.ToString())?.ToArray()));
 
             Console.WriteLine("\r\nOperands\n-------");
 

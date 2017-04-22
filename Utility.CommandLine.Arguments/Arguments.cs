@@ -312,7 +312,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     Populates the properties in the specified Type marked with the
         ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the specified argument
-        ///     dictionary, if present.
+        ///     dictionary, if present. All property values are set to null at the start of the routine.
         /// </summary>
         /// <param name="type">
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
@@ -323,8 +323,10 @@ namespace Utility.CommandLine
         /// </param>
         public static void Populate(Type type, Arguments arguments)
         {
-            // fetch any properties in the specified type marked with the ArgumentAttribute attribute
+            // fetch any properties in the specified type marked with the ArgumentAttribute attribute and clear them
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);
+
+            ClearProperties(properties);
 
             foreach (string propertyName in properties.Keys)
             {
@@ -338,6 +340,8 @@ namespace Utility.CommandLine
                     // retrieve the value from the argument dictionary
                     object value = arguments.ArgumentDictionary[propertyName];
 
+                    bool valueIsList = value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>);
+
                     object convertedValue;
 
                     // if the type of the property is bool and the argument value is empty set the property value to true,
@@ -350,7 +354,7 @@ namespace Utility.CommandLine
                     {
                         // if the property is an array or list, convert the value to an array or list of the matching type. start
                         // by converting atomic values to a list containing a single value, just to simplify processing.
-                        if (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+                        if (valueIsList)
                         {
                             convertedValue = value;
                         }
@@ -401,7 +405,13 @@ namespace Utility.CommandLine
                     }
                     else
                     {
-                        // if the target property Type is an atomic (non-array or list) Type, convert the value and populate it.
+                        // if the target property Type is an atomic (non-array or list) Type, convert the value and populate it,
+                        // but not if the value is an array or list.
+                        if (valueIsList)
+                        {
+                            throw new InvalidCastException($"Multiple values were specified for argument '{propertyName}', however it is not backed by an array or List<T>.  Specify only one value.");
+                        }
+
                         convertedValue = ChangeType(value, propertyName, propertyType);
                     }
 
@@ -451,6 +461,18 @@ namespace Utility.CommandLine
                 message += "See inner exception for details.";
 
                 throw new ArgumentException(message, ex);
+            }
+        }
+
+        /// <summary>
+        ///     Sets the value of each property in the specified dictionary to null.
+        /// </summary>
+        /// <param name="properties">The dictionary containing the properties to clear.</param>
+        private static void ClearProperties(Dictionary<string, PropertyInfo> properties)
+        {
+            foreach (string key in properties.Keys)
+            {
+                properties[key].SetValue(null, null);
             }
         }
 

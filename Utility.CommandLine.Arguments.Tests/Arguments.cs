@@ -271,6 +271,17 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with no argument.
+        /// </summary>
+        [Fact]
+        public void ParseNoArgument()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse());
+
+            Assert.Null(ex);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a null argument.
         /// </summary>
         [Fact]
@@ -450,7 +461,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Populate()
         {
-            CommandLine.Arguments.Populate("-b");
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate("-b"));
+
+            Assert.Null(ex);
         }
 
         /// <summary>
@@ -472,7 +485,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, string})"/> method.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, object})"/> method.
         /// </summary>
         [Fact]
         public void PopulateDictionary()
@@ -512,6 +525,19 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("test!", TestClassPublicProperties.Test);
             Assert.Equal("operand1", TestClassPublicProperties.Operands[0]);
             Assert.Equal("operand2", TestClassPublicProperties.Operands[1]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a string containing
+        ///     multiple values for an argument which is not backed by a collection.
+        /// </summary>
+        [Fact]
+        public void PopulateMultipleValuesNotCollectionBacked()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--integer 1 --integer 2"));
+
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidCastException>(ex);
         }
 
         /// <summary>
@@ -669,7 +695,7 @@ namespace Utility.CommandLine.Tests
 
         /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
-        ///     containing two operands, and with a Type containing a property of type <see cref="string[]"/> marked with the
+        ///     containing two operands, and with a Type containing a property of type <see langword="string[]"/> marked with the
         ///     <see cref="Operands"/> attribute.
         /// </summary>
         [Fact]
@@ -693,6 +719,9 @@ namespace Utility.CommandLine.Tests
     {
         #region Private Properties
 
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
         [CommandLine.Argument('a', "array")]
         private static string[] Array { get; set; }
 
@@ -757,7 +786,7 @@ namespace Utility.CommandLine.Tests
         /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
         ///     containing two operands, and with a Type containing a property marked with the <see cref="Operands"/> attribute but
-        ///     that is not of type <see cref="string[]"/> or <see cref="List{string}&gt;"/>}"/&gt; .
+        ///     that is not of type <see cref="T:string[]"/> or <see cref="List{T}"/>}"/&gt; .
         /// </summary>
         [Fact]
         public void PopulateOperands()
@@ -780,6 +809,9 @@ namespace Utility.CommandLine.Tests
     {
         #region Private Properties
 
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
         [CommandLine.Argument('l', "list")]
         private static List<string> List { get; set; }
 

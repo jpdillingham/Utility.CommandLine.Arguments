@@ -102,6 +102,12 @@ namespace Utility.CommandLine.Tests
         /// <summary>
         ///     Gets or sets a test property.
         /// </summary>
+        [CommandLine.Argument('d', "decimal")]
+        private static decimal Decimal { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a test property.
+        /// </summary>
         [CommandLine.Argument('i', "integer")]
         private static int Integer { get; set; }
 
@@ -199,6 +205,17 @@ namespace Utility.CommandLine.Tests
             CommandLine.Arguments test = CommandLine.Arguments.Parse("hello-world");
 
             Assert.Equal("hello-world", test.OperandList[0]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with a decimal value.
+        /// </summary>
+        [Fact]
+        public void ParseDecimal()
+        {
+            CommandLine.Arguments test = CommandLine.Arguments.Parse("--decimal 1.1");
+
+            Assert.Equal("1.1", test["decimal"]);
         }
 
         /// <summary>
@@ -482,6 +499,17 @@ namespace Utility.CommandLine.Tests
 
             Assert.Equal("lower", LowerCase);
             Assert.Equal("upper", UpperCase);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, object})"/> method with a decimal value.
+        /// </summary>
+        [Fact]
+        public void PopulateDecimal()
+        {
+            CommandLine.Arguments.Populate("--decimal 1.1");
+
+            Assert.Equal(1.1M, Decimal);
         }
 
         /// <summary>

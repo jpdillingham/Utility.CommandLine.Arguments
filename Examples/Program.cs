@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Utility.CommandLine;
 
-namespace Examples
+namespace Examples.Core
 {
     /// <summary>
     ///     Provides an eval/print loop for command line argument strings.

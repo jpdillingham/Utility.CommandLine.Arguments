@@ -1,6 +1,10 @@
 version: 1.0.0{build}
-before_build:
-- cmd: nuget restore
+image: Visual Studio 2017
+dotnet csproj:
+    patch: true
+    file: '**\*.csproj'
+    version: '{version}'
+    package_version: '{version}'
 build:
   project: Utility.CommandLine.Arguments.sln
   verbosity: minimal

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Utility.CommandLine;
 
 namespace Examples
@@ -13,39 +14,52 @@ namespace Examples
         #region Private Properties
 
         /// <summary>
+        ///     Show the help.
+        /// </summary>
+        [Argument('h', "help")]
+        [ArgumentHelp("Show the help.")]
+        private static bool Help { get; set; }
+
+        /// <summary>
         ///     Gets or sets a value indicating whether the Bool argument was supplied.
         /// </summary>
         [Argument('b', "boolean")]
+        [ArgumentHelp("Gets or sets a value indicating whether the Bool argument was supplied.")]
         private static bool Bool { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the Double argument.
         /// </summary>
         [Argument('f', "float")]
+        [ArgumentHelp("Gets or sets the value of the Double argument.")]
         private static double Double { get; set; }
 
         /// <summary>
-        ///     Gets or sets the value of the Int argument
+        ///     Gets or sets the value of the Int argument.
         /// </summary>
         [Argument('i', "integer")]
+        [ArgumentHelp("Gets or sets the value of the Int argument.")]
         private static int Int { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the List argument.
         /// </summary>
         [Argument('l', "list")]
+        [ArgumentHelp("Gets or sets the value of the List argument.")]
         private static List<int> List { get; set; }
 
         /// <summary>
         ///     Gets or sets the list of operands.
         /// </summary>
         [Operands]
+        [ArgumentHelp("Gets or sets the list of operands.")]
         private static string[] Operands { get; set; }
 
         /// <summary>
         ///     Gets or sets the String argument.
         /// </summary>
         [Argument('s', "string")]
+        [ArgumentHelp("Gets or sets the String argument.")]
         private static string String { get; set; }
 
         #endregion Private Properties
@@ -93,6 +107,14 @@ namespace Examples
             // populate properties
             Arguments.Populate(commandLine);
 
+            if (Help)
+            {
+                ShowHelp();
+
+                // It guarantees that you will not proceed because you asked to show help.
+                return;
+            }
+
             Console.WriteLine("\r\nArgument\tValue");
             Console.WriteLine("-------\t\t-------");
 
@@ -130,6 +152,56 @@ namespace Examples
             Int = 0;
             Double = 0;
             List = new List<int>();
+        }
+
+        /// <summary>
+        /// Show help for arguments.
+        /// </summary>
+        private static void ShowHelp()
+        {
+            var helpAttributes = Arguments.ParseHelpArguments(typeof(Program));
+
+            foreach (var item in helpAttributes)
+            {
+                string result = default(string);
+
+                result = $"{item.Key.Trim()}{Environment.NewLine}";
+
+                var lst = GetArgumentsFromPropertyInfo(item.Value);
+
+                foreach (var arg in lst)
+                {
+                    result += $"\t-{arg.Key.Trim()}{Environment.NewLine}";
+                }
+
+                Console.WriteLine(result);
+            }
+        }
+
+        /// <summary>
+        /// Get the arguments from the property.
+        /// </summary>
+        /// <param name="propertyInfo">The property with the arguments.</param>
+        /// <returns>Return the dictionary with the arguments.</returns>
+        private static Dictionary<string, PropertyInfo> GetArgumentsFromPropertyInfo(PropertyInfo propertyInfo)
+        {
+            Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
+
+            CustomAttributeData attributeType = propertyInfo.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
+
+            if (attributeType != default(CustomAttributeData))
+            {
+                char shortName = (char)attributeType.ConstructorArguments[0].Value;
+                string longName = (string)attributeType.ConstructorArguments[1].Value;
+
+                if (!properties.ContainsKey(shortName.ToString()) && !properties.ContainsKey(longName))
+                {
+                    properties.Add(shortName.ToString(), propertyInfo);
+                    properties.Add(longName, propertyInfo);
+                }
+            }
+
+            return properties;
         }
 
         #endregion Private Methods

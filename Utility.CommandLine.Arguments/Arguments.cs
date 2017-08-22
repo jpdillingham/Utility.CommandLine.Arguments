@@ -137,6 +137,35 @@ namespace Utility.CommandLine
     }
 
     /// <summary>
+    /// Indicate the help text of the argument property.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class ArgumentHelpAttribute : Attribute
+    {
+        #region Public Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ArgumentHelpAttribute"/> class.
+        /// </summary>
+        /// <param name="helpText"></param>
+        public ArgumentHelpAttribute(string helpText)
+        {
+            HelpText = helpText;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        /// <summary>
+        /// Gets or sets the help text of the argument.
+        /// </summary>
+        public string HelpText { get; set; }
+
+        #endregion Public Properties
+    }
+
+    /// <summary>
     ///     Provides static methods used to retrieve the command line arguments and operands with which the application was
     ///     started, as well as a Type to contain them.
     /// </summary>
@@ -269,6 +298,35 @@ namespace Utility.CommandLine
             }
 
             return new Arguments(argumentDictionary, operandList);
+        }
+
+        /// <summary>
+        /// Get the help of arguments.
+        /// </summary>
+        /// <param name="type">Type where the help arguments are.</param>
+        /// <returns>Return the list of help arguments.</returns>
+        public static Dictionary<string, PropertyInfo> ParseHelpArguments(Type type)
+        {
+            Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
+
+            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
+            {
+                // attempt to fetch the ArgumentAttribute of the property
+                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentHelpAttribute).Name).FirstOrDefault();
+
+                // if found, extract the Name property and add it to the dictionary
+                if (attribute != default(CustomAttributeData))
+                {
+                    string helpPhrase = (string)attribute.ConstructorArguments[0].Value;
+
+                    if (!properties.ContainsKey(helpPhrase))
+                    {
+                        properties.Add(helpPhrase, property);
+                    }
+                }
+            }
+
+            return properties;
         }
 
         /// <summary>

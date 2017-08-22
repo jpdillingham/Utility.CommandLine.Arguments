@@ -14,52 +14,45 @@ namespace Examples
         #region Private Properties
 
         /// <summary>
-        ///     Show the help.
+        ///     Gets or sets a value indicating whether show the help.
         /// </summary>
-        [Argument('h', "help")]
-        [ArgumentHelp("Show the help.")]
+        [Argument('h', "help", "Gets or sets a value indicating whether show the help.")]
         private static bool Help { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the Bool argument was supplied.
         /// </summary>
-        [Argument('b', "boolean")]
-        [ArgumentHelp("Gets or sets a value indicating whether the Bool argument was supplied.")]
+        [Argument('b', "boolean", "Gets or sets a value indicating whether the Bool argument was supplied.")]
         private static bool Bool { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the Double argument.
         /// </summary>
-        [Argument('f', "float")]
-        [ArgumentHelp("Gets or sets the value of the Double argument.")]
+        [Argument('f', "float", "Gets or sets the value of the Double argument.")]
         private static double Double { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the Int argument.
         /// </summary>
-        [Argument('i', "integer")]
-        [ArgumentHelp("Gets or sets the value of the Int argument.")]
+        [Argument('i', "integer", "Gets or sets the value of the Int argument.")]
         private static int Int { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the List argument.
         /// </summary>
-        [Argument('l', "list")]
-        [ArgumentHelp("Gets or sets the value of the List argument.")]
+        [Argument('l', "list", "Gets or sets the value of the List argument.")]
         private static List<int> List { get; set; }
 
         /// <summary>
         ///     Gets or sets the list of operands.
         /// </summary>
         [Operands]
-        [ArgumentHelp("Gets or sets the list of operands.")]
         private static string[] Operands { get; set; }
 
         /// <summary>
         ///     Gets or sets the String argument.
         /// </summary>
-        [Argument('s', "string")]
-        [ArgumentHelp("Gets or sets the String argument.")]
+        [Argument('s', "string", "Gets or sets the String argument.")]
         private static string String { get; set; }
 
         #endregion Private Properties

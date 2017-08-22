@@ -113,10 +113,12 @@ namespace Utility.CommandLine
         /// </summary>
         /// <param name="shortName">The short name of the argument, represented as a single character.</param>
         /// <param name="longName">The long name of the argument.</param>
-        public ArgumentAttribute(char shortName, string longName)
+        /// <param name="helpText">The help text of the argument.</param>
+        public ArgumentAttribute(char shortName, string longName, string helpText = null)
         {
             ShortName = shortName;
             LongName = longName;
+            HelpText = helpText;
         }
 
         #endregion Public Constructors
@@ -133,32 +135,8 @@ namespace Utility.CommandLine
         /// </summary>
         public char ShortName { get; set; }
 
-        #endregion Public Properties
-    }
-
-    /// <summary>
-    /// Indicate the help text of the argument property.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class ArgumentHelpAttribute : Attribute
-    {
-        #region Public Constructors
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="ArgumentHelpAttribute"/> class.
-        /// </summary>
-        /// <param name="helpText"></param>
-        public ArgumentHelpAttribute(string helpText)
-        {
-            HelpText = helpText;
-        }
-
-        #endregion Public Constructors
-
-        #region Public Properties
-
-        /// <summary>
-        /// Gets or sets the help text of the argument.
+        ///     Gets or sets the help text of the argument.
         /// </summary>
         public string HelpText { get; set; }
 
@@ -312,16 +290,16 @@ namespace Utility.CommandLine
             foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
             {
                 // attempt to fetch the ArgumentAttribute of the property
-                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentHelpAttribute).Name).FirstOrDefault();
+                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
 
                 // if found, extract the Name property and add it to the dictionary
                 if (attribute != default(CustomAttributeData))
                 {
-                    string helpPhrase = (string)attribute.ConstructorArguments[0].Value;
+                    string helpText = (string)attribute.ConstructorArguments[2].Value;
 
-                    if (!properties.ContainsKey(helpPhrase))
+                    if (!string.IsNullOrEmpty(helpText) && !properties.ContainsKey(helpText))
                     {
-                        properties.Add(helpPhrase, property);
+                        properties.Add(helpText, property);
                     }
                 }
             }

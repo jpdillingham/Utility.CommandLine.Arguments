@@ -77,9 +77,7 @@ Each argument is treated as a key-value pair, regardless of whether a value is p
 
 ```<-|--|/>argument-name<=|:| >["|']value['|"] [--] [operand] ... [operand]```
 
-The key-value pair may begin with a single dash, a pair of dashes (double dash), or a forward slash.  Single and double dashes indicate the use of short
-or long names, respectively, which are covered below.  The forward slash may represent either, but does not allow for the grouping of parameterless
-arguments.
+The key-value pair may begin with a single hyphen, a pair of hyphen, or a forward slash.  Single and double dashes indicate the use of short or long names, respectively, which are covered below.  The forward slash may represent either a sort or long name but does not allow for the grouping of parameterless arguments (e.g. /abc is not equivalent to -abc, but rather --abc).
 
 The argument name may be a single character when using short names, or any alphanumeric sequence not including spaces if using long names.
 
@@ -87,11 +85,9 @@ The value delimiter may be an equals sign, a colon, or a space.
 
 Values may be any alphanumeric sequence, however if a value contains a space it must be enclosed in either single or double quotes.
 
-Any word, or phrase enclosed in single or double quotes, will be parsed as an operand.  The official specification requires operands to appear last, however this library will
-parse them in any position.
+Any word, or phrase enclosed in single or double quotes, will be parsed as an operand.  The official specification requires operands to appear last, however this library will parse them in any position.
 
-A double-hyphen ```--```, not enclosed in single or double quotes, and appearing with whitespace on either side, designates the end of the argument list and beginning of 
-the operand list.  Anything appearing after this delimiter is treated as an operand, even if it begins with a hyphen, double-hyphen or forward slash.
+A double-hyphen ```--``` not enclosed in single or double quotes and appearing with whitespace on either side designates the end of the argument list and beginning of the explicit operand list.  Anything appearing after this delimiter is treated as an operand, even if it begins with a hyphen, double-hyphen or forward slash.
 
 ### Short Names
 
@@ -166,7 +162,7 @@ new | slashes are ok too
 ### Multiple Values
 
 Arguments can accept multiple values, and when parsed a ```List<object>``` is returned if more than one value is specified.  When using 
-the ```Populate()``` method, the underlying property for an argument accepting multiple values must be an array or List, otherwise
+the ```Populate()``` method the underlying property for an argument accepting multiple values must be an array or List, otherwise
 an ```InvalidCastException``` is thrown.
 
 #### Example
@@ -179,8 +175,7 @@ list | 1,2,3
 
 ### Operands
 
-Any text in the string that doesn't match the argument-value format is considered an operand.  Any text which appears after a double-hyphen ```--```, not enclosed in single or double quotes, and with spaces on either side,
-is treated as an operand regardless of whether it matches the argument-value format.
+Any text in the string that doesn't match the argument-value format is considered an operand.  Any text which appears after a double-hyphen ```--``` not enclosed in single or double quotes and with spaces on either side is treated as an operand regardless of whether it matches the argument-value format.
 
 #### Example
 

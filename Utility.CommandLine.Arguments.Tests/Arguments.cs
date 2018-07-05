@@ -377,7 +377,7 @@ namespace Utility.CommandLine.Tests
         {
             CommandLine.Arguments test = CommandLine.Arguments.Parse("--");
 
-            Assert.Equal(0, test.OperandList.Count);
+            Assert.Empty(test.OperandList);
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Utility.CommandLine.Tests
         {
             CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two --");
 
-            Assert.Equal(1, test.OperandList.Count);
+            Assert.Single(test.OperandList);
             Assert.Equal("two", test.OperandList[0]);
         }
 
@@ -783,7 +783,7 @@ namespace Utility.CommandLine.Tests
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one"));
 
             Assert.Null(ex);
-            Assert.Equal(1, Array.Length);
+            Assert.Single(Array);
             Assert.Equal("one", Array[0]);
         }
 
@@ -873,7 +873,7 @@ namespace Utility.CommandLine.Tests
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one"));
 
             Assert.Null(ex);
-            Assert.Equal(1, List.Count);
+            Assert.Single(List);
             Assert.Equal("one", List[0]);
         }
 

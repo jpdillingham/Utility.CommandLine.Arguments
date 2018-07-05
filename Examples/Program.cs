@@ -110,7 +110,11 @@ namespace Examples
             Console.WriteLine("Bool\t\t" + Bool);
             Console.WriteLine("Int\t\t" + Int);
             Console.WriteLine("Double\t\t" + Double);
-            Console.WriteLine("List\t\t" + string.Join(",", List.Select(o => o.ToString())?.ToArray()));
+
+            if (List != null)
+            {
+                Console.WriteLine("List\t\t" + string.Join(",", List.Select(o => o.ToString())?.ToArray()));
+            }
 
             Console.WriteLine("\r\nOperands\n-------");
 

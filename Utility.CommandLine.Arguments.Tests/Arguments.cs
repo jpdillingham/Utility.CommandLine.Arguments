@@ -461,6 +461,18 @@ namespace Utility.CommandLine.Tests
 
         /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
+        ///     containing a value beginning with a slash.
+        /// </summary>
+        [Fact]
+        public void ParseValueBeginningWithSlash()
+        {
+            Dictionary<string, object> test = CommandLine.Arguments.Parse("--file=/mnt/data/test.xml").ArgumentDictionary;
+
+            Assert.Equal("/mnt/data/test.xml", test["file"]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string)"/> method with an explicit command line string
         ///     containing arguments with values enclosed in quotes and containing a period.
         /// </summary>
         [Fact]

@@ -31,16 +31,17 @@ specified in the command line arguments.
 ```c#
 internal class Program
 {
-    [Argument('b', "boolean")]
+    // [Argument(short name (char), long name (string))]
+    [Argument('b', "myBool")]
     private static bool Bool { get; set; }
 
-    [Argument('f', "float")]
+    [Argument('f', "someFloat")]
     private static double Double { get; set; }
 
-    [Argument('i', "integer")]
+    [Argument('i', "anInteger")]
     private static int Int { get; set; }
 
-    [Argument('s', "string")]
+    [Argument('s', "aString")]
     private static string[] String { get; set; }
 
     [Operands]

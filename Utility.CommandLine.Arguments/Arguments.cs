@@ -473,7 +473,6 @@ namespace Utility.CommandLine
                         return false;
                     }
 
-                    Boolean.TryParse(myValue, out bool myVal);
                     return Convert.ToBoolean(value);
                 }
                 return Convert.ChangeType(value, toType, CultureInfo.InvariantCulture);

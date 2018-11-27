@@ -60,15 +60,15 @@
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Utility.CommandLine.Arguments\Utility.CommandLine.Arguments.csproj">
-      <Project>{b739dd22-4bd3-4d17-a351-33d129e9fe30}</Project>
-      <Name>Utility.CommandLine.Arguments</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.0-beta001\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.0-beta001\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.0-beta001\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Utility.CommandLine.Arguments\Utility.CommandLine.Arguments.csproj">
+      <Project>{9e7684e0-a2e1-4f55-b492-12f4edad68c8}</Project>
+      <Name>Utility.CommandLine.Arguments</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -33,6 +33,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -440,7 +441,29 @@ namespace Utility.CommandLine
         {
             try
             {
-                return Convert.ChangeType(value, toType);
+                if (toType == typeof(System.Boolean))
+                {
+                    string myValue = value.ToString();
+                    if ((myValue.Length == 0)
+                    || (string.Equals(myValue, "yes", StringComparison.OrdinalIgnoreCase))
+                    || (string.Equals(myValue, "y", StringComparison.OrdinalIgnoreCase))
+                    || (string.Equals(myValue, "true", StringComparison.OrdinalIgnoreCase))
+                    || (string.Equals(myValue, "t", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return true;
+                    }
+                    else
+                    if ((string.Equals(myValue, "no", StringComparison.OrdinalIgnoreCase))
+                    || (string.Equals(myValue, "n", StringComparison.OrdinalIgnoreCase))
+                    || (string.Equals(myValue, "false", StringComparison.OrdinalIgnoreCase))
+                    || (string.Equals(myValue, "f", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false;
+                    }
+
+                    return Convert.ToBoolean(value);
+                }
+                return Convert.ChangeType(value, toType, CultureInfo.InvariantCulture);
             }
             catch (Exception ex)
             {

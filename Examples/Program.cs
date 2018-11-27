@@ -13,27 +13,33 @@ namespace Examples
         #region Private Properties
 
         /// <summary>
+        ///     Gets or sets a value indicating whether show the help.
+        /// </summary>
+        [Argument('h', "help", "Gets or sets a value indicating whether show the help.")]
+        private static bool Help { get; set; }
+
+        /// <summary>
         ///     Gets or sets a value indicating whether the Bool argument was supplied.
         /// </summary>
-        [Argument('b', "boolean")]
+        [Argument('b', "boolean", "Gets or sets a value indicating whether the Bool argument was supplied.")]
         private static bool Bool { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the Double argument.
         /// </summary>
-        [Argument('f', "float")]
+        [Argument('f', "float", "Gets or sets the value of the Double argument.")]
         private static double Double { get; set; }
 
         /// <summary>
-        ///     Gets or sets the value of the Int argument
+        ///     Gets or sets the value of the Int argument.
         /// </summary>
-        [Argument('i', "integer")]
+        [Argument('i', "integer", "Gets or sets the value of the Int argument.")]
         private static int Int { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the List argument.
         /// </summary>
-        [Argument('l', "list")]
+        [Argument('l', "list", "Gets or sets the value of the List argument.")]
         private static List<int> List { get; set; }
 
         /// <summary>
@@ -93,6 +99,14 @@ namespace Examples
             // populate properties
             Arguments.Populate(commandLine);
 
+            if (Help)
+            {
+                ShowHelp();
+
+                // It guarantees that you will not proceed because you asked to show help.
+                return;
+            }
+
             Console.WriteLine("\r\nArgument\tValue");
             Console.WriteLine("-------\t\t-------");
 
@@ -134,6 +148,23 @@ namespace Examples
             Int = 0;
             Double = 0;
             List = new List<int>();
+        }
+
+        /// <summary>
+        /// Show help for arguments.
+        /// </summary>
+        private static void ShowHelp()
+        {
+            var helpAttributes = Arguments.GetArgumentHelp(typeof(Program));
+
+            Console.WriteLine("Short\tLong\tFunction");
+            Console.WriteLine("-----\t----\t--------");
+
+            foreach (var item in helpAttributes)
+            {
+                var result = item.ShortName + "\t" + item.LongName + "\t" + item.HelpText;
+                Console.WriteLine(result);
+            }
         }
 
         #endregion Private Methods

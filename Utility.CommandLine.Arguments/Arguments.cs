@@ -1,49 +1,32 @@
 ﻿/*
-      █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀  ▀  ▀      ▀▀
-      █
-      █     ▄████████
-      █     ███    ███
-      █     ███    ███    █████    ▄████▄  ██   █     ▄▄██▄▄▄     ▄█████ ██▄▄▄▄      ██      ▄█████
-      █     ███    ███   ██  ██   ██    ▀  ██   ██  ▄█▀▀██▀▀█▄   ██   █  ██▀▀▀█▄ ▀███████▄   ██  ▀
-      █   ▀███████████  ▄██▄▄█▀  ▄██       ██   ██  ██  ██  ██  ▄██▄▄    ██   ██     ██  ▀   ██
-      █     ███    ███ ▀███████ ▀▀██ ███▄  ██   ██  ██  ██  ██ ▀▀██▀▀    ██   ██     ██    ▀███████
-      █     ███    ███   ██  ██   ██    ██ ██   ██  ██  ██  ██   ██   █  ██   ██     ██       ▄  ██
-      █     ███    █▀    ██  ██   ██████▀  ██████    █  ██  █    ███████  █   █     ▄██▀    ▄████▀
-      █
- ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄  ▄▄ ▄▄   ▄▄▄▄ ▄▄     ▄▄     ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄ ▄
- █████████████████████████████████████████████████████████████ ███████████████ ██  ██ ██   ████ ██     ██     ████████████████ █ █
-      ▄
-      █  Provides static methods used to retrieve the command line arguments and operands with which the application was started,
-      █  as well as a Type to contain them.
-      █
-      █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀ ▀ ▀▀▀     ▀▀               ▀
-      █  The MIT License (MIT)
-      █
-      █  Copyright (c) 2017 JP Dillingham (jp@dillingham.ws)
-      █
-      █  Permission is hereby granted, free of charge, to any person obtaining a copy
-      █  of this software and associated documentation files (the "Software"), to deal
-      █  in the Software without restriction, including without limitation the rights
-      █  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      █  copies of the Software, and to permit persons to whom the Software is
-      █  furnished to do so, subject to the following conditions:
-      █
-      █  The above copyright notice and this permission notice shall be included in all
-      █  copies or substantial portions of the Software.
-      █
-      █  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      █  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      █  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      █  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      █  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      █  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      █  SOFTWARE.
-      █
-      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀██
-                                                                                                   ██
-                                                                                               ▀█▄ ██ ▄█▀
-                                                                                                 ▀████▀
-                                                                                                   ▀▀                            */
+  █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀  ▀  ▀      ▀▀
+  █  The MIT License (MIT)
+  █
+  █  Copyright (c) 2017 JP Dillingham (jp@dillingham.ws)
+  █
+  █  Permission is hereby granted, free of charge, to any person obtaining a copy
+  █  of this software and associated documentation files (the "Software"), to deal
+  █  in the Software without restriction, including without limitation the rights
+  █  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  █  copies of the Software, and to permit persons to whom the Software is
+  █  furnished to do so, subject to the following conditions:
+  █
+  █  The above copyright notice and this permission notice shall be included in all
+  █  copies or substantial portions of the Software.
+  █
+  █  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  █  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  █  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  █  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  █  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  █  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  █  SOFTWARE.
+  █
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀██
+                                                                                               ██
+                                                                                           ▀█▄ ██ ▄█▀
+                                                                                             ▀████▀
+                                                                                               ▀▀                            */
 
 using System;
 using System.Collections;
@@ -61,10 +44,8 @@ namespace Utility.CommandLine
     /// <summary>
     ///     Provides extension method(s) for the Argument namespace.
     /// </summary>
-    public static class Extensions
+    public static class ArgumentsExtensions
     {
-        #region Internal Methods
-
         /// <summary>
         ///     Adds the specified key to the specified dictionary with the specified value, but only if the specified key is not
         ///     already present in the dictionary. If it is present, a list is created and the new value is added to the list,
@@ -95,8 +76,6 @@ namespace Utility.CommandLine
                 }
             }
         }
-
-        #endregion Internal Methods
     }
 
     /// <summary>
@@ -106,22 +85,23 @@ namespace Utility.CommandLine
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class ArgumentAttribute : Attribute
     {
-        #region Public Constructors
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="ArgumentAttribute"/> class.
         /// </summary>
         /// <param name="shortName">The short name of the argument, represented as a single character.</param>
         /// <param name="longName">The long name of the argument.</param>
-        public ArgumentAttribute(char shortName, string longName)
+        /// <param name="helpText">The help text of the argument.</param>
+        public ArgumentAttribute(char shortName, string longName, string helpText = null)
         {
             ShortName = shortName;
             LongName = longName;
+            HelpText = helpText;
         }
 
-        #endregion Public Constructors
-
-        #region Public Properties
+        /// <summary>
+        ///     Gets or sets the help text of the argument.
+        /// </summary>
+        public string HelpText { get; set; }
 
         /// <summary>
         ///     Gets or sets the long name of the argument.
@@ -132,8 +112,6 @@ namespace Utility.CommandLine
         ///     Gets or sets the short name of the argument.
         /// </summary>
         public char ShortName { get; set; }
-
-        #endregion Public Properties
     }
 
     /// <summary>
@@ -142,8 +120,6 @@ namespace Utility.CommandLine
     /// </summary>
     public class Arguments
     {
-        #region Private Fields
-
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
@@ -169,13 +145,10 @@ namespace Utility.CommandLine
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
-        #endregion Private Fields
-
-        #region Private Constructors
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="Arguments"/> class with the specified argument dictionary and operand list.
         /// </summary>
+        /// <param name="commandLineString">The command line string from which the arguments were parsed.</param>
         /// <param name="argumentDictionary">
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
@@ -183,15 +156,12 @@ namespace Utility.CommandLine
         /// <param name="operandList">
         ///     The list containing the operands specified in the command line arguments with which the application was started.
         /// </param>
-        private Arguments(Dictionary<string, object> argumentDictionary, List<string> operandList)
+        private Arguments(string commandLineString, Dictionary<string, object> argumentDictionary, List<string> operandList)
         {
+            CommandLineString = commandLineString;
             ArgumentDictionary = argumentDictionary;
             OperandList = operandList;
         }
-
-        #endregion Private Constructors
-
-        #region Public Properties
 
         /// <summary>
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
@@ -200,13 +170,14 @@ namespace Utility.CommandLine
         public Dictionary<string, object> ArgumentDictionary { get; private set; }
 
         /// <summary>
+        ///     Gets the command line string from which the arguments were parsed.
+        /// </summary>
+        public string CommandLineString { get; private set; }
+
+        /// <summary>
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
         /// </summary>
         public List<string> OperandList { get; private set; }
-
-        #endregion Public Properties
-
-        #region Public Indexers
 
         /// <summary>
         ///     Gets the argument value corresponding to the specified key from the <see cref="ArgumentDictionary"/> property.
@@ -221,9 +192,34 @@ namespace Utility.CommandLine
             }
         }
 
-        #endregion Public Indexers
+        /// <summary>
+        ///     Retrieves a collection of <see cref="ArgumentHelp"/> gathered from properties in the target <paramref name="type"/>
+        ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
+        /// <returns>The retrieved collection of <see cref="ArgumentHelp"/>.</returns>
+        public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null)
+        {
+            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+            var retVal = new List<ArgumentHelp>();
 
-        #region Public Methods
+            foreach (PropertyInfo property in GetArgumentProperties(type).Values.Distinct())
+            {
+                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
+
+                if (attribute != default(CustomAttributeData))
+                {
+                    retVal.Add(new ArgumentHelp()
+                    {
+                        ShortName = (char)attribute.ConstructorArguments[0].Value,
+                        LongName = (string)attribute.ConstructorArguments[1].Value,
+                        HelpText = (string)attribute.ConstructorArguments[2].Value,
+                    });
+                }
+            }
+
+            return retVal;
+        }
 
         /// <summary>
         ///     Returns a dictionary containing the values specified in the command line arguments with which the application was
@@ -268,7 +264,7 @@ namespace Utility.CommandLine
                 operandList = GetOperandList(commandLineString);
             }
 
-            return new Arguments(argumentDictionary, operandList);
+            return new Arguments(commandLineString, argumentDictionary, operandList);
         }
 
         /// <summary>
@@ -294,19 +290,6 @@ namespace Utility.CommandLine
         public static void Populate(Type type, string commandLineString = default(string))
         {
             Populate(type, Parse(commandLineString));
-        }
-
-        /// <summary>
-        ///     Populates the properties in the invoking class marked with the
-        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the specified argument
-        ///     dictionary, if present.
-        /// </summary>
-        /// <param name="argumentDictionary">
-        ///     The dictionary containing the argument-value pairs with which the destination properties should be populated
-        /// </param>
-        public static void Populate(Dictionary<string, object> argumentDictionary)
-        {
-            Populate(new StackFrame(1).GetMethod().DeclaringType, new Arguments(argumentDictionary, new List<string>()));
         }
 
         /// <summary>
@@ -346,9 +329,18 @@ namespace Utility.CommandLine
 
                     // if the type of the property is bool and the argument value is empty set the property value to true,
                     // indicating the argument is present
-                    if (propertyType == typeof(bool) && value.ToString() == string.Empty)
+                    if (propertyType == typeof(bool))
                     {
                         convertedValue = true;
+
+                        // if a value is specified, a bool flag was followed by an operand and the parser interpreted this as key
+                        // value pair because it wasn't aware the flag was backed by a bool. remove the argument from the original
+                        // string and re-parse operands from it to preserve order.
+                        if (value.ToString() != string.Empty)
+                        {
+                            var arg = Regex.Matches(arguments.CommandLineString, "(?:[-]{1,2}|\\/)" + propertyName)[0].Value;
+                            arguments.OperandList = GetOperandList(arguments.CommandLineString.Replace(arg, string.Empty));
+                        }
                     }
                     else if (propertyType.IsArray || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>)))
                     {
@@ -436,10 +428,6 @@ namespace Utility.CommandLine
                 }
             }
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         /// <summary>
         ///     Converts the specified value for the specified argument to the specified Type.
@@ -615,9 +603,7 @@ namespace Utility.CommandLine
         ///     Retrieves the property in the target <see cref="Type"/> marked with the
         ///     <see cref="OperandsAttribute"/><see cref="Attribute"/>, if one exists.
         /// </summary>
-        /// <remarks>
-        ///     The target property <see cref="Type"/> of the designated property must be of type string[] or List{string}.
-        /// </remarks>
+        /// <remarks>The target property <see cref="Type"/> of the designated property must be of type string[] or List{string}.</remarks>
         /// <param name="type">The Type for which the matching property is to be retrieved.</param>
         /// <returns>The matching property, if one exists.</returns>
         /// <exception cref="InvalidCastException">
@@ -656,8 +642,27 @@ namespace Utility.CommandLine
 
             return value;
         }
+    }
 
-        #endregion Private Methods
+    /// <summary>
+    ///     Encapsulates argument names and help text.
+    /// </summary>
+    public class ArgumentHelp
+    {
+        /// <summary>
+        ///     Gets or sets the help text for the argument.
+        /// </summary>
+        public string HelpText { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the long name of the argument.
+        /// </summary>
+        public string LongName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the short name of the argument.
+        /// </summary>
+        public char ShortName { get; set; }
     }
 
     /// <summary>

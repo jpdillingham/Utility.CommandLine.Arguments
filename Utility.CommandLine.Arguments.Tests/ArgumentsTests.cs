@@ -1,61 +1,37 @@
 ﻿/*
-      █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀  ▀  ▀      ▀▀
-      █
-      █     ▄████████
-      █     ███    ███
-      █     ███    ███    █████    ▄████▄  ██   █     ▄▄██▄▄▄     ▄█████ ██▄▄▄▄      ██      ▄█████
-      █     ███    ███   ██  ██   ██    ▀  ██   ██  ▄█▀▀██▀▀█▄   ██   █  ██▀▀▀█▄ ▀███████▄   ██  ▀
-      █   ▀███████████  ▄██▄▄█▀  ▄██       ██   ██  ██  ██  ██  ▄██▄▄    ██   ██     ██  ▀   ██
-      █     ███    ███ ▀███████ ▀▀██ ███▄  ██   ██  ██  ██  ██ ▀▀██▀▀    ██   ██     ██    ▀███████
-      █     ███    ███   ██  ██   ██    ██ ██   ██  ██  ██  ██   ██   █  ██   ██     ██       ▄  ██
-      █     ███    █▀    ██  ██   ██████▀  ██████    █  ██  █    ███████  █   █     ▄██▀    ▄████▀
-      █
-      █       ███
-      █   ▀█████████▄
-      █      ▀███▀▀██    ▄█████   ▄█████     ██      ▄█████
-      █       ███   ▀   ██   █    ██  ▀  ▀███████▄   ██  ▀
-      █       ███      ▄██▄▄      ██         ██  ▀   ██
-      █       ███     ▀▀██▀▀    ▀███████     ██    ▀███████
-      █       ███       ██   █     ▄  ██     ██       ▄  ██
-      █      ▄████▀     ███████  ▄████▀     ▄██▀    ▄████▀
-      █
- ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄  ▄▄ ▄▄   ▄▄▄▄ ▄▄     ▄▄     ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄ ▄
- █████████████████████████████████████████████████████████████ ███████████████ ██  ██ ██   ████ ██     ██     ████████████████ █ █
-      ▄
-      █  Unit tests for the Arguments class.
-      █
-      █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀ ▀ ▀▀▀     ▀▀               ▀
-      █  The MIT License (MIT)
-      █
-      █  Copyright (c) 2017 JP Dillingham (jp@dillingham.ws)
-      █
-      █  Permission is hereby granted, free of charge, to any person obtaining a copy
-      █  of this software and associated documentation files (the "Software"), to deal
-      █  in the Software without restriction, including without limitation the rights
-      █  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      █  copies of the Software, and to permit persons to whom the Software is
-      █  furnished to do so, subject to the following conditions:
-      █
-      █  The above copyright notice and this permission notice shall be included in all
-      █  copies or substantial portions of the Software.
-      █
-      █  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      █  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      █  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      █  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      █  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      █  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      █  SOFTWARE.
-      █
-      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀██
-                                                                                                   ██
-                                                                                               ▀█▄ ██ ▄█▀
-                                                                                                 ▀████▀
-                                                                                                   ▀▀                            */
+  █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀  ▀  ▀      ▀▀
+  █  The MIT License (MIT)
+  █
+  █  Copyright (c) 2017 JP Dillingham (jp@dillingham.ws)
+  █
+  █  Permission is hereby granted, free of charge, to any person obtaining a copy
+  █  of this software and associated documentation files (the "Software"), to deal
+  █  in the Software without restriction, including without limitation the rights
+  █  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  █  copies of the Software, and to permit persons to whom the Software is
+  █  furnished to do so, subject to the following conditions:
+  █
+  █  The above copyright notice and this permission notice shall be included in all
+  █  copies or substantial portions of the Software.
+  █
+  █  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  █  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  █  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  █  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  █  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  █  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  █  SOFTWARE.
+  █
+  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀██
+                                                                                               ██
+                                                                                           ▀█▄ ██ ▄█▀
+                                                                                             ▀████▀
+                                                                                               ▀▀                            */
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Xunit;
 
 [assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed.")]
@@ -76,10 +52,40 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Constructor()
         {
-            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute('n', "name");
+            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute('n', "name", "help");
 
             Assert.Equal('n', test.ShortName);
             Assert.Equal("name", test.LongName);
+            Assert.Equal("help", test.HelpText);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.ArgumentHelp"/> class.
+    /// </summary>
+    [Collection("ArgumentHelp")]
+    public class ArgumentHelp
+    {
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the constructor and all properties.
+        /// </summary>
+        [Fact]
+        public void Constructor()
+        {
+            CommandLine.ArgumentHelp test = new CommandLine.ArgumentHelp()
+            {
+                ShortName = 'a',
+                LongName = "aa",
+                HelpText = "help",
+            };
+
+            Assert.Equal('a', test.ShortName);
+            Assert.Equal("aa", test.LongName);
+            Assert.Equal("help", test.HelpText);
         }
 
         #endregion Public Methods
@@ -96,7 +102,7 @@ namespace Utility.CommandLine.Tests
         /// <summary>
         ///     Gets or sets a value indicating whether the test property has been set.
         /// </summary>
-        [CommandLine.Argument('b', "bool")]
+        [CommandLine.Argument('b', "bool", "help")]
         private static bool Bool { get; set; }
 
         /// <summary>
@@ -149,6 +155,32 @@ namespace Utility.CommandLine.Tests
         #endregion Private Properties
 
         #region Public Methods
+
+        /// <summary>
+        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/>.
+        /// </summary>
+        [Fact]
+        public void GetArgumentHelp()
+        {
+            var help = CommandLine.Arguments.GetArgumentHelp(typeof(Arguments)).ToList();
+
+            Assert.Equal(6, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
+
+        /// <summary>
+        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/> with no arguments.
+        /// </summary>
+        [Fact]
+        public void GetArgumentHelpNull()
+        {
+            var help = CommandLine.Arguments.GetArgumentHelp().ToList();
+
+            Assert.Equal(6, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
 
         /// <summary>
         ///     Tests the <see cref="Indexer"/> of <see cref="Utility.CommandLine.Arguments"/>.
@@ -514,7 +546,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, object})"/> method with a decimal value.
+        ///     Tests the <see cref="CommandLine.Arguments.Populate(string)"/> method with a decimal value.
         /// </summary>
         [Fact]
         public void PopulateDecimal()
@@ -522,20 +554,6 @@ namespace Utility.CommandLine.Tests
             CommandLine.Arguments.Populate("--decimal 1.1");
 
             Assert.Equal(1.1M, Decimal);
-        }
-
-        /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, object})"/> method.
-        /// </summary>
-        [Fact]
-        public void PopulateDictionary()
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict.Add("i", "1");
-
-            CommandLine.Arguments.Populate(dict);
-
-            Assert.Equal(1, Integer);
         }
 
         /// <summary>
@@ -914,5 +932,50 @@ namespace Utility.CommandLine.Tests
         }
 
         #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class a bool property, specifically to test parsing of a bool followed by an operand.</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithBoolProperty
+    {
+        [CommandLine.Argument('a', "aa")]
+        private static bool A { get; set; }
+
+        [CommandLine.Operands]
+        private static List<string> Operands { get; set; }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single boolean followed by a single operand.
+        /// </summary>
+        [Fact]
+        public void PopulateBoolFollowedByOperand()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a operand"));
+
+            Assert.Null(ex);
+            Assert.True(A);
+            Assert.Single(Operands);
+            Assert.Equal("operand", Operands[0]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single boolean followed by two operands.
+        /// </summary>
+        [Fact]
+        public void PopulateBoolFollowedByTwoOperands()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a operand1 operand2"));
+
+            Assert.Null(ex);
+            Assert.True(A);
+            Assert.Equal(2, Operands.Count);
+            Assert.Equal("operand1", Operands[0]);
+            Assert.Equal("operand2", Operands[1]);
+        }
     }
 }

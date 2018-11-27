@@ -9,8 +9,8 @@
       "topLevelTypes": [ "class", "delegate", "enum", "interface" ]
     },
     "documentationRules": {
-      "documentPrivateElements": true,
-      "documentPrivateFields": true
+      "documentPrivateElements": false,
+      "documentPrivateFields": false
     }
   }
 }

@@ -61,6 +61,35 @@ namespace Utility.CommandLine.Tests
     }
 
     /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.ArgumentHelp"/> class.
+    /// </summary>
+    [Collection("ArgumentHelp")]
+    public class ArgumentHelp
+    {
+        #region Public Methods
+
+        /// <summary>
+        ///     Tests the constructor and all properties.
+        /// </summary>
+        [Fact]
+        public void Constructor()
+        {
+            CommandLine.ArgumentHelp test = new CommandLine.ArgumentHelp()
+            {
+                ShortName = 'a',
+                LongName = "aa",
+                HelpText = "help",
+            };
+
+            Assert.Equal('a', test.ShortName);
+            Assert.Equal("aa", test.LongName);
+            Assert.Equal("help", test.HelpText);
+        }
+
+        #endregion Public Methods
+    }
+
+    /// <summary>
     ///     Unit tests for the <see cref="Utility.CommandLine.Arguments"/> class.
     /// </summary>
     [Collection("Arguments")]

@@ -642,27 +642,27 @@ namespace Utility.CommandLine
 
             return value;
         }
+    }
+
+    /// <summary>
+    ///     Encapsulates argument names and help text.
+    /// </summary>
+    public class ArgumentHelp
+    {
+        /// <summary>
+        ///     Gets or sets the help text for the argument.
+        /// </summary>
+        public string HelpText { get; set; }
 
         /// <summary>
-        ///     Encapsulates argument names and help text.
+        ///     Gets or sets the long name of the argument.
         /// </summary>
-        public class ArgumentHelp
-        {
-            /// <summary>
-            ///     Gets or sets the help text for the argument.
-            /// </summary>
-            public string HelpText { get; set; }
+        public string LongName { get; set; }
 
-            /// <summary>
-            ///     Gets or sets the long name of the argument.
-            /// </summary>
-            public string LongName { get; set; }
-
-            /// <summary>
-            ///     Gets or sets the short name of the argument.
-            /// </summary>
-            public char ShortName { get; set; }
-        }
+        /// <summary>
+        ///     Gets or sets the short name of the argument.
+        /// </summary>
+        public char ShortName { get; set; }
     }
 
     /// <summary>

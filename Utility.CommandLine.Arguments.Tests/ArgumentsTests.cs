@@ -911,13 +911,13 @@ namespace Utility.CommandLine.Tests
         ///     containing a single boolean followed by a single operand.
         /// </summary>
         [Fact]
-        public void PopulateSingle()
+        public void PopulateBoolFollowedByOperand()
         {
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a operand"));
 
             Assert.Null(ex);
             Assert.True(A);
-            Assert.Equal(1, Operands.Count);
+            Assert.Single(Operands);
             Assert.Equal("operand", Operands[0]);
         }
     }

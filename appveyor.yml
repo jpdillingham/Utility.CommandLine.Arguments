@@ -4,6 +4,6 @@ before_build:
 build_script:
 - dotnet build --no-restore --no-incremental
 test_script:
-- dotnet test -p:CollectCoverage=true -p:CoverletOutput='coverage.xml' -p:CoverletOutputFormat=opencover tests/Utility.CommandLine.Arguments.Tests
+- dotnet test -p:CollectCoverage=true -p:CoverletOutput='./coverage.xml' -p:CoverletOutputFormat=opencover tests/Utility.CommandLine.Arguments.Tests
 - pip install codecov
 - codecov -f "tests/Utility.CommandLine.Arguments.Tests/coverage.xml"

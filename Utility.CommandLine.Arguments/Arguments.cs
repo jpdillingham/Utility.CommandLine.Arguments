@@ -203,7 +203,7 @@ namespace Utility.CommandLine
             type = type ?? new StackFrame(1).GetMethod().DeclaringType;
             var retVal = new List<ArgumentHelp>();
 
-            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
+            foreach (PropertyInfo property in GetArgumentProperties(type).Values)
             {
                 CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
 
@@ -265,35 +265,6 @@ namespace Utility.CommandLine
             }
 
             return new Arguments(commandLineString, argumentDictionary, operandList);
-        }
-
-        /// <summary>
-        ///     Get the help of arguments.
-        /// </summary>
-        /// <param name="type">Type where the help arguments are.</param>
-        /// <returns>Return the list of help arguments.</returns>
-        public static Dictionary<string, PropertyInfo> ParseHelpArguments(Type type)
-        {
-            Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
-
-            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
-            {
-                // attempt to fetch the ArgumentAttribute of the property
-                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
-
-                // if found, extract the Name property and add it to the dictionary
-                if (attribute != default(CustomAttributeData))
-                {
-                    string helpText = (string)attribute.ConstructorArguments[2].Value;
-
-                    if (!string.IsNullOrEmpty(helpText) && !properties.ContainsKey(helpText))
-                    {
-                        properties.Add(helpText, property);
-                    }
-                }
-            }
-
-            return properties;
         }
 
         /// <summary>

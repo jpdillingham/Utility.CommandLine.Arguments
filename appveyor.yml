@@ -1,7 +1,7 @@
 version: 1.0.0{build}
 before_build:
 - cmd: dotnet restore
-build:
+build_script:
 - cmd: dotnet build --no-restore --no-incremental
 test_script:
 - cmd: dotnet test tests/Utility.CommandLine.Arguments.Tests

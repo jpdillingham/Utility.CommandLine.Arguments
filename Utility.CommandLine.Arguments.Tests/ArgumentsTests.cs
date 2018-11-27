@@ -500,22 +500,6 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, object})"/> method.
-        /// </summary>
-        [Fact]
-        public void PopulateDictionary()
-        {
-            Dictionary<string, object> dict = new Dictionary<string, object>
-            {
-                { "i", "1" },
-            };
-
-            CommandLine.Arguments.Populate(dict);
-
-            Assert.Equal(1, Integer);
-        }
-
-        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit command line
         ///     string and with a class containing duplicate properties.
         /// </summary>
@@ -919,6 +903,22 @@ namespace Utility.CommandLine.Tests
             Assert.True(A);
             Assert.Single(Operands);
             Assert.Equal("operand", Operands[0]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single boolean followed by two operands.
+        /// </summary>
+        [Fact]
+        public void PopulateBoolFollowedByTwoOperands()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a operand1 operand2"));
+
+            Assert.Null(ex);
+            Assert.True(A);
+            Assert.Equal(2, Operands.Count);
+            Assert.Equal("operand1", Operands[0]);
+            Assert.Equal("operand2", Operands[1]);
         }
     }
 }

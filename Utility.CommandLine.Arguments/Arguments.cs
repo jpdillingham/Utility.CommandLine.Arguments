@@ -148,6 +148,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     Initializes a new instance of the <see cref="Arguments"/> class with the specified argument dictionary and operand list.
         /// </summary>
+        /// <param name="commandLineString">The command line string from which the arguments were parsed.</param>
         /// <param name="argumentDictionary">
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
@@ -155,8 +156,9 @@ namespace Utility.CommandLine
         /// <param name="operandList">
         ///     The list containing the operands specified in the command line arguments with which the application was started.
         /// </param>
-        private Arguments(Dictionary<string, object> argumentDictionary, List<string> operandList)
+        private Arguments(string commandLineString, Dictionary<string, object> argumentDictionary, List<string> operandList)
         {
+            CommandLineString = commandLineString;
             ArgumentDictionary = argumentDictionary;
             OperandList = operandList;
         }
@@ -171,6 +173,11 @@ namespace Utility.CommandLine
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
         /// </summary>
         public List<string> OperandList { get; private set; }
+
+        /// <summary>
+        ///     Gets the command line string from which the arguments were parsed.
+        /// </summary>
+        public string CommandLineString { get; private set; }
 
         /// <summary>
         ///     Gets the argument value corresponding to the specified key from the <see cref="ArgumentDictionary"/> property.
@@ -228,7 +235,7 @@ namespace Utility.CommandLine
                 operandList = GetOperandList(commandLineString);
             }
 
-            return new Arguments(argumentDictionary, operandList);
+            return new Arguments(commandLineString, argumentDictionary, operandList);
         }
 
         /// <summary>
@@ -286,19 +293,6 @@ namespace Utility.CommandLine
         }
 
         /// <summary>
-        ///     Populates the properties in the invoking class marked with the
-        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the specified argument
-        ///     dictionary, if present.
-        /// </summary>
-        /// <param name="argumentDictionary">
-        ///     The dictionary containing the argument-value pairs with which the destination properties should be populated
-        /// </param>
-        public static void Populate(Dictionary<string, object> argumentDictionary)
-        {
-            Populate(new StackFrame(1).GetMethod().DeclaringType, new Arguments(argumentDictionary, new List<string>()));
-        }
-
-        /// <summary>
         ///     Populates the properties in the specified Type marked with the
         ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> with the values specified in the specified argument
         ///     dictionary, if present. All property values are set to null at the start of the routine.
@@ -335,9 +329,18 @@ namespace Utility.CommandLine
 
                     // if the type of the property is bool and the argument value is empty set the property value to true,
                     // indicating the argument is present
-                    if (propertyType == typeof(bool) && value.ToString() == string.Empty)
+                    if (propertyType == typeof(bool))
                     {
                         convertedValue = true;
+
+                        // if a value is specified, a bool flag was followed by an operand and the parser
+                        // interpreted this as key value pair because it wasn't aware the flag was backed by a bool.
+                        // remove the argument from the original string and re-parse operands from it to preserve order.
+                        if (value.ToString() != string.Empty)
+                        {
+                            var arg = Regex.Matches(arguments.CommandLineString, "(?:[-]{1,2}|\\/)" + propertyName)[0].Value;
+                            arguments.OperandList = GetOperandList(arguments.CommandLineString.Replace(arg, string.Empty));
+                        }
                     }
                     else if (propertyType.IsArray || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>)))
                     {

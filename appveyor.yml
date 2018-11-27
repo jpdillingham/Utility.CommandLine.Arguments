@@ -1,7 +1,9 @@
 version: 1.0.0{build}
 before_build:
-- cmd: dotnet restore
+- dotnet restore
 build_script:
-- cmd: dotnet build --no-restore --no-incremental
+- dotnet build --no-restore --no-incremental
 test_script:
-- cmd: dotnet test tests/Utility.CommandLine.Arguments.Tests
+- dotnet test -p:CollectCoverage=true -p:CoverletOutput='../../Utility.CommandLine.Arguments_coverage.xml' -p:CoverletOutputFormat=opencover tests/Utility.CommandLine.Arguments.Tests
+- pip install codecov
+- codecof -f "Utility.CommandLine.Arguments_coverage.xml"

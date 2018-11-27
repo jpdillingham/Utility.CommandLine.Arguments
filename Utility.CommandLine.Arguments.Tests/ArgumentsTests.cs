@@ -505,8 +505,10 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateDictionary()
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            dict.Add("i", "1");
+            Dictionary<string, object> dict = new Dictionary<string, object>
+            {
+                { "i", "1" },
+            };
 
             CommandLine.Arguments.Populate(dict);
 
@@ -889,5 +891,34 @@ namespace Utility.CommandLine.Tests
         }
 
         #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of a class a bool property, specifically to test parsing of a bool followed by an operand.</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithBoolProperty
+    {
+        [CommandLine.Argument('a', "aa")]
+        private static bool A { get; set; }
+
+        [CommandLine.Operands]
+        private static List<string> Operands { get; set; }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     containing a single boolean followed by a single operand.
+        /// </summary>
+        [Fact]
+        public void PopulateSingle()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a operand"));
+
+            Assert.Null(ex);
+            Assert.True(A);
+            Assert.Equal(1, Operands.Count);
+            Assert.Equal("operand", Operands[0]);
+        }
     }
 }

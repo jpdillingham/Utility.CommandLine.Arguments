@@ -203,7 +203,7 @@ namespace Utility.CommandLine
             type = type ?? new StackFrame(1).GetMethod().DeclaringType;
             var retVal = new List<ArgumentHelp>();
 
-            foreach (PropertyInfo property in GetArgumentProperties(type).Values)
+            foreach (PropertyInfo property in GetArgumentProperties(type).Values.Distinct())
             {
                 CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
 

@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Xunit;
 
 [assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed.")]
@@ -51,10 +52,11 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Constructor()
         {
-            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute('n', "name");
+            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute('n', "name", "help");
 
             Assert.Equal('n', test.ShortName);
             Assert.Equal("name", test.LongName);
+            Assert.Equal("help", test.HelpText);
         }
 
         #endregion Public Methods
@@ -100,7 +102,7 @@ namespace Utility.CommandLine.Tests
         /// <summary>
         ///     Gets or sets a value indicating whether the test property has been set.
         /// </summary>
-        [CommandLine.Argument('b', "bool")]
+        [CommandLine.Argument('b', "bool", "help")]
         private static bool Bool { get; set; }
 
         /// <summary>
@@ -153,6 +155,32 @@ namespace Utility.CommandLine.Tests
         #endregion Private Properties
 
         #region Public Methods
+
+        /// <summary>
+        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/>.
+        /// </summary>
+        [Fact]
+        public void GetArgumentHelp()
+        {
+            var help = CommandLine.Arguments.GetArgumentHelp(typeof(Arguments)).ToList();
+
+            Assert.Equal(6, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
+
+        /// <summary>
+        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/> with no arguments.
+        /// </summary>
+        [Fact]
+        public void GetArgumentHelpNull()
+        {
+            var help = CommandLine.Arguments.GetArgumentHelp().ToList();
+
+            Assert.Equal(6, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
 
         /// <summary>
         ///     Tests the <see cref="Indexer"/> of <see cref="Utility.CommandLine.Arguments"/>.
@@ -518,7 +546,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Dictionary{string, object})"/> method with a decimal value.
+        ///     Tests the <see cref="CommandLine.Arguments.Populate(string)"/> method with a decimal value.
         /// </summary>
         [Fact]
         public void PopulateDecimal()

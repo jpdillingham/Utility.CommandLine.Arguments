@@ -170,14 +170,14 @@ namespace Utility.CommandLine
         public Dictionary<string, object> ArgumentDictionary { get; private set; }
 
         /// <summary>
-        ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
-        /// </summary>
-        public List<string> OperandList { get; private set; }
-
-        /// <summary>
         ///     Gets the command line string from which the arguments were parsed.
         /// </summary>
         public string CommandLineString { get; private set; }
+
+        /// <summary>
+        ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
+        /// </summary>
+        public List<string> OperandList { get; private set; }
 
         /// <summary>
         ///     Gets the argument value corresponding to the specified key from the <see cref="ArgumentDictionary"/> property.
@@ -190,6 +190,35 @@ namespace Utility.CommandLine
             {
                 return ArgumentDictionary[index];
             }
+        }
+
+        /// <summary>
+        ///     Retrieves a collection of <see cref="ArgumentHelp"/> gathered from properties in the target <paramref name="type"/>
+        ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
+        /// <returns>The retrieved collection of <see cref="ArgumentHelp"/>.</returns>
+        public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null)
+        {
+            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+            var retVal = new List<ArgumentHelp>();
+
+            foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
+            {
+                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
+
+                if (attribute != default(CustomAttributeData))
+                {
+                    retVal.Add(new ArgumentHelp()
+                    {
+                        ShortName = (char)attribute.ConstructorArguments[0].Value,
+                        LongName = (string)attribute.ConstructorArguments[1].Value,
+                        HelpText = (string)attribute.ConstructorArguments[2].Value,
+                    });
+                }
+            }
+
+            return retVal;
         }
 
         /// <summary>
@@ -333,9 +362,9 @@ namespace Utility.CommandLine
                     {
                         convertedValue = true;
 
-                        // if a value is specified, a bool flag was followed by an operand and the parser
-                        // interpreted this as key value pair because it wasn't aware the flag was backed by a bool.
-                        // remove the argument from the original string and re-parse operands from it to preserve order.
+                        // if a value is specified, a bool flag was followed by an operand and the parser interpreted this as key
+                        // value pair because it wasn't aware the flag was backed by a bool. remove the argument from the original
+                        // string and re-parse operands from it to preserve order.
                         if (value.ToString() != string.Empty)
                         {
                             var arg = Regex.Matches(arguments.CommandLineString, "(?:[-]{1,2}|\\/)" + propertyName)[0].Value;
@@ -641,6 +670,27 @@ namespace Utility.CommandLine
             }
 
             return value;
+        }
+
+        /// <summary>
+        ///     Encapsulates argument names and help text.
+        /// </summary>
+        public class ArgumentHelp
+        {
+            /// <summary>
+            ///     Gets or sets the help text for the argument.
+            /// </summary>
+            public string HelpText { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the long name of the argument.
+            /// </summary>
+            public string LongName { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the short name of the argument.
+            /// </summary>
+            public char ShortName { get; set; }
         }
     }
 

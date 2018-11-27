@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Utility.CommandLine;
 
 namespace Examples
@@ -52,7 +51,7 @@ namespace Examples
         /// <summary>
         ///     Gets or sets the String argument.
         /// </summary>
-        [Argument('s', "string", "Gets or sets the String argument.")]
+        [Argument('s', "string")]
         private static string String { get; set; }
 
         #endregion Private Properties
@@ -156,49 +155,16 @@ namespace Examples
         /// </summary>
         private static void ShowHelp()
         {
-            var helpAttributes = Arguments.ParseHelpArguments(typeof(Program));
+            var helpAttributes = Arguments.GetArgumentHelp(typeof(Program));
+
+            Console.WriteLine("Short\tLong\tFunction");
+            Console.WriteLine("-----\t----\t--------");
 
             foreach (var item in helpAttributes)
             {
-                string result = default(string);
-
-                result = $"{item.Key.Trim()}{Environment.NewLine}";
-
-                var lst = GetArgumentsFromPropertyInfo(item.Value);
-
-                foreach (var arg in lst)
-                {
-                    result += $"\t-{arg.Key.Trim()}{Environment.NewLine}";
-                }
-
+                var result = item.ShortName + "\t" + item.LongName + "\t" + item.HelpText;
                 Console.WriteLine(result);
             }
-        }
-
-        /// <summary>
-        /// Get the arguments from the property.
-        /// </summary>
-        /// <param name="propertyInfo">The property with the arguments.</param>
-        /// <returns>Return the dictionary with the arguments.</returns>
-        private static Dictionary<string, PropertyInfo> GetArgumentsFromPropertyInfo(PropertyInfo propertyInfo)
-        {
-            Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
-
-            CustomAttributeData attributeType = propertyInfo.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
-
-            if (attributeType != default(CustomAttributeData))
-            {
-                char shortName = (char)attributeType.ConstructorArguments[0].Value;
-                string longName = (string)attributeType.ConstructorArguments[1].Value;
-
-                if (!properties.ContainsKey(shortName.ToString()) && !properties.ContainsKey(longName))
-                {
-                    properties.Add(shortName.ToString(), propertyInfo);
-                    properties.Add(longName, propertyInfo);
-                }
-            }
-
-            return properties;
         }
 
         #endregion Private Methods

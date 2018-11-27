@@ -31,8 +31,8 @@ specified in the command line arguments.
 ```c#
 internal class Program
 {
-    // [Argument(short name (char), long name (string))]
-    [Argument('b', "myBool")]
+    // [Argument(short name (char), long name (string), help text)]
+    [Argument('b', "myBool", "a boolean value")]
     private static bool Bool { get; set; }
 
     [Argument('f', "someFloat")]
@@ -230,8 +230,8 @@ of type ```string[]``` or ```List<string>```.
 
 ### Creating Target Properties
 
-Use the ```Argument``` attribute to designate properties to be populated.  The constructor of ```Argument``` accepts a ```char``` and a 
-```string```, representing the short and long names of the argument, respectively.
+Use the ```Argument``` attribute to designate properties to be populated.  The constructor of ```Argument``` accepts a ```char```, a 
+```string```, and an additional ```string```, representing the short and long names of the argument, and help text, respectively.
 
 Note that the name of the property doesn't matter; only the attribute values are used to match an argument key to a property.
 
@@ -247,7 +247,7 @@ The ```Operands``` property accepts no parameters.  If the property type is not 
 #### Examples
 
 ```c#
-[Argument('f', "foo")]
+[Argument('f', "foo", "some help text")]
 private static string Foo { get; set; }
 
 [Argument('n', "number")]
@@ -272,4 +272,22 @@ MyNumber | 5
 TrueOrFalse | true
 List | 1,2
 
- 
+### Obtaining Help
+
+A collection of `ArgumentHelp` containing the short and long names and help text for each argument property can be fetched with `GetArgumentHelp()`:
+
+```c#
+private static void ShowHelp()
+{
+    var helpAttributes = Arguments.GetArgumentHelp(typeof(Program));
+
+    Console.WriteLine("Short\tLong\tFunction");
+    Console.WriteLine("-----\t----\t--------");
+
+    foreach (var item in helpAttributes)
+    {
+        var result = item.ShortName + "\t" + item.LongName + "\t" + item.HelpText;
+        Console.WriteLine(result);
+    }
+}
+```

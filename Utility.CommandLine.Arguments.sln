@@ -13,10 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		appveyor.yml = appveyor.yml
 		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE = LICENSE
+		pack.sh = pack.sh
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "examples\Example\Example.csproj", "{57E43670-9A19-4235-8552-EAB69404B56C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example", "examples\Example\Example.csproj", "{57E43670-9A19-4235-8552-EAB69404B56C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

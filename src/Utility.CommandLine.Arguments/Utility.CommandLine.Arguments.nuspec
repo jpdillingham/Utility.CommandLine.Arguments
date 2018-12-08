@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Utility.CommandLine.Arguments</id>
+    <version>2.0.1</version>
+    <authors>JP Dillingham</authors>
+    <owners>JP Dillingham</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/jpdillingham/Utility.CommandLine.Arguments/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/jpdillingham/Utility.CommandLine.Arguments</projectUrl>
+    <description>A C# .NET Class Library containing tools for parsing the command line arguments of console applications.</description>
+    <releaseNotes>Fix NuGet targeting of .NETStard2.0.</releaseNotes>
+    <copyright>Copyright (c) 2017-2018 JP Dillingham (jp@dillingham.ws)</copyright>
+    <language>en-US</language>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\netstandard2.0\Utility.CommandLine.Arguments.dll" target="lib\netstandard2.0\Utility.CommandLine.Arguments.dll" />
+    <file src="bin\Release\netstandard2.0\Utility.CommandLine.Arguments.xml" target="lib\netstandard2.0\Utility.CommandLine.Arguments.xml" />
+  </files>
+</package>

@@ -273,7 +273,7 @@ namespace Utility.CommandLine
         ///     arguments, if present.
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(string commandLineString = default(string), bool clearExistingValues = false)
+        public static void Populate(string commandLineString = default(string), bool clearExistingValues = true)
         {
             Populate(new StackFrame(1).GetMethod().DeclaringType, Parse(commandLineString), clearExistingValues);
         }
@@ -287,7 +287,7 @@ namespace Utility.CommandLine
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
         /// </param>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(Type type, string commandLineString = default(string), bool clearExistingValues = false)
+        public static void Populate(Type type, string commandLineString = default(string), bool clearExistingValues = true)
         {
             Populate(type, Parse(commandLineString), clearExistingValues);
         }
@@ -304,7 +304,7 @@ namespace Utility.CommandLine
         ///     The Arguments object containing the dictionary containing the argument-value pairs with which the destination
         ///     properties should be populated and the list of operands.
         /// </param>
-        public static void Populate(Type type, Arguments arguments, bool clearExistingValues = false)
+        public static void Populate(Type type, Arguments arguments, bool clearExistingValues = true)
         {
             // fetch any properties in the specified type marked with the ArgumentAttribute attribute and clear them
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);

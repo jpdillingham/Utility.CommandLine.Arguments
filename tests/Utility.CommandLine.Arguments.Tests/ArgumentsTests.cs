@@ -661,6 +661,20 @@ namespace Utility.CommandLine.Tests
             Assert.IsType<ArgumentException>(ex);
         }
 
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method to assure that properties are "cleared"
+        ///     prior to populating values.
+        /// </summary>
+        [Fact]
+        public void SetsDefaultValuesOnPopulate()
+        {
+            CommandLine.Arguments.Populate(typeof(TestClassWithDefaultValues));
+
+            Assert.Null(TestClassWithDefaultValues.String);
+            Assert.Equal(0, TestClassWithDefaultValues.Int);
+            Assert.False(TestClassWithDefaultValues.Bool);
+        }
+
         #endregion Public Methods
     }
 
@@ -932,6 +946,32 @@ namespace Utility.CommandLine.Tests
         }
 
         #endregion Public Methods
+    }
+
+    /// <summary>
+    ///     Unit tests for the <see cref="CommandLine.Arguments"/> class.
+    /// </summary>
+    /// <remarks>Used to facilitate testing of property "clearing".</remarks>
+    [Collection("Arguments")]
+    public class TestClassWithDefaultValues
+    {
+        /// <summary>
+        ///     String
+        /// </summary>
+        [CommandLine.Argument('a', "aa")]
+        public static string String { get; set; } = "foo";
+
+        /// <summary>
+        ///     Int
+        /// </summary>
+        [CommandLine.Argument('b', "bb")]
+        public static int Int { get; set; } = 42;
+
+        /// <summary>
+        ///     Bool
+        /// </summary>
+        [CommandLine.Argument('c', "cc")]
+        public static bool Bool { get; set; } = true;
     }
 
     /// <summary>

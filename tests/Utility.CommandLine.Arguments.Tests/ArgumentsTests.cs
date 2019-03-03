@@ -557,6 +557,24 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method to assure that properties are not
+        ///     "cleared" when clearing is explicitly disabled.
+        /// </summary>
+        [Fact]
+        public void PopulateDisableClearing()
+        {
+            Bool = true;
+            Decimal = 3.5m;
+            Integer = 42;
+
+            CommandLine.Arguments.Populate(string.Empty, false);
+
+            Assert.True(Bool);
+            Assert.Equal(3.5m, Decimal);
+            Assert.Equal(42, Integer);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit command line
         ///     string and with a class containing duplicate properties.
         /// </summary>

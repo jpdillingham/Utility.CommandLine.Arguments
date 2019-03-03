@@ -80,7 +80,7 @@ namespace Utility.CommandLine
 
     /// <summary>
     ///     Indicates that the property is to be used as a target for automatic population of values from command line arguments
-    ///     when invoking the <see cref="Arguments.Populate(string)"/> method.
+    ///     when invoking the <see cref="Arguments.Populate(string, bool)"/> method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class ArgumentAttribute : Attribute
@@ -273,9 +273,10 @@ namespace Utility.CommandLine
         ///     arguments, if present.
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(string commandLineString = default(string))
+        /// <param name="clearExistingValues">Whether to clear the properties before populating them. Defaults to true.</param>
+        public static void Populate(string commandLineString = default(string), bool clearExistingValues = true)
         {
-            Populate(new StackFrame(1).GetMethod().DeclaringType, Parse(commandLineString));
+            Populate(new StackFrame(1).GetMethod().DeclaringType, Parse(commandLineString), clearExistingValues);
         }
 
         /// <summary>
@@ -287,9 +288,10 @@ namespace Utility.CommandLine
         ///     The Type for which the static properties matching the list of command line arguments are to be populated.
         /// </param>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        public static void Populate(Type type, string commandLineString = default(string))
+        /// <param name="clearExistingValues">Whether to clear the properties before populating them. Defaults to true.</param>
+        public static void Populate(Type type, string commandLineString = default(string), bool clearExistingValues = true)
         {
-            Populate(type, Parse(commandLineString));
+            Populate(type, Parse(commandLineString), clearExistingValues);
         }
 
         /// <summary>
@@ -304,12 +306,16 @@ namespace Utility.CommandLine
         ///     The Arguments object containing the dictionary containing the argument-value pairs with which the destination
         ///     properties should be populated and the list of operands.
         /// </param>
-        public static void Populate(Type type, Arguments arguments)
+        /// <param name="clearExistingValues">Whether to clear the properties before populating them. Defaults to true.</param>
+        public static void Populate(Type type, Arguments arguments, bool clearExistingValues = true)
         {
             // fetch any properties in the specified type marked with the ArgumentAttribute attribute and clear them
             Dictionary<string, PropertyInfo> properties = GetArgumentProperties(type);
 
-            ClearProperties(properties);
+            if (clearExistingValues)
+            {
+                ClearProperties(properties);
+            }
 
             foreach (string propertyName in properties.Keys)
             {
@@ -667,7 +673,7 @@ namespace Utility.CommandLine
 
     /// <summary>
     ///     Indicates that the property is to be used as the target for automatic population of command line operands when invoking
-    ///     the <see cref="Arguments.Populate(string)"/> method.
+    ///     the <see cref="Arguments.Populate(string, bool)"/> method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class OperandsAttribute : Attribute

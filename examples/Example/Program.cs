@@ -145,6 +145,7 @@ namespace Examples
         {
             String = string.Empty;
             Bool = false;
+            Help = false;
             Int = 0;
             Double = 0;
             List = new List<int>();

@@ -517,7 +517,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with the default values.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with the default values.
         /// </summary>
         [Fact]
         public void Populate()
@@ -528,7 +528,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit command line string
         ///     containing both upper and lower case arguments.
         /// </summary>
         [Fact]
@@ -546,7 +546,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="CommandLine.Arguments.Populate(string)"/> method with a decimal value.
+        ///     Tests the <see cref="CommandLine.Arguments.Populate(string, bool)"/> method with a decimal value.
         /// </summary>
         [Fact]
         public void PopulateDecimal()
@@ -557,7 +557,25 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit command line
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method to assure that properties are not
+        ///     "cleared" when clearing is explicitly disabled.
+        /// </summary>
+        [Fact]
+        public void PopulateDisableClearing()
+        {
+            Bool = true;
+            Decimal = 3.5m;
+            Integer = 42;
+
+            CommandLine.Arguments.Populate(string.Empty, false);
+
+            Assert.True(Bool);
+            Assert.Equal(3.5m, Decimal);
+            Assert.Equal(42, Integer);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit command line
         ///     string and with a class containing duplicate properties.
         /// </summary>
         [Fact]
@@ -572,7 +590,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a Type external to the
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with a Type external to the
         ///     calling class and with an explicit string.
         /// </summary>
         [Fact]
@@ -586,7 +604,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with a string containing
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with a string containing
         ///     multiple values for an argument which is not backed by a collection.
         /// </summary>
         [Fact]
@@ -599,7 +617,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit command line
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit command line
         ///     string containing two operands.
         /// </summary>
         [Fact]
@@ -612,7 +630,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit command line string
         ///     containing multiple short names.
         /// </summary>
         [Fact]
@@ -625,7 +643,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit command line string.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit command line string.
         /// </summary>
         [Fact]
         public void PopulateString()
@@ -638,7 +656,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit type.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit type.
         /// </summary>
         [Fact]
         public void PopulateType()
@@ -649,7 +667,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method with an explicit type and command
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit type and command
         ///     line string, where the string contains a value which does not match the type of the destination property.
         /// </summary>
         [Fact]
@@ -662,7 +680,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method to assure that properties are "cleared"
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method to assure that properties are "cleared"
         ///     prior to populating values.
         /// </summary>
         [Fact]
@@ -766,7 +784,7 @@ namespace Utility.CommandLine.Tests
         #region Public Methods
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing two operands, and with a Type containing a property of type <see langword="string[]"/> marked with the
         ///     <see cref="Operands"/> attribute.
         /// </summary>
@@ -802,7 +820,7 @@ namespace Utility.CommandLine.Tests
         #region Public Methods
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing multiple instances of the same argument.
         /// </summary>
         [Fact]
@@ -818,7 +836,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing a single a single instance of an array-backed argument.
         /// </summary>
         [Fact]
@@ -856,7 +874,7 @@ namespace Utility.CommandLine.Tests
         #region Public Methods
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing two operands, and with a Type containing a property marked with the <see cref="Operands"/> attribute but
         ///     that is not of type <see cref="T:string[]"/> or <see cref="List{T}"/>}"/&gt; .
         /// </summary>
@@ -892,7 +910,7 @@ namespace Utility.CommandLine.Tests
         #region Public Methods
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing multiple instances of a list-backed argument.
         /// </summary>
         [Fact]
@@ -908,7 +926,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing a single a single instance of a list-backed argument.
         /// </summary>
         [Fact]
@@ -934,7 +952,7 @@ namespace Utility.CommandLine.Tests
         #region Public Methods
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing a single argument/value pair, and with a Type containing no properties.
         /// </summary>
         [Fact]
@@ -988,7 +1006,7 @@ namespace Utility.CommandLine.Tests
         private static List<string> Operands { get; set; }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing a single boolean followed by a single operand.
         /// </summary>
         [Fact]
@@ -1003,7 +1021,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string)"/> method with an explicit string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
         ///     containing a single boolean followed by two operands.
         /// </summary>
         [Fact]

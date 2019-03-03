@@ -662,7 +662,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string)"/> method to assure that properties are "cleared"
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method to assure that properties are "cleared"
         ///     prior to populating values.
         /// </summary>
         [Fact]

@@ -35,6 +35,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 [assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Reviewed.")]
@@ -80,7 +81,7 @@ namespace Utility.CommandLine
 
     /// <summary>
     ///     Indicates that the property is to be used as a target for automatic population of values from command line arguments
-    ///     when invoking the <see cref="Arguments.Populate(string, bool)"/> method.
+    ///     when invoking the <see cref="Arguments.Populate(string, bool, string)"/> method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class ArgumentAttribute : Attribute
@@ -274,9 +275,20 @@ namespace Utility.CommandLine
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
         /// <param name="clearExistingValues">Whether to clear the properties before populating them. Defaults to true.</param>
-        public static void Populate(string commandLineString = default(string), bool clearExistingValues = true)
+        /// <param name="caller">Internal parameter used to identify the calling method.</param>
+        public static void Populate(string commandLineString = default(string), bool clearExistingValues = true, [CallerMemberName] string caller = default(string))
         {
-            Populate(new StackFrame(1).GetMethod().DeclaringType, Parse(commandLineString), clearExistingValues);
+            var callingMethod = new StackTrace().GetFrames()
+                .Select(f => f.GetMethod())
+                .Where(m => m.Name == caller).FirstOrDefault();
+
+            if (callingMethod == default(MethodBase))
+            {
+                throw new InvalidOperationException("Error populating arguments; Unable to determine the containing type of Main().  Use Populate(typeof(<class containing main>))");
+            }
+
+            var type = new StackFrame(1).GetMethod().DeclaringType;
+            Populate(callingMethod.DeclaringType, Parse(commandLineString), clearExistingValues);
         }
 
         /// <summary>
@@ -673,7 +685,7 @@ namespace Utility.CommandLine
 
     /// <summary>
     ///     Indicates that the property is to be used as the target for automatic population of command line operands when invoking
-    ///     the <see cref="Arguments.Populate(string, bool)"/> method.
+    ///     the <see cref="Arguments.Populate(string, bool, string)"/> method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class OperandsAttribute : Attribute

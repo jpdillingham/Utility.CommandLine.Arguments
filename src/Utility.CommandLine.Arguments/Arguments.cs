@@ -287,7 +287,6 @@ namespace Utility.CommandLine
                 throw new InvalidOperationException("Error populating arguments; Unable to determine the containing type of Main().  Use Populate(typeof(<class containing main>))");
             }
 
-            var type = new StackFrame(1).GetMethod().DeclaringType;
             Populate(callingMethod.DeclaringType, Parse(commandLineString), clearExistingValues);
         }
 

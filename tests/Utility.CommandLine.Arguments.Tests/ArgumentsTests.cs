@@ -517,7 +517,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with the default values.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with the default values.
         /// </summary>
         [Fact]
         public void Populate()
@@ -528,7 +528,19 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with a bogus caller.
+        /// </summary>
+        [Fact]
+        public void PopulateBogusCaller()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate("-b", true, Guid.NewGuid().ToString()));
+
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidOperationException>(ex);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with an explicit command line string
         ///     containing both upper and lower case arguments.
         /// </summary>
         [Fact]
@@ -546,7 +558,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="CommandLine.Arguments.Populate(string, bool)"/> method with a decimal value.
+        ///     Tests the <see cref="CommandLine.Arguments.Populate(string, bool, string)"/> method with a decimal value.
         /// </summary>
         [Fact]
         public void PopulateDecimal()
@@ -557,7 +569,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method to assure that properties are not
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method to assure that properties are not
         ///     "cleared" when clearing is explicitly disabled.
         /// </summary>
         [Fact]
@@ -630,7 +642,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with an explicit command line string
         ///     containing multiple short names.
         /// </summary>
         [Fact]
@@ -643,7 +655,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit command line string.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with an explicit command line string.
         /// </summary>
         [Fact]
         public void PopulateString()
@@ -656,7 +668,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit type.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with an explicit type.
         /// </summary>
         [Fact]
         public void PopulateType()
@@ -667,7 +679,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method with an explicit type and command
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with an explicit type and command
         ///     line string, where the string contains a value which does not match the type of the destination property.
         /// </summary>
         [Fact]
@@ -680,7 +692,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool)"/> method to assure that properties are "cleared"
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method to assure that properties are "cleared"
         ///     prior to populating values.
         /// </summary>
         [Fact]

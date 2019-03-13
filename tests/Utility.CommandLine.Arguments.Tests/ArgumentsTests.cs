@@ -528,6 +528,18 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with a bogus caller.
+        /// </summary>
+        [Fact]
+        public void PopulateBogusCaller()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate("-b", true, Guid.NewGuid().ToString()));
+
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidOperationException>(ex);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(string, bool, string)"/> method with an explicit command line string
         ///     containing both upper and lower case arguments.
         /// </summary>

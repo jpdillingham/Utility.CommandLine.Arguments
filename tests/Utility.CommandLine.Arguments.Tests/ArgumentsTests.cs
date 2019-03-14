@@ -97,6 +97,22 @@ namespace Utility.CommandLine.Tests
     [Collection("Arguments")]
     public class Arguments
     {
+        /// <summary>
+        ///     Enums
+        /// </summary>
+        public enum Enums
+        {
+            /// <summary>
+            ///     Foo 
+            /// </summary>
+            Foo = 1,
+
+            /// <summary>
+            ///     Bar
+            /// </summary>
+            Bar = 2,
+        }
+
         #region Private Properties
 
         /// <summary>
@@ -152,6 +168,12 @@ namespace Utility.CommandLine.Tests
         [CommandLine.Argument('C', "CASE-SENSITIVE")]
         private static string UpperCase { get; set; }
 
+        /// <summary>
+        ///     Gets or sets an enum property.
+        /// </summary>
+        [CommandLine.Argument('e', "enum")]
+        private static Enums Enum { get; set; }
+
         #endregion Private Properties
 
         #region Public Methods
@@ -164,7 +186,7 @@ namespace Utility.CommandLine.Tests
         {
             var help = CommandLine.Arguments.GetArgumentHelp(typeof(Arguments)).ToList();
 
-            Assert.Equal(6, help.Count);
+            Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
             Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
         }
@@ -177,7 +199,7 @@ namespace Utility.CommandLine.Tests
         {
             var help = CommandLine.Arguments.GetArgumentHelp().ToList();
 
-            Assert.Equal(6, help.Count);
+            Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
             Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
         }
@@ -566,6 +588,17 @@ namespace Utility.CommandLine.Tests
             CommandLine.Arguments.Populate("--decimal 1.1");
 
             Assert.Equal(1.1M, Decimal);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="CommandLine.Arguments.Populate(string, bool, string)"/> method with an enum value.
+        /// </summary>
+        [Fact]
+        public void PopulateEnum()
+        {
+            CommandLine.Arguments.Populate("--enum bar");
+
+            Assert.Equal(Enums.Bar, Enum);
         }
 
         /// <summary>

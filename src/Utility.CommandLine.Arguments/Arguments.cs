@@ -457,6 +457,11 @@ namespace Utility.CommandLine
         {
             try
             {
+                if (toType.IsEnum)
+                {
+                    return Enum.Parse(toType, (string)value, true);
+                }
+
                 return Convert.ChangeType(value, toType);
             }
             catch (Exception ex)

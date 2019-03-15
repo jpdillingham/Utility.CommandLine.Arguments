@@ -518,6 +518,7 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeFollowedByASpace", Justification = "Conflicts with SA1015.")]
         private static Dictionary<string, object> GetArgumentDictionary(string commandLineString, Type type)
         {
             List<(string, string)> argumentList = new List<(string, string)>();

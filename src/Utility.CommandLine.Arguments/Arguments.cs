@@ -669,7 +669,29 @@ namespace Utility.CommandLine
     /// <summary>
     ///     Encapsulates argument names and help text.
     /// </summary>
+    [Obsolete]
     public class ArgumentHelp
+    {
+        /// <summary>
+        ///     Gets or sets the help text for the argument.
+        /// </summary>
+        public string HelpText { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the long name of the argument.
+        /// </summary>
+        public string LongName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the short name of the argument.
+        /// </summary>
+        public char ShortName { get; set; }
+    }
+
+    /// <summary>
+    ///     Encapsulates argument names and help text.
+    /// </summary>
+    public class ArgumentInfo
     {
         /// <summary>
         ///     Gets or sets the help text for the argument.

@@ -199,10 +199,28 @@ namespace Utility.CommandLine
         /// </summary>
         /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
         /// <returns>The retrieved collection of <see cref="ArgumentHelp"/>.</returns>
+        [Obsolete]
         public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null)
         {
             type = type ?? new StackFrame(1).GetMethod().DeclaringType;
-            var retVal = new List<ArgumentHelp>();
+
+            return GetArgumentInfo(type).Select(i => new ArgumentHelp() {
+                ShortName = i.ShortName,
+                LongName = i.LongName,
+                HelpText = i.HelpText,
+            });
+        }
+
+        /// <summary>
+        ///     Retrieves a collection of <see cref="ArgumentInfo"/> gathered from properties in the target <paramref name="type"/>
+        ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
+        /// <returns>The retrieved collection of <see cref="ArgumentInfo"/>.</returns>
+        public static IEnumerable<ArgumentInfo> GetArgumentInfo(Type type = null)
+        {
+            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+            var retVal = new List<ArgumentInfo>();
 
             foreach (PropertyInfo property in GetArgumentProperties(type).Values.Distinct())
             {
@@ -210,7 +228,7 @@ namespace Utility.CommandLine
 
                 if (attribute != default(CustomAttributeData))
                 {
-                    retVal.Add(new ArgumentHelp()
+                    retVal.Add(new ArgumentInfo()
                     {
                         ShortName = (char)attribute.ConstructorArguments[0].Value,
                         LongName = (string)attribute.ConstructorArguments[1].Value,

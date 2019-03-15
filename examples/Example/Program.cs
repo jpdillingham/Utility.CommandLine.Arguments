@@ -156,7 +156,7 @@ namespace Examples
         /// </summary>
         private static void ShowHelp()
         {
-            var helpAttributes = Arguments.GetArgumentHelp(typeof(Program));
+            var helpAttributes = Arguments.GetArgumentInfo(typeof(Program));
 
             Console.WriteLine("Short\tLong\tFunction");
             Console.WriteLine("-----\t----\t--------");

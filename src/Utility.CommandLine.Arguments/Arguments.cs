@@ -199,10 +199,29 @@ namespace Utility.CommandLine
         /// </summary>
         /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
         /// <returns>The retrieved collection of <see cref="ArgumentHelp"/>.</returns>
+        [Obsolete]
         public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null)
         {
             type = type ?? new StackFrame(1).GetMethod().DeclaringType;
-            var retVal = new List<ArgumentHelp>();
+
+            return GetArgumentInfo(type).Select(i => new ArgumentHelp()
+            {
+                ShortName = i.ShortName,
+                LongName = i.LongName,
+                HelpText = i.HelpText,
+            });
+        }
+
+        /// <summary>
+        ///     Retrieves a collection of <see cref="ArgumentInfo"/> gathered from properties in the target <paramref name="type"/>
+        ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
+        /// <returns>The retrieved collection of <see cref="ArgumentInfo"/>.</returns>
+        public static IEnumerable<ArgumentInfo> GetArgumentInfo(Type type = null)
+        {
+            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+            var retVal = new List<ArgumentInfo>();
 
             foreach (PropertyInfo property in GetArgumentProperties(type).Values.Distinct())
             {
@@ -210,7 +229,7 @@ namespace Utility.CommandLine
 
                 if (attribute != default(CustomAttributeData))
                 {
-                    retVal.Add(new ArgumentHelp()
+                    retVal.Add(new ArgumentInfo()
                     {
                         ShortName = (char)attribute.ConstructorArguments[0].Value,
                         LongName = (string)attribute.ConstructorArguments[1].Value,
@@ -227,12 +246,15 @@ namespace Utility.CommandLine
         ///     started, keyed by argument name.
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
+        /// <param name="type">The <see cref="Type"/> for which the command line string is to be parsed.</param>
         /// <returns>
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Arguments Parse(string commandLineString = default(string))
+        public static Arguments Parse(string commandLineString = default(string), Type type = null)
         {
+            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+
             commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
 
             Dictionary<string, object> argumentDictionary;
@@ -246,7 +268,7 @@ namespace Utility.CommandLine
             {
                 // the first group of the first match will contain everything in the string prior to the strict operand delimiter,
                 // so extract the argument key/value pairs and list of operands from that string.
-                argumentDictionary = GetArgumentDictionary(matches[0].Groups[1].Value);
+                argumentDictionary = GetArgumentDictionary(matches[0].Groups[1].Value, type);
                 operandList = GetOperandList(matches[0].Groups[1].Value);
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
@@ -261,7 +283,7 @@ namespace Utility.CommandLine
             }
             else
             {
-                argumentDictionary = GetArgumentDictionary(commandLineString);
+                argumentDictionary = GetArgumentDictionary(commandLineString, type);
                 operandList = GetOperandList(commandLineString);
             }
 
@@ -491,12 +513,15 @@ namespace Utility.CommandLine
         ///     application was started, keyed by argument name.
         /// </summary>
         /// <param name="commandLineString">The command line arguments with which the application was started.</param>
+        /// <param name="type">The <see cref="Type"/> for which the argument dictionary is to be created.</param>
         /// <returns>
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        private static Dictionary<string, object> GetArgumentDictionary(string commandLineString)
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeFollowedByASpace", Justification = "Conflicts with SA1015.")]
+        private static Dictionary<string, object> GetArgumentDictionary(string commandLineString, Type type)
         {
+            List<(string, string)> argumentList = new List<(string, string)>();
             Dictionary<string, object> argumentDictionary = new Dictionary<string, object>();
 
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
@@ -514,23 +539,68 @@ namespace Utility.CommandLine
                 value = TrimOuterQuotes(value);
 
                 // check to see if the argument uses a single dash. if so, split the argument name into a char array and add each
-                // to the dictionary. if a value is specified, it belongs to the final character.
+                // to the list. if a value is specified, it belongs to the final character.
                 if (Regex.IsMatch(fullMatch, GroupRegEx))
                 {
                     char[] charArray = argument.ToCharArray();
 
-                    // iterate over the characters backwards to more easily assign the value
+                    // iterate over the characters and assign the value to the final character
                     for (int i = 0; i < charArray.Length; i++)
                     {
-                        argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
+                        argumentList.Add((charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty));
                     }
                 }
                 else
                 {
-                    // add the argument and value to the dictionary if it doesn't already exist.
-                    argumentDictionary.ExclusiveAdd(argument, value);
+                    // add the argument and value to the list.
+                    argumentList.Add((argument, value));
                 }
             }
+
+            // get the short and long names for each argument
+            var nameInfo = GetArgumentInfo(type);
+
+            Dictionary<string, string> shortToLongNames = new Dictionary<string, string>();
+            Dictionary<string, string> longToShortNames = new Dictionary<string, string>();
+
+            foreach (ArgumentInfo info in nameInfo)
+            {
+                shortToLongNames.Add(info.ShortName.ToString(), info.LongName);
+                longToShortNames.Add(info.LongName, info.ShortName.ToString());
+            }
+
+            List<(string, string)> longArgumentList = new List<(string, string)>();
+
+            // populate a new list of argument names,
+            // converting short names to long and filtering out names for which no (short, long) pair exists
+            foreach ((string, string) argument in argumentList)
+            {
+                // convert short names to long
+                if (shortToLongNames.ContainsKey(argument.Item1))
+                {
+                    longArgumentList.Add((shortToLongNames[argument.Item1], argument.Item2));
+                }
+
+                // add long names directly
+                else if (longToShortNames.ContainsKey(argument.Item2))
+                {
+                    longArgumentList.Add(argument);
+                }
+
+                // if this name isn't listed in the argument info, just populate that key in the output dictionary
+                else
+                {
+                    argumentDictionary.ExclusiveAdd(argument.Item1, argument.Item2);
+                }
+            }
+
+            // populate a dictionary with the (key, value) pairs in the list
+            // convert each long name to the corresponding short name and populate that key as well for compatibility
+            longArgumentList.ForEach(argument =>
+            {
+                argumentDictionary.ExclusiveAdd(argument.Item1, argument.Item2);
+                argumentDictionary.ExclusiveAdd(longToShortNames[argument.Item1], argument.Item2);
+            });
 
             return argumentDictionary;
         }
@@ -669,7 +739,29 @@ namespace Utility.CommandLine
     /// <summary>
     ///     Encapsulates argument names and help text.
     /// </summary>
+    [Obsolete]
     public class ArgumentHelp
+    {
+        /// <summary>
+        ///     Gets or sets the help text for the argument.
+        /// </summary>
+        public string HelpText { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the long name of the argument.
+        /// </summary>
+        public string LongName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the short name of the argument.
+        /// </summary>
+        public char ShortName { get; set; }
+    }
+
+    /// <summary>
+    ///     Encapsulates argument names and help text.
+    /// </summary>
+    public class ArgumentInfo
     {
         /// <summary>
         ///     Gets or sets the help text for the argument.

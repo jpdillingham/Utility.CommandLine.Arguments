@@ -77,6 +77,26 @@ namespace Utility.CommandLine
                 }
             }
         }
+
+        /// <summary>
+        ///     Gets the DeclaringType of the first method on the stack whose name matches the specified <paramref name="caller"/>.
+        /// </summary>
+        /// <param name="caller">The name of the calling method for which the DeclaringType is to be fetched.</param>
+        /// <returns>The DeclaringType of the first method on the stack whose name matches the specified <paramref name="caller"/>.</returns>
+        internal static Type GetCallingType(string caller)
+        {
+            var callingMethod = new StackTrace().GetFrames()
+                .Select(f => f.GetMethod())
+                .Where(m => m.Name == caller)
+                .FirstOrDefault();
+
+            if (callingMethod == default(MethodBase))
+            {
+                throw new InvalidOperationException("Error populating arguments; Unable to determine the containing type of Main().  Use Populate(typeof(<class containing main>))");
+            }
+
+            return callingMethod.DeclaringType;
+        }
     }
 
     /// <summary>
@@ -300,16 +320,7 @@ namespace Utility.CommandLine
         /// <param name="caller">Internal parameter used to identify the calling method.</param>
         public static void Populate(string commandLineString = default(string), bool clearExistingValues = true, [CallerMemberName] string caller = default(string))
         {
-            var callingMethod = new StackTrace().GetFrames()
-                .Select(f => f.GetMethod())
-                .Where(m => m.Name == caller).FirstOrDefault();
-
-            if (callingMethod == default(MethodBase))
-            {
-                throw new InvalidOperationException("Error populating arguments; Unable to determine the containing type of Main().  Use Populate(typeof(<class containing main>))");
-            }
-
-            Populate(callingMethod.DeclaringType, Parse(commandLineString), clearExistingValues);
+            Populate(ArgumentsExtensions.GetCallingType(caller), Parse(commandLineString), clearExistingValues);
         }
 
         /// <summary>

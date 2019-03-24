@@ -1018,21 +1018,21 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("three", List[2]);
         }
 
-        /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
-        ///     containing multiple instances of a list-backed argument.
-        /// </summary>
-        [Fact]
-        public void PopulateLongAndShort()
-        {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
+        ///// <summary>
+        /////     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
+        /////     containing multiple instances of a list-backed argument.
+        ///// </summary>
+        //[Fact]
+        //public void PopulateLongAndShort()
+        //{
+        //    Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
 
-            Assert.Null(ex);
-            Assert.Equal(3, List.Count);
-            Assert.Equal("one", List[0]);
-            Assert.Equal("two", List[1]);
-            Assert.Equal("three", List[2]);
-        }
+        //    Assert.Null(ex);
+        //    Assert.Equal(3, List.Count);
+        //    Assert.Equal("one", List[0]);
+        //    Assert.Equal("two", List[1]);
+        //    Assert.Equal("three", List[2]);
+        //}
 
         /// <summary>
         ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string

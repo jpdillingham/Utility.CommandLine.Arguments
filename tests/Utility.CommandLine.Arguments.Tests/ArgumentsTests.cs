@@ -220,6 +220,19 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
+        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/> with no arguments.
+        /// </summary>
+        [Fact]
+        public void GetArgumentHelpNull()
+        {
+            var help = CommandLine.Arguments.GetArgumentHelp().ToList();
+
+            Assert.Equal(7, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
+
+        /// <summary>
         ///     Tests the <see cref="Indexer"/> of <see cref="Utility.CommandLine.Arguments"/>.
         /// </summary>
         [Fact]
@@ -541,7 +554,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing arguments with values enclosed in quotes and containing a period.
         /// </summary>
         [Fact]
@@ -974,9 +987,41 @@ namespace Utility.CommandLine.Tests
         ///     containing multiple instances of a list-backed argument.
         /// </summary>
         [Fact]
-        public void Populate()
+        public void PopulateShort()
         {
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one -l two -l three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
+        ///     containing multiple instances of a list-backed argument.
+        /// </summary>
+        [Fact]
+        public void PopulateLong()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--list one --list two --list three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        /// <summary>
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Populate(Type, string, bool)"/> method with an explicit string
+        ///     containing multiple instances of a list-backed argument.
+        /// </summary>
+        [Fact]
+        public void PopulateLongAndShort()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
 
             Assert.Null(ex);
             Assert.Equal(3, List.Count);

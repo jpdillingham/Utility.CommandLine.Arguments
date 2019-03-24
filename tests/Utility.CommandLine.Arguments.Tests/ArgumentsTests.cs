@@ -188,6 +188,21 @@ namespace Utility.CommandLine.Tests
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Single(help.Where(h => h.LongName == "test-prop"));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
+
+        /// <summary>
+        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/>.
+        /// </summary>
+        [Fact]
+        public void GetArgumentHelp()
+        {
+            var help = CommandLine.Arguments.GetArgumentHelp(typeof(Arguments)).ToList();
+
+            Assert.Equal(7, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Single(help.Where(h => h.LongName == "test-prop"));
             Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
         }
 
@@ -314,7 +329,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a mixture of arguments and operands.
+        ///     Tests the <see cref="CommandLine.Arguments.Parse(string, Type)"/> method with a mixture of arguments and operands.
         /// </summary>
         [Fact]
         public void ParseMixedArgumentsAndOperands()

@@ -218,11 +218,12 @@ namespace Utility.CommandLine
         ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
         /// </summary>
         /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
+        /// <param name="caller">Internal parameter used to identify the calling method.</param>
         /// <returns>The retrieved collection of <see cref="ArgumentHelp"/>.</returns>
         [Obsolete]
-        public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null)
+        public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null, [CallerMemberName] string caller = default(string))
         {
-            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+            type = type ?? ArgumentsExtensions.GetCallingType(caller);
 
             return GetArgumentInfo(type).Select(i => new ArgumentHelp()
             {
@@ -237,10 +238,11 @@ namespace Utility.CommandLine
         ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
         /// </summary>
         /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
+        /// <param name="caller">Internal parameter used to identify the calling method.</param>
         /// <returns>The retrieved collection of <see cref="ArgumentInfo"/>.</returns>
-        public static IEnumerable<ArgumentInfo> GetArgumentInfo(Type type = null)
+        public static IEnumerable<ArgumentInfo> GetArgumentInfo(Type type = null, [CallerMemberName] string caller = default(string))
         {
-            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+            type = type ?? ArgumentsExtensions.GetCallingType(caller);
             var retVal = new List<ArgumentInfo>();
 
             foreach (PropertyInfo property in GetArgumentProperties(type).Values.Distinct())
@@ -271,9 +273,9 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Arguments Parse(string commandLineString = default(string), Type type = null)
+        public static Arguments Parse(string commandLineString = default(string), Type type = null, [CallerMemberName] string caller = default(string))
         {
-            type = type ?? new StackFrame(1).GetMethod().DeclaringType;
+            type = type ?? ArgumentsExtensions.GetCallingType(caller);
 
             commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
 
@@ -499,7 +501,6 @@ namespace Utility.CommandLine
             }
             catch (Exception ex)
             {
-                // if the cast fails, throw an exception
                 string message = $"Specified value '{value}' for argument '{argument}' (expected type: {toType}).  ";
                 message += "See inner exception for details.";
 

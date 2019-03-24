@@ -220,7 +220,7 @@ namespace Utility.CommandLine
         /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
         /// <param name="caller">Internal parameter used to identify the calling method.</param>
         /// <returns>The retrieved collection of <see cref="ArgumentHelp"/>.</returns>
-        [Obsolete]
+        [Obsolete("Use GetArgumentInfo()")]
         public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null, [CallerMemberName] string caller = default(string))
         {
             type = type ?? ArgumentsExtensions.GetCallingType(caller);

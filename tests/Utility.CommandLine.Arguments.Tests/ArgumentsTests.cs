@@ -198,7 +198,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void GetArgumentHelp()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var help = CommandLine.Arguments.GetArgumentHelp(typeof(Arguments)).ToList();
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
@@ -225,7 +227,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void GetArgumentHelpNull()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var help = CommandLine.Arguments.GetArgumentHelp().ToList();
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
@@ -245,7 +249,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with the default values.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with the default values.
         /// </summary>
         [Fact]
         public void Parse()
@@ -256,7 +260,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing a mixture of upper and lower case arguments.
         /// </summary>
         [Fact]
@@ -278,7 +282,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a string coning a single operand
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a string coning a single operand
         ///     which contains a dash.
         /// </summary>
         [Fact]
@@ -290,7 +294,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a decimal value.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a decimal value.
         /// </summary>
         [Fact]
         public void ParseDecimal()
@@ -301,7 +305,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an empty string.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an empty string.
         /// </summary>
         [Fact]
         public void ParseEmpty()
@@ -312,7 +316,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing values with inner quoted strings.
         /// </summary>
         [Fact]
@@ -325,7 +329,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing a mixture of short and long arguments.
         /// </summary>
         [Fact]
@@ -342,7 +346,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="CommandLine.Arguments.Parse(string, Type)"/> method with a mixture of arguments and operands.
+        ///     Tests the <see cref="CommandLine.Arguments.Parse(string, Type, string)"/> method with a mixture of arguments and operands.
         /// </summary>
         [Fact]
         public void ParseMixedArgumentsAndOperands()
@@ -355,7 +359,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing multiple pairs of arguments containing quoted values.
         /// </summary>
         [Fact]
@@ -370,7 +374,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with no argument.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with no argument.
         /// </summary>
         [Fact]
         public void ParseNoArgument()
@@ -381,7 +385,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a null argument.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a null argument.
         /// </summary>
         [Fact]
         public void ParseNull()
@@ -392,7 +396,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a string containing only a series
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a string containing only a series
         ///     of operands.
         /// </summary>
         [Fact]
@@ -406,7 +410,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a string containing an operand.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a string containing an operand.
         /// </summary>
         [Fact]
         public void ParseOperand()
@@ -418,7 +422,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a string containing multiple operands.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a string containing multiple operands.
         /// </summary>
         [Fact]
         public void ParseOperands()
@@ -432,7 +436,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing only short parameters.
         /// </summary>
         [Fact]
@@ -451,7 +455,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a a string containing only the
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a a string containing only the
         ///     strict operand delimiter.
         /// </summary>
         [Fact]
@@ -463,7 +467,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a a string containing multiple
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a a string containing multiple
         ///     strict operand delimiters.
         /// </summary>
         [Fact]
@@ -479,7 +483,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit operand delimiter.
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit operand delimiter.
         /// </summary>
         [Fact]
         public void ParseStrictOperands()
@@ -497,7 +501,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit operand delimiter, and
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit operand delimiter, and
         ///     nothing after the delimiter.
         /// </summary>
         [Fact]
@@ -510,7 +514,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with a a string beginning with the
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with a a string beginning with the
         ///     explicit operand delimiter.
         /// </summary>
         [Fact]
@@ -524,7 +528,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing only long parameters.
         /// </summary>
         [Fact]
@@ -542,7 +546,7 @@ namespace Utility.CommandLine.Tests
         }
 
         /// <summary>
-        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type)"/> method with an explicit command line string
+        ///     Tests the <see cref="Utility.CommandLine.Arguments.Parse(string, Type, string)"/> method with an explicit command line string
         ///     containing a value beginning with a slash.
         /// </summary>
         [Fact]

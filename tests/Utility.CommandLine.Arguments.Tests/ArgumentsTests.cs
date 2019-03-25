@@ -686,6 +686,42 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
+        public void PopulateShortAndLong()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--list one -l two --list three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        [Fact]
+        public void PopulateLongThenShort()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--list one --list two -l three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        [Fact]
+        public void PopulateShortThenLong()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one -l two --list three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        [Fact]
         public void PopulateSingle()
         {
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one"));

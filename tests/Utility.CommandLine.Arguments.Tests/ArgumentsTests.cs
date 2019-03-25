@@ -673,17 +673,17 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("three", List[2]);
         }
 
-        //[Fact]
-        //public void PopulateLongAndShort()
-        //{
-        //    Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
+        [Fact]
+        public void PopulateLongAndShort()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
 
-        //    Assert.Null(ex);
-        //    Assert.Equal(3, List.Count);
-        //    Assert.Equal("one", List[0]);
-        //    Assert.Equal("two", List[1]);
-        //    Assert.Equal("three", List[2]);
-        //}
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
 
         [Fact]
         public void PopulateSingle()

@@ -115,6 +115,23 @@ namespace Utility.CommandLine.Tests
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Single(help.Where(h => h.LongName == "test-prop"));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
+
+        /// <summary>
+        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/>.
+        /// </summary>
+        [Fact]
+        public void GetArgumentHelp()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            var help = CommandLine.Arguments.GetArgumentHelp(typeof(Arguments)).ToList();
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            Assert.Equal(7, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Single(help.Where(h => h.LongName == "test-prop"));
             Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
         }
 
@@ -122,6 +139,18 @@ namespace Utility.CommandLine.Tests
         public void GetArgumentInfoNull()
         {
             var help = CommandLine.Arguments.GetArgumentInfo().ToList();
+
+            Assert.Equal(7, help.Count);
+            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
+        }
+
+        [Fact]
+        public void GetArgumentHelpNull()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            var help = CommandLine.Arguments.GetArgumentHelp().ToList();
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
@@ -621,7 +650,7 @@ namespace Utility.CommandLine.Tests
         private static List<string> List { get; set; }
 
         [Fact]
-        public void Populate()
+        public void PopulateShort()
         {
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one -l two -l three"));
 
@@ -631,6 +660,30 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("two", List[1]);
             Assert.Equal("three", List[2]);
         }
+
+        [Fact]
+        public void PopulateLong()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--list one --list two --list three"));
+
+            Assert.Null(ex);
+            Assert.Equal(3, List.Count);
+            Assert.Equal("one", List[0]);
+            Assert.Equal("two", List[1]);
+            Assert.Equal("three", List[2]);
+        }
+
+        //[Fact]
+        //public void PopulateLongAndShort()
+        //{
+        //    Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
+
+        //    Assert.Null(ex);
+        //    Assert.Equal(3, List.Count);
+        //    Assert.Equal("one", List[0]);
+        //    Assert.Equal("two", List[1]);
+        //    Assert.Equal("three", List[2]);
+        //}
 
         [Fact]
         public void PopulateSingle()

@@ -596,7 +596,7 @@ namespace Utility.CommandLine
                 }
 
                 // add long names directly
-                else if (longToShortNames.ContainsKey(argument.Item2))
+                else if (longToShortNames.ContainsKey(argument.Item1))
                 {
                     longArgumentList.Add(argument);
                 }

@@ -323,7 +323,8 @@ namespace Utility.CommandLine
         /// <param name="caller">Internal parameter used to identify the calling method.</param>
         public static void Populate(string commandLineString = default(string), bool clearExistingValues = true, [CallerMemberName] string caller = default(string))
         {
-            Populate(ArgumentsExtensions.GetCallingType(caller), Parse(commandLineString), clearExistingValues);
+            var type = ArgumentsExtensions.GetCallingType(caller);
+            Populate(type, Parse(commandLineString, type), clearExistingValues);
         }
 
         /// <summary>
@@ -338,7 +339,7 @@ namespace Utility.CommandLine
         /// <param name="clearExistingValues">Whether to clear the properties before populating them. Defaults to true.</param>
         public static void Populate(Type type, string commandLineString = default(string), bool clearExistingValues = true)
         {
-            Populate(type, Parse(commandLineString), clearExistingValues);
+            Populate(type, Parse(commandLineString, type), clearExistingValues);
         }
 
         /// <summary>

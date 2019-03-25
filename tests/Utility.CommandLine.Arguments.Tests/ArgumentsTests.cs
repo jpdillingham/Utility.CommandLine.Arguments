@@ -758,6 +758,160 @@ namespace Utility.CommandLine.Tests
     }
 
     [Collection("Arguments")]
+    public class TestClassWithListAndPrimitive
+    {
+        [CommandLine.Argument('b', "bb")]
+        public static int Int { get; set; } = 42;
+
+        [CommandLine.Argument('l', "list")]
+        private static List<string> List { get; set; }
+
+        [Fact]
+        public void List_Is_Appended_Given_Two_Short_Args()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("l", "foo"));
+            list.Add(new KeyValuePair<string, object>("l", "bar"));
+
+            var a = new CommandLine.Arguments("-l foo -l bar", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            List<object> argList = null;
+            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["l"]));
+
+            Assert.Single(dict);
+
+            Assert.Null(ex);
+            Assert.Equal(2, argList.Count);
+            Assert.Equal("foo", argList[0]);
+            Assert.Equal("bar", argList[1]);
+        }
+
+        [Fact]
+        public void List_Is_Appended_Given_Two_Long_Args()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("list", "foo"));
+            list.Add(new KeyValuePair<string, object>("list", "bar"));
+
+            var a = new CommandLine.Arguments("--list foo --list bar", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            List<object> argList = null;
+            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["list"]));
+
+            Assert.Single(dict);
+
+            Assert.Null(ex);
+            Assert.Equal(2, argList.Count);
+            Assert.Equal("foo", argList[0]);
+            Assert.Equal("bar", argList[1]);
+        }
+
+        [Fact]
+        public void List_Is_Appended_Given_Mixed_Args_Short_First()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("l", "foo"));
+            list.Add(new KeyValuePair<string, object>("list", "bar"));
+
+            var a = new CommandLine.Arguments("-l foo --list bar", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            List<object> argList = null;
+            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["l"]));
+
+            Assert.Single(dict);
+
+            Assert.Null(ex);
+            Assert.Equal(2, argList.Count);
+            Assert.Equal("foo", argList[0]);
+            Assert.Equal("bar", argList[1]);
+        }
+
+        [Fact]
+        public void List_Is_Appended_Given_Mixed_Args_Long_First()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("list", "foo"));
+            list.Add(new KeyValuePair<string, object>("l", "bar"));
+
+            var a = new CommandLine.Arguments("--list foo -l bar", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            List<object> argList = null;
+            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["list"]));
+
+            Assert.Single(dict);
+
+            Assert.Null(ex);
+            Assert.Equal(2, argList.Count);
+            Assert.Equal("foo", argList[0]);
+            Assert.Equal("bar", argList[1]);
+        }
+
+        [Fact]
+        public void Value_Is_Replaced_Given_Multiple_Short()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("b", 1));
+            list.Add(new KeyValuePair<string, object>("b", 2));
+
+            var a = new CommandLine.Arguments("-b 1 -b 2", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            Assert.Single(dict);
+
+            Assert.Equal(2, dict["b"]);
+        }
+
+        [Fact]
+        public void Value_Is_Replaced_Given_Multiple_Long()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("bb", 1));
+            list.Add(new KeyValuePair<string, object>("bb", 2));
+
+            var a = new CommandLine.Arguments("--bb 1 --bb 2", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            Assert.Single(dict);
+
+            Assert.Equal(2, dict["bb"]);
+        }
+
+        [Fact]
+        public void Value_Is_Replaced_Given_Mixed_Args_Long_First()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("bb", 1));
+            list.Add(new KeyValuePair<string, object>("b", 2));
+
+            var a = new CommandLine.Arguments("--bb 1 -b 2", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            Assert.Single(dict);
+
+            Assert.Equal(2, dict["bb"]);
+        }
+
+        [Fact]
+        public void Value_Is_Replaced_Given_Mixed_Args_Short_First()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("b", 1));
+            list.Add(new KeyValuePair<string, object>("bb", 2));
+
+            var a = new CommandLine.Arguments("-b 1 --bb 2", list, new List<string>(), GetType());
+            var dict = a.ArgumentDictionary;
+
+            Assert.Single(dict);
+
+            Assert.Equal(2, dict["b"]);
+        }
+    }
+
+    [Collection("Arguments")]
     public class TestClassWithBoolProperty
     {
         [CommandLine.Argument('a', "aa")]

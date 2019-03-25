@@ -851,6 +851,23 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
+        public void List_Is_Not_Appended_Given_Mixed_Args_Long_First_No_Type()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("list", "foo"));
+            list.Add(new KeyValuePair<string, object>("l", "bar"));
+
+            var a = new CommandLine.Arguments("--list foo -l bar", list, new List<string>());
+            var dict = a.ArgumentDictionary;
+
+            Assert.Equal(2, dict.Count);
+            Assert.True(dict.ContainsKey("list"));
+            Assert.True(dict.ContainsKey("l"));
+            Assert.Equal("foo", dict["list"]);
+            Assert.Equal("bar", dict["l"]);
+        }
+
+        [Fact]
         public void Value_Is_Replaced_Given_Multiple_Short()
         {
             var list = new List<KeyValuePair<string, object>>();
@@ -908,6 +925,23 @@ namespace Utility.CommandLine.Tests
             Assert.Single(dict);
 
             Assert.Equal(2, dict["b"]);
+        }
+
+        [Fact]
+        public void Value_Is_Not_Replaced_Given_Mixed_Args_Short_First_No_Type()
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("b", 1));
+            list.Add(new KeyValuePair<string, object>("bb", 2));
+
+            var a = new CommandLine.Arguments("-b 1 --bb 2", list, new List<string>());
+            var dict = a.ArgumentDictionary;
+
+            Assert.Equal(2, dict.Count);
+            Assert.True(dict.ContainsKey("b"));
+            Assert.True(dict.ContainsKey("bb"));
+            Assert.Equal(1, dict["b"]);
+            Assert.Equal(2, dict["bb"]);
         }
     }
 

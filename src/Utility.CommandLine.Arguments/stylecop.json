@@ -7,10 +7,6 @@
     },
     "maintainabilityRules": {
       "topLevelTypes": [ "class", "delegate", "enum", "interface" ]
-    },
-    "documentationRules": {
-      "documentPrivateElements": true,
-      "documentPrivateFields": true
     }
   }
 }

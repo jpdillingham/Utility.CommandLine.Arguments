@@ -166,17 +166,6 @@ namespace Utility.CommandLine
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Arguments"/> class with the specified argument dictionary and operand list.
-        /// </summary>
-        /// <param name="commandLineString">The command line string from which the arguments were parsed.</param>
-        /// <param name="argumentDictionary">
-        ///     The dictionary containing the arguments and values specified in the command line arguments with which the
-        ///     application was started.
-        /// </param>
-        /// <param name="operandList">
-        ///     The list containing the operands specified in the command line arguments with which the application was started.
-        /// </param>
         private Arguments(string commandLineString, Dictionary<string, object> argumentDictionary, List<string> operandList)
         {
             CommandLineString = commandLineString;
@@ -484,13 +473,6 @@ namespace Utility.CommandLine
             }
         }
 
-        /// <summary>
-        ///     Converts the specified value for the specified argument to the specified Type.
-        /// </summary>
-        /// <param name="value">The value to convert.</param>
-        /// <param name="argument">The argument for which the value is being converted.</param>
-        /// <param name="toType">The Type to which the value is being converted.</param>
-        /// <returns>The converted value.</returns>
         private static object ChangeType(object value, string argument, Type toType)
         {
             try
@@ -511,10 +493,6 @@ namespace Utility.CommandLine
             }
         }
 
-        /// <summary>
-        ///     Sets the value of each property in the specified dictionary to null.
-        /// </summary>
-        /// <param name="properties">The dictionary containing the properties to clear.</param>
         private static void ClearProperties(Dictionary<string, PropertyInfo> properties)
         {
             foreach (string key in properties.Keys)
@@ -523,16 +501,6 @@ namespace Utility.CommandLine
             }
         }
 
-        /// <summary>
-        ///     Populates and returns a dictionary containing the values specified in the command line arguments with which the
-        ///     application was started, keyed by argument name.
-        /// </summary>
-        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        /// <param name="type">The <see cref="Type"/> for which the argument dictionary is to be created.</param>
-        /// <returns>
-        ///     The dictionary containing the arguments and values specified in the command line arguments with which the
-        ///     application was started.
-        /// </returns>
         [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeFollowedByASpace", Justification = "Conflicts with SA1015.")]
         private static Dictionary<string, object> GetArgumentDictionary(string commandLineString, Type type)
         {
@@ -620,15 +588,6 @@ namespace Utility.CommandLine
             return argumentDictionary;
         }
 
-        /// <summary>
-        ///     Retrieves a dictionary containing properties in the target <see cref="Type"/> marked with the
-        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/>, keyed on the string specified in the 'Name' field of the <see cref="Attribute"/>.
-        /// </summary>
-        /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieved.</param>
-        /// <returns>
-        ///     A dictionary containing matching properties, keyed on the 'Name' field of the
-        ///     <see cref="ArgumentAttribute"/><see cref="Attribute"/> used to mark the property.
-        /// </returns>
         private static Dictionary<string, PropertyInfo> GetArgumentProperties(Type type)
         {
             Dictionary<string, PropertyInfo> properties = new Dictionary<string, PropertyInfo>();
@@ -655,14 +614,6 @@ namespace Utility.CommandLine
             return properties;
         }
 
-        /// <summary>
-        ///     Populates and returns a list containing the operands specified in the command line arguments with which the
-        ///     application was started.
-        /// </summary>
-        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        /// <returns>
-        ///     A list containing the operands specified in the command line arguments with which the application was started.
-        /// </returns>
         private static List<string> GetOperandList(string commandLineString)
         {
             List<string> operands = new List<string>();
@@ -684,16 +635,6 @@ namespace Utility.CommandLine
             return operands;
         }
 
-        /// <summary>
-        ///     Populates and returns a list containing the operands within the specified string grouped by whole words and groups
-        ///     of words contained within single or double quotes, treating strings that would otherwise be treated as argument
-        ///     keys as operands.
-        /// </summary>
-        /// <param name="operandListString">The string from which the list of operands is to be parsed.</param>
-        /// <returns>
-        ///     A list containing the operands within the specified string grouped by whole words and groups of words contained
-        ///     within single or double quotes, treating strings that would otherwise be treated as argument keys as operands.
-        /// </returns>
         private static List<string> GetOperandListStrict(string operandListString)
         {
             List<string> operands = new List<string>();
@@ -706,16 +647,6 @@ namespace Utility.CommandLine
             return operands;
         }
 
-        /// <summary>
-        ///     Retrieves the property in the target <see cref="Type"/> marked with the
-        ///     <see cref="OperandsAttribute"/><see cref="Attribute"/>, if one exists.
-        /// </summary>
-        /// <remarks>The target property <see cref="Type"/> of the designated property must be of type string[] or List{string}.</remarks>
-        /// <param name="type">The Type for which the matching property is to be retrieved.</param>
-        /// <returns>The matching property, if one exists.</returns>
-        /// <exception cref="InvalidCastException">
-        ///     Thrown when the Type of the retrieved property is not string[] or List{string}.
-        /// </exception>
         private static PropertyInfo GetOperandsProperty(Type type)
         {
             PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
@@ -731,11 +662,6 @@ namespace Utility.CommandLine
             return property;
         }
 
-        /// <summary>
-        ///     Returns the specified string with outer single or double quotes trimmed, if the string starts and ends with them.
-        /// </summary>
-        /// <param name="value">The string from which to trim outer single or double quotes.</param>
-        /// <returns>The string with outer single or double quotes trimmed.</returns>
         private static string TrimOuterQuotes(string value)
         {
             if (value.StartsWith("\"") && value.EndsWith("\""))
@@ -793,7 +719,14 @@ namespace Utility.CommandLine
         /// </summary>
         public char ShortName { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the backing Type of the argument.
+        /// </summary>
         public Type Type { get; set; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the argument backing Type is a collection.
+        /// </summary>
         public bool IsCollection => Type.IsArray || (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(List<>));
     }
 

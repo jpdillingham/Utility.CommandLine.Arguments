@@ -92,7 +92,7 @@ namespace Utility.CommandLine
 
             if (callingMethod == default(MethodBase))
             {
-                throw new InvalidOperationException("Error populating arguments; Unable to determine the containing type of Main().  Use Populate(typeof(<class containing main>))");
+                throw new InvalidOperationException($"Unable to determine the containing type of the calling method '{caller}'.  Explicitly specify the originating Type.");
             }
 
             return callingMethod.DeclaringType;

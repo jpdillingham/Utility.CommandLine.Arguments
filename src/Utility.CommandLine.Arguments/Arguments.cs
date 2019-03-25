@@ -256,6 +256,7 @@ namespace Utility.CommandLine
                         ShortName = (char)attribute.ConstructorArguments[0].Value,
                         LongName = (string)attribute.ConstructorArguments[1].Value,
                         HelpText = (string)attribute.ConstructorArguments[2].Value,
+                        Type = property.GetType(),
                     });
                 }
             }

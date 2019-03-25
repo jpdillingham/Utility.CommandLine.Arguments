@@ -32,6 +32,7 @@ namespace Utility.CommandLine
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
@@ -164,23 +165,35 @@ namespace Utility.CommandLine
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
-        private Arguments(string commandLineString, Dictionary<string, object> argumentDictionary, List<string> operandList)
+        public Arguments(string commandLineString, List<KeyValuePair<string, object>> argumentList, List<string> operandList, Type targetType = null)
         {
             CommandLineString = commandLineString;
-            ArgumentDictionary = argumentDictionary;
+            ArgumentList = argumentList;
+            ArgumentDictionary = GetArgumentDictionary(argumentList, targetType);
             OperandList = operandList;
+            TargetType = targetType;
         }
+
+        /// <summary>
+        ///     Gets the target Type, if applicable.
+        /// </summary>
+        public Type TargetType { get; }
+
+        /// <summary>
+        ///     Gets the list of arguments specified in the command line arguments with which the application was started.
+        /// </summary>
+        public List<KeyValuePair<string, object>> ArgumentList { get; }
 
         /// <summary>
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </summary>
-        public Dictionary<string, object> ArgumentDictionary { get; private set; }
+        public Dictionary<string, object> ArgumentDictionary { get; }
 
         /// <summary>
         ///     Gets the command line string from which the arguments were parsed.
         /// </summary>
-        public string CommandLineString { get; private set; }
+        public string CommandLineString { get; }
 
         /// <summary>
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
@@ -188,16 +201,66 @@ namespace Utility.CommandLine
         public List<string> OperandList { get; private set; }
 
         /// <summary>
-        ///     Gets the argument value corresponding to the specified key from the <see cref="ArgumentDictionary"/> property.
+        ///     Gets the argument value corresponding to the specified <paramref name="index"/>.
         /// </summary>
-        /// <param name="index">The key for which the value is to be retrieved.</param>
-        /// <returns>The argument value corresponding to the specified key.</returns>
-        public object this[string index]
+        /// <param name="index">The index for which the value is to be retrieved.</param>
+        /// <returns>The argument value corresponding to the specified index.</returns>
+        public object this[int index]
         {
             get
             {
-                return ArgumentDictionary[index];
+                return ArgumentList[index].Value;
             }
+        }
+
+        /// <summary>
+        ///     Gets the argument value corresponding to the specified <paramref name="key"/> from the <see cref="ArgumentDictionary"/> property.
+        /// </summary>
+        /// <param name="key">The key for which the value is to be retrieved.</param>
+        /// <returns>The argument value corresponding to the specified key.</returns>
+        public object this[string key]
+        {
+            get
+            {
+                return ArgumentDictionary[key];
+            }
+        }
+
+        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, object>> argumentList, Type targetType = null)
+        {
+            var dict = new ConcurrentDictionary<string, object>();
+            var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
+
+            foreach (var arg in argumentList)
+            {
+                var info = argumentInfo.Where(i => i.ShortName.ToString() == arg.Key || i.LongName == arg.Key).SingleOrDefault();
+
+                if (info != default(ArgumentInfo))
+                {
+                    bool added = false;
+
+                    foreach (var k in new[] { info.ShortName.ToString(), info.LongName })
+                    {
+                        if (dict.ContainsKey(k))
+                        {
+                            dict.AddOrUpdate(k, arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : arg.Value);
+                            added = true;
+                            break;
+                        }
+                    }
+
+                    if (!added)
+                    {
+                        dict.TryAdd(arg.Key, info.IsCollection ? new List<object>(new[] { arg.Value }) : arg.Value);
+                    }
+                }
+                else
+                {
+                    dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                }
+            }
+
+            return dict.ToDictionary(a => a.Key, a => a.Value);
         }
 
         /// <summary>
@@ -243,7 +306,7 @@ namespace Utility.CommandLine
                         ShortName = (char)attribute.ConstructorArguments[0].Value,
                         LongName = (string)attribute.ConstructorArguments[1].Value,
                         HelpText = (string)attribute.ConstructorArguments[2].Value,
-                        Type = property.GetType(),
+                        Type = property.PropertyType,
                     });
                 }
             }
@@ -264,8 +327,6 @@ namespace Utility.CommandLine
         /// </returns>
         public static Arguments Parse(string commandLineString = default(string), Type type = null, [CallerMemberName] string caller = default(string))
         {
-            type = type ?? ArgumentsExtensions.GetCallingType(caller);
-
             commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
 
             Dictionary<string, object> argumentDictionary;
@@ -287,8 +348,6 @@ namespace Utility.CommandLine
                 if (matches[0].Groups[3].Value != string.Empty)
                 {
                     List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[3].Value);
-
-                    // join the operand lists.
                     operandList.AddRange(operandListStrict);
                 }
             }
@@ -298,7 +357,8 @@ namespace Utility.CommandLine
                 operandList = GetOperandList(commandLineString);
             }
 
-            return new Arguments(commandLineString, argumentDictionary, operandList);
+            //return new Arguments(commandLineString, argumentList, operandList, type);
+            return null;
         }
 
         /// <summary>

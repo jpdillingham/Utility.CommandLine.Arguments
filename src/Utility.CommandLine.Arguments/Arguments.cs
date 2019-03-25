@@ -791,6 +791,9 @@ namespace Utility.CommandLine
         ///     Gets or sets the short name of the argument.
         /// </summary>
         public char ShortName { get; set; }
+
+        public Type Type { get; set; }
+        public bool IsCollection => Type.IsArray || (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(List<>));
     }
 
     /// <summary>

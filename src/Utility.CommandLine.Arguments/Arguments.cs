@@ -35,7 +35,6 @@ namespace Utility.CommandLine
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -46,37 +45,6 @@ namespace Utility.CommandLine
     /// </summary>
     public static class ArgumentsExtensions
     {
-        /// <summary>
-        ///     Adds the specified key to the specified dictionary with the specified value, but only if the specified key is not
-        ///     already present in the dictionary. If it is present, a list is created and the new value is added to the list,
-        ///     along with all subsequent values.
-        /// </summary>
-        /// <param name="dictionary">The dictionary to which they specified key and value are to be added.</param>
-        /// <param name="key">The key to add to the dictionary.</param>
-        /// <param name="value">The value corresponding to the specified key.</param>
-        internal static void ExclusiveAdd(this Dictionary<string, object> dictionary, string key, object value)
-        {
-            if (!dictionary.ContainsKey(key))
-            {
-                dictionary.Add(key, value);
-            }
-            else
-            {
-                var type = dictionary[key].GetType();
-
-                if (dictionary[key].GetType() == typeof(List<object>))
-                {
-                    ((List<object>)dictionary[key]).Add(value);
-                }
-                else
-                {
-                    object existingValue = dictionary[key];
-
-                    dictionary[key] = new List<object>(new object[] { existingValue, value });
-                }
-            }
-        }
-
         /// <summary>
         ///     Gets the DeclaringType of the first method on the stack whose name matches the specified <paramref name="caller"/>.
         /// </summary>
@@ -97,6 +65,11 @@ namespace Utility.CommandLine
             return callingMethod.DeclaringType;
         }
 
+        /// <summary>
+        ///     Removes the outermost pair of enclosing quotes.
+        /// </summary>
+        /// <param name="value">The string to trim.</param>
+        /// <returns>The trimmed string.</returns>
         internal static string TrimOuterQuotes(this string value)
         {
             if (value.StartsWith("\"") && value.EndsWith("\""))

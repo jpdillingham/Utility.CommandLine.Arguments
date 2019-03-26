@@ -539,10 +539,8 @@ namespace Utility.CommandLine
             }
         }
 
-        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeFollowedByASpace", Justification = "Conflicts with SA1015.")]
-        private static Dictionary<string, object> GetArgumentDictionary(string commandLineString, Type type)
+        private static Dictionary<string, object> GetArgumentDictionary(string commandLineString)
         {
-            List<(string, string)> argumentList = new List<(string, string)>();
             Dictionary<string, object> argumentDictionary = new Dictionary<string, object>();
 
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
@@ -560,68 +558,23 @@ namespace Utility.CommandLine
                 value = TrimOuterQuotes(value);
 
                 // check to see if the argument uses a single dash. if so, split the argument name into a char array and add each
-                // to the list. if a value is specified, it belongs to the final character.
+                // to the dictionary. if a value is specified, it belongs to the final character.
                 if (Regex.IsMatch(fullMatch, GroupRegEx))
                 {
                     char[] charArray = argument.ToCharArray();
 
-                    // iterate over the characters and assign the value to the final character
+                    // iterate over the characters backwards to more easily assign the value
                     for (int i = 0; i < charArray.Length; i++)
                     {
-                        argumentList.Add((charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty));
+                        argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
                     }
                 }
                 else
                 {
-                    // add the argument and value to the list.
-                    argumentList.Add((argument, value));
+                    // add the argument and value to the dictionary if it doesn't already exist.
+                    argumentDictionary.ExclusiveAdd(argument, value);
                 }
             }
-
-            // get the short and long names for each argument
-            var nameInfo = GetArgumentInfo(type);
-
-            Dictionary<string, string> shortToLongNames = new Dictionary<string, string>();
-            Dictionary<string, string> longToShortNames = new Dictionary<string, string>();
-
-            foreach (ArgumentInfo info in nameInfo)
-            {
-                shortToLongNames.Add(info.ShortName.ToString(), info.LongName);
-                longToShortNames.Add(info.LongName, info.ShortName.ToString());
-            }
-
-            List<(string, string)> longArgumentList = new List<(string, string)>();
-
-            // populate a new list of argument names,
-            // converting short names to long and filtering out names for which no (short, long) pair exists
-            foreach ((string, string) argument in argumentList)
-            {
-                // convert short names to long
-                if (shortToLongNames.ContainsKey(argument.Item1))
-                {
-                    longArgumentList.Add((shortToLongNames[argument.Item1], argument.Item2));
-                }
-
-                // add long names directly
-                else if (longToShortNames.ContainsKey(argument.Item1))
-                {
-                    longArgumentList.Add(argument);
-                }
-
-                // if this name isn't listed in the argument info, just populate that key in the output dictionary
-                else
-                {
-                    argumentDictionary.ExclusiveAdd(argument.Item1, argument.Item2);
-                }
-            }
-
-            // populate a dictionary with the (key, value) pairs in the list
-            // convert each long name to the corresponding short name and populate that key as well for compatibility
-            longArgumentList.ForEach(argument =>
-            {
-                argumentDictionary.ExclusiveAdd(argument.Item1, argument.Item2);
-                argumentDictionary.ExclusiveAdd(longToShortNames[argument.Item1], argument.Item2);
-            });
 
             return argumentDictionary;
         }

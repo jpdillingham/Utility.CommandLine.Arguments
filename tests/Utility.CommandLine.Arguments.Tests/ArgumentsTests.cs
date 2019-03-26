@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace Utility.CommandLine.Tests
@@ -53,19 +54,17 @@ namespace Utility.CommandLine.Tests
     [Collection("ArgumentInfo")]
     public class ArgumentInfoTests
     {
+        private string Test { get; set; }
+
         [Fact]
         public void Constructor()
         {
-            ArgumentInfo test = new ArgumentInfo()
-            {
-                ShortName = 'a',
-                LongName = "aa",
-                HelpText = "help",
-            };
+            ArgumentInfo test = new ArgumentInfo('a', "aa", "help", GetType().GetProperty("Test", BindingFlags.Instance | BindingFlags.NonPublic));
 
             Assert.Equal('a', test.ShortName);
             Assert.Equal("aa", test.LongName);
             Assert.Equal("help", test.HelpText);
+            Assert.Equal("Test", test.Property.Name);
         }
 
     }

@@ -110,11 +110,11 @@ namespace Examples
             Console.WriteLine("\r\nArgument\tValue");
             Console.WriteLine("-------\t\t-------");
 
-            Dictionary<string, object> argumentDictionary = Arguments.Parse(commandLine).ArgumentDictionary;
+            var args = Arguments.Parse(commandLine);
 
-            foreach (string key in argumentDictionary.Keys)
+            foreach (string key in args.Keys)
             {
-                Console.WriteLine(key + "\t\t" + argumentDictionary[key]);
+                Console.WriteLine(key + "\t\t" + args[key]);
             }
 
             Console.WriteLine("\r\nProperty\tValue");

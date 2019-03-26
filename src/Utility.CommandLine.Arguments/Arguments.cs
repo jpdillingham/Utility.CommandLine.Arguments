@@ -171,7 +171,7 @@ namespace Utility.CommandLine
     ///     Provides static methods used to retrieve the command line arguments and operands with which the application was
     ///     started, as well as a Type to contain them.
     /// </summary>
-    public class Arguments
+    public class Arguments : IReadOnlyDictionary<string, object>
     {
         /// <summary>
         ///     The regular expression with which to parse the command line string.
@@ -223,6 +223,10 @@ namespace Utility.CommandLine
         /// </summary>
         public string CommandLineString { get; }
 
+        public int Count => ArgumentDictionary.Count;
+
+        public IEnumerable<string> Keys => ArgumentDictionary.Select(a => a.Key.ShortName.ToString()).Union(ArgumentDictionary.Select(a => a.Key.LongName));
+
         /// <summary>
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
         /// </summary>
@@ -232,6 +236,8 @@ namespace Utility.CommandLine
         ///     Gets the target Type, if applicable.
         /// </summary>
         public Type TargetType { get; }
+
+        public IEnumerable<object> Values => ArgumentDictionary.Values;
 
         /// <summary>
         ///     Gets the argument value corresponding to the specified <paramref name="index"/>.
@@ -256,14 +262,12 @@ namespace Utility.CommandLine
         {
             get
             {
-                var arg = ArgumentDictionary.Where(a => a.Key.ShortName.ToString() == key || a.Key.LongName == key).SingleOrDefault();
-
-                if (arg.Equals(default(KeyValuePair<ArgumentInfo, object>)))
+                if (!ContainsKey(key))
                 {
                     throw new KeyNotFoundException($"An argument matching key '{key}' was not found.");
                 }
 
-                return arg.Value;
+                return ArgumentDictionary.Where(a => a.Key.ShortName.ToString() == key || a.Key.LongName == key).SingleOrDefault().Value;
             }
         }
 
@@ -398,14 +402,14 @@ namespace Utility.CommandLine
             foreach (string propertyName in properties.Keys)
             {
                 // if the argument dictionary contains a matching argument
-                if (arguments.ArgumentDictionary.ContainsKey(propertyName))
+                if (arguments.ContainsKey(propertyName))
                 {
                     // retrieve the property and type
                     PropertyInfo property = properties[propertyName];
                     Type propertyType = property.PropertyType;
 
                     // retrieve the value from the argument dictionary
-                    object value = arguments.ArgumentDictionary[propertyName];
+                    object value = arguments[propertyName];
 
                     bool valueIsList = value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>);
 
@@ -511,6 +515,41 @@ namespace Utility.CommandLine
                     operandsProperty.SetValue(null, arguments.OperandList.ToArray());
                 }
             }
+        }
+
+        public bool ContainsKey(string key)
+        {
+            var arg = ArgumentDictionary.Where(a => a.Key.ShortName.ToString() == key || a.Key.LongName == key).SingleOrDefault();
+            return !arg.Equals(default(KeyValuePair<ArgumentInfo, object>));
+        }
+
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        {
+            return ArgumentDictionary
+                .Select(a => a.Key.ShortName.ToString())
+                .Union(
+                    ArgumentDictionary
+                    .Select(a => a.Key.LongName))
+                .ToDictionary(a => a, a => this[a])
+                .GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public bool TryGetValue(string key, out object value)
+        {
+            value = null;
+
+            if (ContainsKey(key))
+            {
+                value = this[key];
+                return true;
+            }
+
+            return false;
         }
 
         private static object ChangeType(object value, string argument, Type toType)

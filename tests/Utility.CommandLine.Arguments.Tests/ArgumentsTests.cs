@@ -140,7 +140,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Parse()
         {
-            Dictionary<string, object> test = Arguments.Parse().ArgumentDictionary;
+            var test = Arguments.Parse();
 
             Assert.NotEmpty(test);
         }
@@ -148,7 +148,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseCaseSensitive()
         {
-            Dictionary<string, object> test = Arguments.Parse("--TEST -aBc").ArgumentDictionary;
+            var test = Arguments.Parse("--TEST -aBc");
 
             Assert.True(test.ContainsKey("TEST"));
             Assert.False(test.ContainsKey("test"));
@@ -190,7 +190,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseInnerQuotedStrings()
         {
-            Dictionary<string, object> test = Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
+            Arguments test = Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'");
 
             Assert.Equal("test \'1\'", test["test1"]);
             Assert.Equal("test \"2\"", test["test2"]);
@@ -199,7 +199,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseLongAndShortMix()
         {
-            Dictionary<string, object> test = Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
+            Arguments test = Arguments.Parse("--one=1 -ab 2 /three:3 -4 4");
 
             Assert.Equal("1", test["one"]);
             Assert.True(test.ContainsKey("a"));
@@ -214,15 +214,15 @@ namespace Utility.CommandLine.Tests
         {
             Arguments test = Arguments.Parse("--test one two --three four");
 
-            Assert.Equal("one", test.ArgumentDictionary["test"]);
+            Assert.Equal("one", test["test"]);
             Assert.Equal("two", test.OperandList[0]);
-            Assert.Equal("four", test.ArgumentDictionary["three"]);
+            Assert.Equal("four", test["three"]);
         }
 
         [Fact]
         public void ParseMultipleQuotes()
         {
-            Dictionary<string, object> test = Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
+            Arguments test = Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'");
 
             Assert.Equal("1", test["test1"]);
             Assert.Equal("2", test["test2"]);
@@ -261,7 +261,7 @@ namespace Utility.CommandLine.Tests
         {
             Arguments test = Arguments.Parse("--test one two");
 
-            Assert.Equal("one", test.ArgumentDictionary["test"]);
+            Assert.Equal("one", test["test"]);
             Assert.Equal("two", test.OperandList[0]);
         }
 
@@ -279,7 +279,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseShorts()
         {
-            Dictionary<string, object> test = Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
+            Arguments test = Arguments.Parse("-abc 'hello world'");
 
             Assert.True(test.ContainsKey("a"));
             Assert.Equal(string.Empty, test["a"]);
@@ -348,7 +348,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStringOfLongs()
         {
-            Dictionary<string, object> test = Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
+            var test = Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'");
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
@@ -362,7 +362,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueBeginningWithSlash()
         {
-            Dictionary<string, object> test = Arguments.Parse("--file=/mnt/data/test.xml").ArgumentDictionary;
+            var test = Arguments.Parse("--file=/mnt/data/test.xml");
 
             Assert.Equal("/mnt/data/test.xml", test["file"]);
         }
@@ -370,7 +370,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueWithQuotedPeriod()
         {
-            Dictionary<string, object> test = Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
+            var test = Arguments.Parse("--test \"test.test\" --test2 'test2.test2'");
 
             Assert.Equal("test.test", test["test"]);
             Assert.Equal("test2.test2", test["test2"]);
@@ -759,7 +759,7 @@ namespace Utility.CommandLine.Tests
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
-            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["l"]));
+            var ex = Record.Exception(() => argList = ((List<object>)a["l"]));
 
             Assert.Single(dict);
 
@@ -780,7 +780,7 @@ namespace Utility.CommandLine.Tests
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
-            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["list"]));
+            var ex = Record.Exception(() => argList = ((List<object>)a["list"]));
 
             Assert.Single(dict);
 
@@ -801,7 +801,7 @@ namespace Utility.CommandLine.Tests
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
-            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["l"]));
+            var ex = Record.Exception(() => argList = ((List<object>)a["l"]));
 
             Assert.Single(dict);
 
@@ -822,7 +822,7 @@ namespace Utility.CommandLine.Tests
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
-            var ex = Record.Exception(() => argList = ((List<object>)a.ArgumentDictionary["list"]));
+            var ex = Record.Exception(() => argList = ((List<object>)a["list"]));
 
             Assert.Single(dict);
 
@@ -840,13 +840,12 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("l", "bar"));
 
             var a = Arguments.Parse("--list foo -l bar");
-            var dict = a.ArgumentDictionary;
 
-            Assert.Equal(2, dict.Count);
-            Assert.True(dict.ContainsKey("list"));
-            Assert.True(dict.ContainsKey("l"));
-            Assert.Equal("foo", dict["list"]);
-            Assert.Equal("bar", dict["l"]);
+            Assert.Equal(2, a.Count);
+            Assert.True(a.ContainsKey("list"));
+            Assert.True(a.ContainsKey("l"));
+            Assert.Equal("foo", a["list"]);
+            Assert.Equal("bar", a["l"]);
         }
 
         [Fact]
@@ -857,11 +856,10 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "2"));
 
             var a = Arguments.Parse("-b 1 -b 2", GetType());
-            var dict = a.ArgumentDictionary;
 
-            Assert.Single(dict);
+            Assert.Single(a);
 
-            Assert.Equal("2", dict["b"]);
+            Assert.Equal("2", a["b"]);
         }
 
         [Fact]
@@ -872,11 +870,10 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
             var a = Arguments.Parse("--bb 1 --bb 2", GetType());
-            var dict = a.ArgumentDictionary;
 
-            Assert.Single(dict);
+            Assert.Single(a);
 
-            Assert.Equal("2", dict["bb"]);
+            Assert.Equal("2", a["bb"]);
         }
 
         [Fact]
@@ -887,11 +884,10 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "2"));
 
             var a = Arguments.Parse("--bb 1 -b 2", GetType());
-            var dict = a.ArgumentDictionary;
 
-            Assert.Single(dict);
+            Assert.Single(a);
 
-            Assert.Equal("2", dict["bb"]);
+            Assert.Equal("2", a["bb"]);
         }
 
         [Fact]
@@ -902,11 +898,10 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
             var a = Arguments.Parse("-b 1 --bb 2", GetType());
-            var dict = a.ArgumentDictionary;
 
-            Assert.Single(dict);
+            Assert.Single(a);
 
-            Assert.Equal("2", dict["b"]);
+            Assert.Equal("2", a["b"]);
         }
 
         [Fact]
@@ -917,13 +912,12 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
             var a = Arguments.Parse("-b 1 --bb 2");
-            var dict = a.ArgumentDictionary;
 
-            Assert.Equal(2, dict.Count);
-            Assert.True(dict.ContainsKey("b"));
-            Assert.True(dict.ContainsKey("bb"));
-            Assert.Equal("1", dict["b"]);
-            Assert.Equal("2", dict["bb"]);
+            Assert.Equal(2, a.Count);
+            Assert.True(a.ContainsKey("b"));
+            Assert.True(a.ContainsKey("bb"));
+            Assert.Equal("1", a["b"]);
+            Assert.Equal("2", a["bb"]);
         }
     }
 

@@ -266,6 +266,15 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
+        public void ParseSingleCharacterLong()
+        {
+            Arguments test = Arguments.Parse("--t one");
+
+            Assert.Single(test.ArgumentDictionary);
+            Assert.Equal("one", test.ArgumentDictionary["t"]);
+        }
+
+        [Fact]
         public void ParseOperands()
         {
             Arguments test = Arguments.Parse("--test one two three four");

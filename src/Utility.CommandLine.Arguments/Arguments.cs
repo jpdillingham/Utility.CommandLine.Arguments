@@ -264,26 +264,6 @@ namespace Utility.CommandLine
         }
 
         /// <summary>
-        ///     Retrieves a collection of <see cref="ArgumentHelp"/> gathered from properties in the target <paramref name="type"/>
-        ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
-        /// </summary>
-        /// <param name="type">The <see cref="Type"/> for which the matching properties are to be retrieived.</param>
-        /// <param name="caller">Internal parameter used to identify the calling method.</param>
-        /// <returns>The retrieved collection of <see cref="ArgumentHelp"/>.</returns>
-        [Obsolete("Use GetArgumentInfo()")]
-        public static IEnumerable<ArgumentHelp> GetArgumentHelp(Type type = null, [CallerMemberName] string caller = default(string))
-        {
-            type = type ?? ArgumentsExtensions.GetCallingType(caller);
-
-            return GetArgumentInfo(type).Select(i => new ArgumentHelp()
-            {
-                ShortName = i.ShortName,
-                LongName = i.LongName,
-                HelpText = i.HelpText,
-            });
-        }
-
-        /// <summary>
         ///     Retrieves a collection of <see cref="ArgumentInfo"/> gathered from properties in the target <paramref name="type"/>
         ///     marked with the <see cref="ArgumentAttribute"/><see cref="Attribute"/> along with the short and long names and help text.
         /// </summary>
@@ -733,28 +713,6 @@ namespace Utility.CommandLine
 
             return value;
         }
-    }
-
-    /// <summary>
-    ///     Encapsulates argument names and help text.
-    /// </summary>
-    [Obsolete]
-    public class ArgumentHelp
-    {
-        /// <summary>
-        ///     Gets or sets the help text for the argument.
-        /// </summary>
-        public string HelpText { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the long name of the argument.
-        /// </summary>
-        public string LongName { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the short name of the argument.
-        /// </summary>
-        public char ShortName { get; set; }
     }
 
     /// <summary>

@@ -756,7 +756,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("l", "foo"));
             list.Add(new KeyValuePair<string, string>("l", "bar"));
 
-            var a = new CommandLine.Arguments("-l foo -l bar", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("-l foo -l bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -777,7 +777,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("list", "foo"));
             list.Add(new KeyValuePair<string, string>("list", "bar"));
 
-            var a = new CommandLine.Arguments("--list foo --list bar", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("--list foo --list bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -798,7 +798,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("l", "foo"));
             list.Add(new KeyValuePair<string, string>("list", "bar"));
 
-            var a = new CommandLine.Arguments("-l foo --list bar", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("-l foo --list bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -819,7 +819,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("list", "foo"));
             list.Add(new KeyValuePair<string, string>("l", "bar"));
 
-            var a = new CommandLine.Arguments("--list foo -l bar", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("--list foo -l bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -840,7 +840,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("list", "foo"));
             list.Add(new KeyValuePair<string, string>("l", "bar"));
 
-            var a = new CommandLine.Arguments("--list foo -l bar", list, new List<string>());
+            var a = CommandLine.Arguments.Parse("--list foo -l bar");
             var dict = a.ArgumentDictionary;
 
             Assert.Equal(2, dict.Count);
@@ -857,7 +857,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "1"));
             list.Add(new KeyValuePair<string, string>("b", "2"));
 
-            var a = new CommandLine.Arguments("-b 1 -b 2", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("-b 1 -b 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -872,7 +872,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("bb", "1"));
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
-            var a = new CommandLine.Arguments("--bb 1 --bb 2", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("--bb 1 --bb 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -887,7 +887,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("bb", "1"));
             list.Add(new KeyValuePair<string, string>("b", "2"));
 
-            var a = new CommandLine.Arguments("--bb 1 -b 2", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("--bb 1 -b 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -902,7 +902,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "1"));
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
-            var a = new CommandLine.Arguments("-b 1 --bb 2", list, new List<string>(), GetType());
+            var a = CommandLine.Arguments.Parse("-b 1 --bb 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -917,7 +917,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "1"));
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
-            var a = new CommandLine.Arguments("-b 1 --bb 2", list, new List<string>());
+            var a = CommandLine.Arguments.Parse("-b 1 --bb 2");
             var dict = a.ArgumentDictionary;
 
             Assert.Equal(2, dict.Count);

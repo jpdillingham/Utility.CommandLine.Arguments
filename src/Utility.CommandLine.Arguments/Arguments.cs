@@ -152,11 +152,11 @@ namespace Utility.CommandLine
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
-        public Arguments(string commandLineString, List<KeyValuePair<string, string>> argumentList, List<string> operandList, Type targetType = null)
+        private Arguments(string commandLineString, List<KeyValuePair<string, string>> argumentList, Dictionary<string, object> argumentDictionary, List<string> operandList, Type targetType = null)
         {
             CommandLineString = commandLineString;
             ArgumentList = argumentList;
-            ArgumentDictionary = GetArgumentDictionary(argumentList, targetType);
+            ArgumentDictionary = argumentDictionary;
             OperandList = operandList;
             TargetType = targetType;
         }
@@ -324,7 +324,8 @@ namespace Utility.CommandLine
                 operandList = GetOperandList(commandLineString);
             }
 
-            return new Arguments(commandLineString, argumentList, operandList, type);
+            var argumentDictionary = GetArgumentDictionary(argumentList, type);
+            return new Arguments(commandLineString, argumentList, argumentDictionary, operandList, type);
         }
 
         /// <summary>

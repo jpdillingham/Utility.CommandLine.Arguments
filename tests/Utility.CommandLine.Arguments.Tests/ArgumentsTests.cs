@@ -464,8 +464,19 @@ namespace Utility.CommandLine.Tests
         {
             Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--integer 1 --integer 2"));
 
-            Assert.NotNull(ex);
-            Assert.IsType<InvalidCastException>(ex);
+            Assert.Null(ex);
+
+            Assert.Equal(2, Integer);
+        }
+
+        [Fact]
+        public void PopulateMultipleValuesNotCollectionBacked_Last_Value_Wins()
+        {
+            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--integer 2 --integer 1"));
+
+            Assert.Null(ex);
+
+            Assert.Equal(1, Integer);
         }
 
         [Fact]
@@ -851,7 +862,7 @@ namespace Utility.CommandLine.Tests
 
             Assert.Single(dict);
 
-            Assert.Equal(2, dict["b"]);
+            Assert.Equal("2", dict["b"]);
         }
 
         [Fact]
@@ -866,7 +877,7 @@ namespace Utility.CommandLine.Tests
 
             Assert.Single(dict);
 
-            Assert.Equal(2, dict["bb"]);
+            Assert.Equal("2", dict["bb"]);
         }
 
         [Fact]
@@ -881,7 +892,7 @@ namespace Utility.CommandLine.Tests
 
             Assert.Single(dict);
 
-            Assert.Equal(2, dict["bb"]);
+            Assert.Equal("2", dict["bb"]);
         }
 
         [Fact]
@@ -896,7 +907,7 @@ namespace Utility.CommandLine.Tests
 
             Assert.Single(dict);
 
-            Assert.Equal(2, dict["b"]);
+            Assert.Equal("2", dict["b"]);
         }
 
         [Fact]
@@ -912,8 +923,8 @@ namespace Utility.CommandLine.Tests
             Assert.Equal(2, dict.Count);
             Assert.True(dict.ContainsKey("b"));
             Assert.True(dict.ContainsKey("bb"));
-            Assert.Equal(1, dict["b"]);
-            Assert.Equal(2, dict["bb"]);
+            Assert.Equal("1", dict["b"]);
+            Assert.Equal("2", dict["bb"]);
         }
     }
 

@@ -96,6 +96,20 @@ namespace Utility.CommandLine
 
             return callingMethod.DeclaringType;
         }
+
+        internal static string TrimOuterQuotes(this string value)
+        {
+            if (value.StartsWith("\"") && value.EndsWith("\""))
+            {
+                value = value.Trim('"');
+            }
+            else if (value.StartsWith("'") && value.EndsWith("'"))
+            {
+                value = value.Trim('\'');
+            }
+
+            return value;
+        }
     }
 
     /// <summary>
@@ -554,7 +568,7 @@ namespace Utility.CommandLine
                 string argument = match.Groups[1].Value;
                 string value = match.Groups[2].Value;
 
-                value = TrimOuterQuotes(value);
+                value = value.TrimOuterQuotes();
 
                 // check to see if the argument uses a single dash. if so, split the argument name into a char array and add each
                 // to the list. if a value is specified, it belongs to the final character.
@@ -618,7 +632,7 @@ namespace Utility.CommandLine
                 string fullMatch = match.Groups[0].Value;
                 string operand = match.Groups[3].Value;
 
-                operands.Add(TrimOuterQuotes(operand));
+                operands.Add(operand.TrimOuterQuotes());
             }
 
             return operands;
@@ -649,20 +663,6 @@ namespace Utility.CommandLine
             }
 
             return property;
-        }
-
-        private static string TrimOuterQuotes(string value)
-        {
-            if (value.StartsWith("\"") && value.EndsWith("\""))
-            {
-                value = value.Trim('"');
-            }
-            else if (value.StartsWith("'") && value.EndsWith("'"))
-            {
-                value = value.Trim('\'');
-            }
-
-            return value;
         }
     }
 

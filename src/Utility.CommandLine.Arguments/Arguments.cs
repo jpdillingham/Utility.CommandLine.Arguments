@@ -211,11 +211,20 @@ namespace Utility.CommandLine
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </summary>
+        /// <remarks>
+        ///     This dictionary contains argument key/value pairs compiled from the <see cref="ArgumentList"/> and checked against
+        ///     the <see cref="TargetType"/> to combine duplicated pairs into lists where the backing property is a collection, and
+        ///     to overwrite where the backing property is not a collection.
+        /// </remarks>
         public Dictionary<string, object> ArgumentDictionary { get; }
 
         /// <summary>
         ///     Gets the list of arguments specified in the command line arguments with which the application was started.
         /// </summary>
+        /// <remarks>
+        ///     This list contains each argument key/value pair as supplied in the original string, preserving the original order
+        ///     and any duplicated pairs.
+        /// </remarks>
         public List<KeyValuePair<string, string>> ArgumentList { get; }
 
         /// <summary>

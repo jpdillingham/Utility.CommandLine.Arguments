@@ -165,7 +165,7 @@ namespace Utility.CommandLine
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
-        public Arguments(string commandLineString, List<KeyValuePair<string, object>> argumentList, List<string> operandList, Type targetType = null)
+        public Arguments(string commandLineString, List<KeyValuePair<string, string>> argumentList, List<string> operandList, Type targetType = null)
         {
             CommandLineString = commandLineString;
             ArgumentList = argumentList;
@@ -182,7 +182,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     Gets the list of arguments specified in the command line arguments with which the application was started.
         /// </summary>
-        public List<KeyValuePair<string, object>> ArgumentList { get; }
+        public List<KeyValuePair<string, string>> ArgumentList { get; }
 
         /// <summary>
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
@@ -226,7 +226,7 @@ namespace Utility.CommandLine
             }
         }
 
-        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, object>> argumentList, Type targetType = null)
+        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null)
         {
             var dict = new ConcurrentDictionary<string, object>();
             var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
@@ -243,7 +243,7 @@ namespace Utility.CommandLine
                     {
                         if (dict.ContainsKey(k))
                         {
-                            dict.AddOrUpdate(k, arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : arg.Value);
+                            dict.AddOrUpdate(k, arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : (object)arg.Value);
                             added = true;
                             break;
                         }
@@ -251,7 +251,7 @@ namespace Utility.CommandLine
 
                     if (!added)
                     {
-                        dict.TryAdd(arg.Key, info.IsCollection ? new List<object>(new[] { arg.Value }) : arg.Value);
+                        dict.TryAdd(arg.Key, info.IsCollection ? new List<object>(new[] { arg.Value }) : (object)arg.Value);
                     }
                 }
                 else
@@ -309,7 +309,7 @@ namespace Utility.CommandLine
         {
             commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
 
-            Dictionary<string, object> argumentDictionary;
+            List<KeyValuePair<string, string>> argumentList;
             List<string> operandList;
 
             // use the strict operand regular expression to test for/extract the two halves of the string, if the operator is used.
@@ -320,7 +320,7 @@ namespace Utility.CommandLine
             {
                 // the first group of the first match will contain everything in the string prior to the strict operand delimiter,
                 // so extract the argument key/value pairs and list of operands from that string.
-                argumentDictionary = GetArgumentDictionary(matches[0].Groups[1].Value, type);
+                argumentList = GetArgumentList(matches[0].Groups[1].Value);
                 operandList = GetOperandList(matches[0].Groups[1].Value);
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
@@ -333,12 +333,11 @@ namespace Utility.CommandLine
             }
             else
             {
-                argumentDictionary = GetArgumentDictionary(commandLineString, type);
+                argumentList = GetArgumentList(commandLineString);
                 operandList = GetOperandList(commandLineString);
             }
 
-            //return new Arguments(commandLineString, argumentList, operandList, type);
-            return null;
+            return new Arguments(commandLineString, argumentList, operandList, type);
         }
 
         /// <summary>
@@ -539,9 +538,9 @@ namespace Utility.CommandLine
             }
         }
 
-        private static Dictionary<string, object> GetArgumentDictionary(string commandLineString)
+        private static List<KeyValuePair<string, string>> GetArgumentList(string commandLineString)
         {
-            Dictionary<string, object> argumentDictionary = new Dictionary<string, object>();
+            var argumentList = new List<KeyValuePair<string, string>>();
 
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
@@ -558,7 +557,7 @@ namespace Utility.CommandLine
                 value = TrimOuterQuotes(value);
 
                 // check to see if the argument uses a single dash. if so, split the argument name into a char array and add each
-                // to the dictionary. if a value is specified, it belongs to the final character.
+                // to the list. if a value is specified, it belongs to the final character.
                 if (Regex.IsMatch(fullMatch, GroupRegEx))
                 {
                     char[] charArray = argument.ToCharArray();
@@ -566,17 +565,16 @@ namespace Utility.CommandLine
                     // iterate over the characters backwards to more easily assign the value
                     for (int i = 0; i < charArray.Length; i++)
                     {
-                        argumentDictionary.ExclusiveAdd(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty);
+                        argumentList.Add(new KeyValuePair<string, string>(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty));
                     }
                 }
                 else
                 {
-                    // add the argument and value to the dictionary if it doesn't already exist.
-                    argumentDictionary.ExclusiveAdd(argument, value);
+                    argumentList.Add(new KeyValuePair<string, string>(argument, value));
                 }
             }
 
-            return argumentDictionary;
+            return argumentList;
         }
 
         private static Dictionary<string, PropertyInfo> GetArgumentProperties(Type type)

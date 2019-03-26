@@ -198,7 +198,7 @@ namespace Utility.CommandLine
         /// </remarks>
         private const string StrictOperandSplitRegEx = "(.*?[^\\\"\\\'])?(\\B-{2}\\B)[^\\\"\\\']?(.*)";
 
-        private Arguments(string commandLineString, List<KeyValuePair<string, string>> argumentList, Dictionary<string, object> argumentDictionary, List<string> operandList, Type targetType = null)
+        private Arguments(string commandLineString, List<KeyValuePair<string, string>> argumentList, Dictionary<ArgumentInfo, object> argumentDictionary, List<string> operandList, Type targetType = null)
         {
             CommandLineString = commandLineString;
             ArgumentList = argumentList;
@@ -211,7 +211,7 @@ namespace Utility.CommandLine
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </summary>
-        public Dictionary<string, object> ArgumentDictionary { get; }
+        public Dictionary<ArgumentInfo, object> ArgumentDictionary { get; }
 
         /// <summary>
         ///     Gets the list of arguments specified in the command line arguments with which the application was started.
@@ -256,7 +256,14 @@ namespace Utility.CommandLine
         {
             get
             {
-                return ArgumentDictionary[key];
+                var arg = ArgumentDictionary.Where(a => a.Key.ShortName.ToString() == key || a.Key.LongName == key).SingleOrDefault();
+
+                if (arg.Equals(default(KeyValuePair<ArgumentInfo, object>)))
+                {
+                    throw new KeyNotFoundException($"An argument matching key '{key}' was not found.");
+                }
+
+                return arg.Value;
             }
         }
 
@@ -534,9 +541,9 @@ namespace Utility.CommandLine
             }
         }
 
-        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null)
+        private static Dictionary<ArgumentInfo, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null)
         {
-            var dict = new ConcurrentDictionary<string, object>();
+            var dict = new ConcurrentDictionary<ArgumentInfo, object>();
             var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
 
             foreach (var arg in argumentList)
@@ -545,26 +552,7 @@ namespace Utility.CommandLine
 
                 if (info != default(ArgumentInfo))
                 {
-                    bool added = false;
-
-                    foreach (var k in new[] { info.ShortName.ToString(), info.LongName })
-                    {
-                        if (dict.ContainsKey(k))
-                        {
-                            dict.AddOrUpdate(k, arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : (object)arg.Value);
-                            added = true;
-                            break;
-                        }
-                    }
-
-                    if (!added)
-                    {
-                        dict.TryAdd(arg.Key, info.IsCollection ? new List<object>(new[] { arg.Value }) : (object)arg.Value);
-                    }
-                }
-                else
-                {
-                    dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                    dict.AddOrUpdate(info, info.IsCollection ? new List<object>(new[] { arg.Value }) : (object)arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : (object)arg.Value);
                 }
             }
 

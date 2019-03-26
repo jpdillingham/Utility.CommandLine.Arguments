@@ -119,38 +119,10 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
         }
 
-        /// <summary>
-        ///     Tests <see cref="CommandLine.Arguments.GetArgumentHelp"/>.
-        /// </summary>
-        [Fact]
-        public void GetArgumentHelp()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var help = CommandLine.Arguments.GetArgumentHelp(typeof(Arguments)).ToList();
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            Assert.Equal(7, help.Count);
-            Assert.Single(help.Where(h => h.ShortName == 'b'));
-            Assert.Single(help.Where(h => h.LongName == "test-prop"));
-            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
-        }
-
         [Fact]
         public void GetArgumentInfoNull()
         {
             var help = CommandLine.Arguments.GetArgumentInfo().ToList();
-
-            Assert.Equal(7, help.Count);
-            Assert.Single(help.Where(h => h.ShortName == 'b'));
-            Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
-        }
-
-        [Fact]
-        public void GetArgumentHelpNull()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var help = CommandLine.Arguments.GetArgumentHelp().ToList();
-#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
@@ -769,9 +741,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void List_Is_Appended_Given_Two_Short_Args()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("l", "foo"));
-            list.Add(new KeyValuePair<string, object>("l", "bar"));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("l", "foo"));
+            list.Add(new KeyValuePair<string, string>("l", "bar"));
 
             var a = new CommandLine.Arguments("-l foo -l bar", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -790,9 +762,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void List_Is_Appended_Given_Two_Long_Args()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("list", "foo"));
-            list.Add(new KeyValuePair<string, object>("list", "bar"));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("list", "foo"));
+            list.Add(new KeyValuePair<string, string>("list", "bar"));
 
             var a = new CommandLine.Arguments("--list foo --list bar", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -811,9 +783,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void List_Is_Appended_Given_Mixed_Args_Short_First()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("l", "foo"));
-            list.Add(new KeyValuePair<string, object>("list", "bar"));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("l", "foo"));
+            list.Add(new KeyValuePair<string, string>("list", "bar"));
 
             var a = new CommandLine.Arguments("-l foo --list bar", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -832,9 +804,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void List_Is_Appended_Given_Mixed_Args_Long_First()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("list", "foo"));
-            list.Add(new KeyValuePair<string, object>("l", "bar"));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("list", "foo"));
+            list.Add(new KeyValuePair<string, string>("l", "bar"));
 
             var a = new CommandLine.Arguments("--list foo -l bar", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -853,9 +825,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void List_Is_Not_Appended_Given_Mixed_Args_Long_First_No_Type()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("list", "foo"));
-            list.Add(new KeyValuePair<string, object>("l", "bar"));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("list", "foo"));
+            list.Add(new KeyValuePair<string, string>("l", "bar"));
 
             var a = new CommandLine.Arguments("--list foo -l bar", list, new List<string>());
             var dict = a.ArgumentDictionary;
@@ -870,9 +842,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Value_Is_Replaced_Given_Multiple_Short()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("b", 1));
-            list.Add(new KeyValuePair<string, object>("b", 2));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("b", "1"));
+            list.Add(new KeyValuePair<string, string>("b", "2"));
 
             var a = new CommandLine.Arguments("-b 1 -b 2", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -885,9 +857,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Value_Is_Replaced_Given_Multiple_Long()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("bb", 1));
-            list.Add(new KeyValuePair<string, object>("bb", 2));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("bb", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
 
             var a = new CommandLine.Arguments("--bb 1 --bb 2", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -900,9 +872,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Value_Is_Replaced_Given_Mixed_Args_Long_First()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("bb", 1));
-            list.Add(new KeyValuePair<string, object>("b", 2));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("bb", "1"));
+            list.Add(new KeyValuePair<string, string>("b", "2"));
 
             var a = new CommandLine.Arguments("--bb 1 -b 2", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -915,9 +887,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Value_Is_Replaced_Given_Mixed_Args_Short_First()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("b", 1));
-            list.Add(new KeyValuePair<string, object>("bb", 2));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("b", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
 
             var a = new CommandLine.Arguments("-b 1 --bb 2", list, new List<string>(), GetType());
             var dict = a.ArgumentDictionary;
@@ -930,9 +902,9 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Value_Is_Not_Replaced_Given_Mixed_Args_Short_First_No_Type()
         {
-            var list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("b", 1));
-            list.Add(new KeyValuePair<string, object>("bb", 2));
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("b", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
 
             var a = new CommandLine.Arguments("-b 1 --bb 2", list, new List<string>());
             var dict = a.ArgumentDictionary;

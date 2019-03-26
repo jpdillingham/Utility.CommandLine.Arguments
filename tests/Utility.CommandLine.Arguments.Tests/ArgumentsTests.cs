@@ -36,12 +36,12 @@ using Xunit;
 namespace Utility.CommandLine.Tests
 {
     [Collection("ArgumentAttribute")]
-    public class ArgumentAttribute
+    public class ArgumentAttributeTests
     {
         [Fact]
         public void Constructor()
         {
-            CommandLine.ArgumentAttribute test = new CommandLine.ArgumentAttribute('n', "name", "help");
+            ArgumentAttribute test = new ArgumentAttribute('n', "name", "help");
 
             Assert.Equal('n', test.ShortName);
             Assert.Equal("name", test.LongName);
@@ -51,12 +51,12 @@ namespace Utility.CommandLine.Tests
     }
 
     [Collection("ArgumentInfo")]
-    public class ArgumentInfo
+    public class ArgumentInfoTests
     {
         [Fact]
         public void Constructor()
         {
-            CommandLine.ArgumentInfo test = new CommandLine.ArgumentInfo()
+            ArgumentInfo test = new ArgumentInfo()
             {
                 ShortName = 'a',
                 LongName = "aa",
@@ -71,7 +71,7 @@ namespace Utility.CommandLine.Tests
     }
 
     [Collection("Arguments")]
-    public class Arguments
+    public class ArgumentsTests
     {
         public enum Enums
         {
@@ -79,39 +79,39 @@ namespace Utility.CommandLine.Tests
             Bar = 2,
         }
 
-        [CommandLine.Argument('b', "bool", "help")]
+        [Argument('b', "bool", "help")]
         private static bool Bool { get; set; }
 
-        [CommandLine.Argument('d', "decimal")]
+        [Argument('d', "decimal")]
         private static decimal Decimal { get; set; }
 
-        [CommandLine.Argument('i', "integer")]
+        [Argument('i', "integer")]
         private static int Integer { get; set; }
 
-        [CommandLine.Argument('c', "case-sensitive")]
+        [Argument('c', "case-sensitive")]
         private static string LowerCase { get; set; }
 
         private static string NonArgumentProperty { get; set; }
 
-        [CommandLine.Operands]
+        [Operands]
         private static List<string> Operands { get; set; }
 
         [Obsolete]
         private static string PlainProperty { get; set; }
 
-        [CommandLine.Argument('t', "test-prop")]
+        [Argument('t', "test-prop")]
         private static string TestProp { get; set; }
 
-        [CommandLine.Argument('C', "CASE-SENSITIVE")]
+        [Argument('C', "CASE-SENSITIVE")]
         private static string UpperCase { get; set; }
 
-        [CommandLine.Argument('e', "enum")]
+        [Argument('e', "enum")]
         private static Enums Enum { get; set; }
 
         [Fact]
         public void GetArgumentInfo()
         {
-            var help = CommandLine.Arguments.GetArgumentInfo(typeof(Arguments)).ToList();
+            var help = Arguments.GetArgumentInfo(typeof(ArgumentsTests)).ToList();
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
@@ -122,7 +122,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void GetArgumentInfoNull()
         {
-            var help = CommandLine.Arguments.GetArgumentInfo().ToList();
+            var help = Arguments.GetArgumentInfo().ToList();
 
             Assert.Equal(7, help.Count);
             Assert.Single(help.Where(h => h.ShortName == 'b'));
@@ -132,7 +132,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Indexer()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one --two three");
+            Arguments test = Arguments.Parse("--test one --two three");
 
             Assert.Equal("one", test["test"]);
             Assert.Equal("three", test["two"]);
@@ -141,7 +141,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Parse()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse().ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse().ArgumentDictionary;
 
             Assert.NotEmpty(test);
         }
@@ -149,7 +149,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseCaseSensitive()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("--TEST -aBc").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--TEST -aBc").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("TEST"));
             Assert.False(test.ContainsKey("test"));
@@ -167,7 +167,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseDashedOperand()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("hello-world");
+            Arguments test = Arguments.Parse("hello-world");
 
             Assert.Equal("hello-world", test.OperandList[0]);
         }
@@ -175,7 +175,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseDecimal()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--decimal 1.1");
+            Arguments test = Arguments.Parse("--decimal 1.1");
 
             Assert.Equal("1.1", test["decimal"]);
         }
@@ -183,7 +183,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseEmpty()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(string.Empty));
+            Exception ex = Record.Exception(() => Arguments.Parse(string.Empty));
 
             Assert.Null(ex);
         }
@@ -191,7 +191,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseInnerQuotedStrings()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--test1 \"test \'1\'\" --test2 \'test \"2\"\'").ArgumentDictionary;
 
             Assert.Equal("test \'1\'", test["test1"]);
             Assert.Equal("test \"2\"", test["test2"]);
@@ -200,7 +200,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseLongAndShortMix()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
 
             Assert.Equal("1", test["one"]);
             Assert.True(test.ContainsKey("a"));
@@ -213,7 +213,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseMixedArgumentsAndOperands()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two --three four");
+            Arguments test = Arguments.Parse("--test one two --three four");
 
             Assert.Equal("one", test.ArgumentDictionary["test"]);
             Assert.Equal("two", test.OperandList[0]);
@@ -223,7 +223,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseMultipleQuotes()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--test1 \"1\" --test2 \"2\" --test3 \'3\' --test4 \'4\'").ArgumentDictionary;
 
             Assert.Equal("1", test["test1"]);
             Assert.Equal("2", test["test2"]);
@@ -234,7 +234,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseNoArgument()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse());
+            Exception ex = Record.Exception(() => Arguments.Parse());
 
             Assert.Null(ex);
         }
@@ -242,7 +242,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseNull()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Parse(null));
+            Exception ex = Record.Exception(() => Arguments.Parse(null));
 
             Assert.Null(ex);
         }
@@ -250,7 +250,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseOnlyOperands()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("hello world!");
+            Arguments test = Arguments.Parse("hello world!");
 
             Assert.Equal(2, test.OperandList.Count);
             Assert.Equal("hello", test.OperandList[0]);
@@ -260,7 +260,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseOperand()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two");
+            Arguments test = Arguments.Parse("--test one two");
 
             Assert.Equal("one", test.ArgumentDictionary["test"]);
             Assert.Equal("two", test.OperandList[0]);
@@ -269,7 +269,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseOperands()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two three four");
+            Arguments test = Arguments.Parse("--test one two three four");
 
             Assert.Equal(3, test.OperandList.Count);
             Assert.Equal("two", test.OperandList[0]);
@@ -280,7 +280,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseShorts()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("-abc 'hello world'").ArgumentDictionary;
 
             Assert.True(test.ContainsKey("a"));
             Assert.Equal(string.Empty, test["a"]);
@@ -295,7 +295,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStrictOperandDelimiterOnly()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--");
+            Arguments test = Arguments.Parse("--");
 
             Assert.Empty(test.OperandList);
         }
@@ -303,7 +303,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStrictOperandMultipleDelimiter()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("one -- two -- three");
+            Arguments test = Arguments.Parse("one -- two -- three");
 
             Assert.Equal(4, test.OperandList.Count);
             Assert.Equal("one", test.OperandList[0]);
@@ -315,7 +315,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStrictOperands()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two -- three -four --five /six \"seven eight\" 'nine ten'");
+            Arguments test = Arguments.Parse("--test one two -- three -four --five /six \"seven eight\" 'nine ten'");
 
             Assert.Equal(7, test.OperandList.Count);
             Assert.Equal("two", test.OperandList[0]);
@@ -330,7 +330,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStrictOperandsEmpty()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("--test one two --");
+            Arguments test = Arguments.Parse("--test one two --");
 
             Assert.Single(test.OperandList);
             Assert.Equal("two", test.OperandList[0]);
@@ -339,7 +339,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStrictOperandsStart()
         {
-            CommandLine.Arguments test = CommandLine.Arguments.Parse("-- one two");
+            Arguments test = Arguments.Parse("-- one two");
 
             Assert.Equal(2, test.OperandList.Count);
             Assert.Equal("one", test.OperandList[0]);
@@ -349,7 +349,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStringOfLongs()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
@@ -363,7 +363,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueBeginningWithSlash()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("--file=/mnt/data/test.xml").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--file=/mnt/data/test.xml").ArgumentDictionary;
 
             Assert.Equal("/mnt/data/test.xml", test["file"]);
         }
@@ -371,7 +371,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueWithQuotedPeriod()
         {
-            Dictionary<string, object> test = CommandLine.Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--test \"test.test\" --test2 'test2.test2'").ArgumentDictionary;
 
             Assert.Equal("test.test", test["test"]);
             Assert.Equal("test2.test2", test["test2"]);
@@ -380,7 +380,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Populate()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate("-b"));
+            Exception ex = Record.Exception(() => Arguments.Populate("-b"));
 
             Assert.Null(ex);
         }
@@ -388,7 +388,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateBogusCaller()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate("-b", true, Guid.NewGuid().ToString()));
+            Exception ex = Record.Exception(() => Arguments.Populate("-b", true, Guid.NewGuid().ToString()));
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidOperationException>(ex);
@@ -397,12 +397,12 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateCaseSensitive()
         {
-            CommandLine.Arguments.Populate("-c lower -C upper");
+            Arguments.Populate("-c lower -C upper");
 
             Assert.Equal("lower", LowerCase);
             Assert.Equal("upper", UpperCase);
 
-            CommandLine.Arguments.Populate("--case-sensitive lower --CASE-SENSITIVE upper");
+            Arguments.Populate("--case-sensitive lower --CASE-SENSITIVE upper");
 
             Assert.Equal("lower", LowerCase);
             Assert.Equal("upper", UpperCase);
@@ -411,7 +411,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateDecimal()
         {
-            CommandLine.Arguments.Populate("--decimal 1.1");
+            Arguments.Populate("--decimal 1.1");
 
             Assert.Equal(1.1M, Decimal);
         }
@@ -419,7 +419,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateEnum()
         {
-            CommandLine.Arguments.Populate("--enum bar");
+            Arguments.Populate("--enum bar");
 
             Assert.Equal(Enums.Bar, Enum);
         }
@@ -431,7 +431,7 @@ namespace Utility.CommandLine.Tests
             Decimal = 3.5m;
             Integer = 42;
 
-            CommandLine.Arguments.Populate(string.Empty, false);
+            Arguments.Populate(string.Empty, false);
 
             Assert.True(Bool);
             Assert.Equal(3.5m, Decimal);
@@ -441,7 +441,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateDuplicateProperties()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(typeof(TestClassDuplicateProperties), "--hello world"));
+            Exception ex = Record.Exception(() => Arguments.Populate(typeof(TestClassDuplicateProperties), "--hello world"));
 
             Assert.Null(ex);
 
@@ -452,7 +452,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateExternalClass()
         {
-            CommandLine.Arguments.Populate(typeof(TestClassPublicProperties), "--test test! operand1 operand2");
+            Arguments.Populate(typeof(TestClassPublicProperties), "--test test! operand1 operand2");
 
             Assert.Equal("test!", TestClassPublicProperties.Test);
             Assert.Equal("operand1", TestClassPublicProperties.Operands[0]);
@@ -462,7 +462,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateMultipleValuesNotCollectionBacked()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--integer 1 --integer 2"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "--integer 1 --integer 2"));
 
             Assert.Null(ex);
 
@@ -472,7 +472,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateMultipleValuesNotCollectionBacked_Last_Value_Wins()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--integer 2 --integer 1"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "--integer 2 --integer 1"));
 
             Assert.Null(ex);
 
@@ -482,7 +482,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateOperands()
         {
-            CommandLine.Arguments.Populate(GetType(), "--test one two three");
+            Arguments.Populate(GetType(), "--test one two three");
 
             Assert.Equal("two", Operands[0]);
             Assert.Equal("three", Operands[1]);
@@ -491,7 +491,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateShortNames()
         {
-            CommandLine.Arguments.Populate("-bi 3");
+            Arguments.Populate("-bi 3");
 
             Assert.True(Bool);
             Assert.Equal(3, Integer);
@@ -500,7 +500,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateString()
         {
-            CommandLine.Arguments.Populate("--test-prop 'hello world!' --bool --integer 5");
+            Arguments.Populate("--test-prop 'hello world!' --bool --integer 5");
 
             Assert.Equal("hello world!", TestProp);
             Assert.True(Bool);
@@ -510,7 +510,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateType()
         {
-            CommandLine.Arguments.Populate(GetType(), "--integer 5");
+            Arguments.Populate(GetType(), "--integer 5");
 
             Assert.Equal(5, Integer);
         }
@@ -518,7 +518,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateTypeMismatch()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--integer five"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "--integer five"));
 
             Assert.NotNull(ex);
             Assert.IsType<ArgumentException>(ex);
@@ -527,7 +527,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void SetsDefaultValuesOnPopulate()
         {
-            CommandLine.Arguments.Populate(typeof(TestClassWithDefaultValues));
+            Arguments.Populate(typeof(TestClassWithDefaultValues));
 
             Assert.Null(TestClassWithDefaultValues.String);
             Assert.Equal(0, TestClassWithDefaultValues.Int);
@@ -537,7 +537,7 @@ namespace Utility.CommandLine.Tests
     }
 
     [Collection("OperandsAttribute")]
-    public class OperandsAttribute
+    public class OperandsAttributeTests
     {
         [Fact]
         public void Constructor()
@@ -549,10 +549,10 @@ namespace Utility.CommandLine.Tests
 
     public class TestClassDuplicateProperties
     {
-        [CommandLine.Argument('h', "hello")]
+        [Argument('h', "hello")]
         public static string Test1 { get; set; }
 
-        [CommandLine.Argument('h', "hello")]
+        [Argument('h', "hello")]
         public static string Test2 { get; set; }
     }
 
@@ -561,7 +561,7 @@ namespace Utility.CommandLine.Tests
         [CommandLine.Operands]
         public static string[] Operands { get; set; }
 
-        [CommandLine.Argument('t', "test")]
+        [Argument('t', "test")]
         public static string Test { get; set; }
     }
 
@@ -574,7 +574,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateOperands()
         {
-            CommandLine.Arguments.Populate(GetType(), "one two");
+            Arguments.Populate(GetType(), "one two");
 
             Assert.Equal("one", Operands[0]);
             Assert.Equal("two", Operands[1]);
@@ -584,13 +584,13 @@ namespace Utility.CommandLine.Tests
     [Collection("Arguments")]
     public class TestClassWithArrayProperty
     {
-        [CommandLine.Argument('a', "array")]
+        [Argument('a', "array")]
         private static string[] Array { get; set; }
 
         [Fact]
         public void Populate()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one -a two -a three"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-a one -a two -a three"));
 
             Assert.Null(ex);
             Assert.Equal(3, Array.Length);
@@ -602,7 +602,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateSingle()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a one"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-a one"));
 
             Assert.Null(ex);
             Assert.Single(Array);
@@ -619,7 +619,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateOperands()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "one two"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "one two"));
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidCastException>(ex);
@@ -629,13 +629,13 @@ namespace Utility.CommandLine.Tests
     [Collection("Arguments")]
     public class TestClassWithListProperty
     {
-        [CommandLine.Argument('l', "list")]
+        [Argument('l', "list")]
         private static List<string> List { get; set; }
 
         [Fact]
         public void PopulateShort()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one -l two -l three"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-l one -l two -l three"));
 
             Assert.Null(ex);
             Assert.Equal(3, List.Count);
@@ -647,7 +647,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateLong()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--list one --list two --list three"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "--list one --list two --list three"));
 
             Assert.Null(ex);
             Assert.Equal(3, List.Count);
@@ -659,7 +659,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateLongAndShort()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one --list two -l three"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-l one --list two -l three"));
 
             Assert.Null(ex);
             Assert.Equal(3, List.Count);
@@ -671,7 +671,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateShortAndLong()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--list one -l two --list three"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "--list one -l two --list three"));
 
             Assert.Null(ex);
             Assert.Equal(3, List.Count);
@@ -683,7 +683,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateLongThenShort()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--list one --list two -l three"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "--list one --list two -l three"));
 
             Assert.Null(ex);
             Assert.Equal(3, List.Count);
@@ -695,7 +695,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateShortThenLong()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one -l two --list three"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-l one -l two --list three"));
 
             Assert.Null(ex);
             Assert.Equal(3, List.Count);
@@ -707,7 +707,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateSingle()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-l one"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-l one"));
 
             Assert.Null(ex);
             Assert.Single(List);
@@ -721,7 +721,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Populate()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "--hello world one two"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "--hello world one two"));
 
             Assert.Null(ex);
         }
@@ -730,23 +730,23 @@ namespace Utility.CommandLine.Tests
     [Collection("Arguments")]
     public class TestClassWithDefaultValues
     {
-        [CommandLine.Argument('a', "aa")]
+        [Argument('a', "aa")]
         public static string String { get; set; } = "foo";
 
-        [CommandLine.Argument('b', "bb")]
+        [Argument('b', "bb")]
         public static int Int { get; set; } = 42;
 
-        [CommandLine.Argument('c', "cc")]
+        [Argument('c', "cc")]
         public static bool Bool { get; set; } = true;
     }
 
     [Collection("Arguments")]
     public class TestClassWithListAndPrimitive
     {
-        [CommandLine.Argument('b', "bb")]
+        [Argument('b', "bb")]
         public static int Int { get; set; } = 42;
 
-        [CommandLine.Argument('l', "list")]
+        [Argument('l', "list")]
         private static List<string> List { get; set; }
 
         [Fact]
@@ -756,7 +756,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("l", "foo"));
             list.Add(new KeyValuePair<string, string>("l", "bar"));
 
-            var a = CommandLine.Arguments.Parse("-l foo -l bar", GetType());
+            var a = Arguments.Parse("-l foo -l bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -777,7 +777,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("list", "foo"));
             list.Add(new KeyValuePair<string, string>("list", "bar"));
 
-            var a = CommandLine.Arguments.Parse("--list foo --list bar", GetType());
+            var a = Arguments.Parse("--list foo --list bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -798,7 +798,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("l", "foo"));
             list.Add(new KeyValuePair<string, string>("list", "bar"));
 
-            var a = CommandLine.Arguments.Parse("-l foo --list bar", GetType());
+            var a = Arguments.Parse("-l foo --list bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -819,7 +819,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("list", "foo"));
             list.Add(new KeyValuePair<string, string>("l", "bar"));
 
-            var a = CommandLine.Arguments.Parse("--list foo -l bar", GetType());
+            var a = Arguments.Parse("--list foo -l bar", GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -840,7 +840,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("list", "foo"));
             list.Add(new KeyValuePair<string, string>("l", "bar"));
 
-            var a = CommandLine.Arguments.Parse("--list foo -l bar");
+            var a = Arguments.Parse("--list foo -l bar");
             var dict = a.ArgumentDictionary;
 
             Assert.Equal(2, dict.Count);
@@ -857,7 +857,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "1"));
             list.Add(new KeyValuePair<string, string>("b", "2"));
 
-            var a = CommandLine.Arguments.Parse("-b 1 -b 2", GetType());
+            var a = Arguments.Parse("-b 1 -b 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -872,7 +872,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("bb", "1"));
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
-            var a = CommandLine.Arguments.Parse("--bb 1 --bb 2", GetType());
+            var a = Arguments.Parse("--bb 1 --bb 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -887,7 +887,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("bb", "1"));
             list.Add(new KeyValuePair<string, string>("b", "2"));
 
-            var a = CommandLine.Arguments.Parse("--bb 1 -b 2", GetType());
+            var a = Arguments.Parse("--bb 1 -b 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -902,7 +902,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "1"));
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
-            var a = CommandLine.Arguments.Parse("-b 1 --bb 2", GetType());
+            var a = Arguments.Parse("-b 1 --bb 2", GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -917,7 +917,7 @@ namespace Utility.CommandLine.Tests
             list.Add(new KeyValuePair<string, string>("b", "1"));
             list.Add(new KeyValuePair<string, string>("bb", "2"));
 
-            var a = CommandLine.Arguments.Parse("-b 1 --bb 2");
+            var a = Arguments.Parse("-b 1 --bb 2");
             var dict = a.ArgumentDictionary;
 
             Assert.Equal(2, dict.Count);
@@ -931,16 +931,16 @@ namespace Utility.CommandLine.Tests
     [Collection("Arguments")]
     public class TestClassWithBoolProperty
     {
-        [CommandLine.Argument('a', "aa")]
+        [Argument('a', "aa")]
         private static bool A { get; set; }
 
-        [CommandLine.Operands]
+        [Operands]
         private static List<string> Operands { get; set; }
 
         [Fact]
         public void PopulateBoolFollowedByOperand()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a operand"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-a operand"));
 
             Assert.Null(ex);
             Assert.True(A);
@@ -951,7 +951,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void PopulateBoolFollowedByTwoOperands()
         {
-            Exception ex = Record.Exception(() => CommandLine.Arguments.Populate(GetType(), "-a operand1 operand2"));
+            Exception ex = Record.Exception(() => Arguments.Populate(GetType(), "-a operand1 operand2"));
 
             Assert.Null(ex);
             Assert.True(A);

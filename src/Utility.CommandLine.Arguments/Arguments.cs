@@ -122,6 +122,52 @@ namespace Utility.CommandLine
     }
 
     /// <summary>
+    ///     Encapsulates argument names and help text.
+    /// </summary>
+    public class ArgumentInfo
+    {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ArgumentInfo"/> class.
+        /// </summary>
+        /// <param name="shortName">The short name of the argument.</param>
+        /// <param name="longName">The long name of the argument.</param>
+        /// <param name="helpText">The help text for the argument.</param>
+        /// <param name="property">The property with which the argument is associated.</param>
+        public ArgumentInfo(char shortName, string longName, string helpText, PropertyInfo property)
+        {
+            ShortName = shortName;
+            LongName = longName;
+            HelpText = helpText;
+            Property = property;
+        }
+
+        /// <summary>
+        ///     Gets the help text for the argument.
+        /// </summary>
+        public string HelpText { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the argument backing Type is a collection.
+        /// </summary>
+        public bool IsCollection => Property.PropertyType.IsArray || (Property.PropertyType.IsGenericType && Property.PropertyType.GetGenericTypeDefinition() == typeof(List<>));
+
+        /// <summary>
+        ///     Gets the long name of the argument.
+        /// </summary>
+        public string LongName { get; }
+
+        /// <summary>
+        ///     Gets the property with which the argument is associated.
+        /// </summary>
+        public PropertyInfo Property { get; }
+
+        /// <summary>
+        ///     Gets the short name of the argument.
+        /// </summary>
+        public char ShortName { get; }
+    }
+
+    /// <summary>
     ///     Provides static methods used to retrieve the command line arguments and operands with which the application was
     ///     started, as well as a Type to contain them.
     /// </summary>
@@ -162,20 +208,24 @@ namespace Utility.CommandLine
         }
 
         /// <summary>
-        ///     Gets the target Type, if applicable.
+        ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
+        ///     application was started.
         /// </summary>
-        public Type TargetType { get; }
+        /// <remarks>
+        ///     This dictionary contains argument key/value pairs compiled from the <see cref="ArgumentList"/> and checked against
+        ///     the <see cref="TargetType"/> to combine duplicated pairs into lists where the backing property is a collection, and
+        ///     to overwrite where the backing property is not a collection.
+        /// </remarks>
+        public Dictionary<string, object> ArgumentDictionary { get; }
 
         /// <summary>
         ///     Gets the list of arguments specified in the command line arguments with which the application was started.
         /// </summary>
+        /// <remarks>
+        ///     This list contains each argument key/value pair as supplied in the original string, preserving the original order
+        ///     and any duplicated pairs.
+        /// </remarks>
         public List<KeyValuePair<string, string>> ArgumentList { get; }
-
-        /// <summary>
-        ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
-        ///     application was started.
-        /// </summary>
-        public Dictionary<string, object> ArgumentDictionary { get; }
 
         /// <summary>
         ///     Gets the command line string from which the arguments were parsed.
@@ -186,6 +236,11 @@ namespace Utility.CommandLine
         ///     Gets a list containing the operands specified in the command line arguments with which the application was started.
         /// </summary>
         public List<string> OperandList { get; private set; }
+
+        /// <summary>
+        ///     Gets the target Type, if applicable.
+        /// </summary>
+        public Type TargetType { get; }
 
         /// <summary>
         ///     Gets the argument value corresponding to the specified <paramref name="index"/>.
@@ -201,7 +256,8 @@ namespace Utility.CommandLine
         }
 
         /// <summary>
-        ///     Gets the argument value corresponding to the specified <paramref name="key"/> from the <see cref="ArgumentDictionary"/> property.
+        ///     Gets the argument value corresponding to the specified <paramref name="key"/> from the
+        ///     <see cref="ArgumentDictionary"/> property.
         /// </summary>
         /// <param name="key">The key for which the value is to be retrieved.</param>
         /// <returns>The argument value corresponding to the specified key.</returns>
@@ -211,43 +267,6 @@ namespace Utility.CommandLine
             {
                 return ArgumentDictionary[key];
             }
-        }
-
-        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null)
-        {
-            var dict = new ConcurrentDictionary<string, object>();
-            var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
-
-            foreach (var arg in argumentList)
-            {
-                var info = argumentInfo.Where(i => i.ShortName.ToString() == arg.Key || i.LongName == arg.Key).SingleOrDefault();
-
-                if (info != default(ArgumentInfo))
-                {
-                    bool added = false;
-
-                    foreach (var k in new[] { info.ShortName.ToString(), info.LongName })
-                    {
-                        if (dict.ContainsKey(k))
-                        {
-                            dict.AddOrUpdate(k, arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : (object)arg.Value);
-                            added = true;
-                            break;
-                        }
-                    }
-
-                    if (!added)
-                    {
-                        dict.TryAdd(arg.Key, info.IsCollection ? new List<object>(new[] { arg.Value }) : (object)arg.Value);
-                    }
-                }
-                else
-                {
-                    dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
-                }
-            }
-
-            return dict.ToDictionary(a => a.Key, a => a.Value);
         }
 
         /// <summary>
@@ -268,13 +287,11 @@ namespace Utility.CommandLine
 
                 if (attribute != default(CustomAttributeData))
                 {
-                    retVal.Add(new ArgumentInfo()
-                    {
-                        ShortName = (char)attribute.ConstructorArguments[0].Value,
-                        LongName = (string)attribute.ConstructorArguments[1].Value,
-                        HelpText = (string)attribute.ConstructorArguments[2].Value,
-                        Type = property.PropertyType,
-                    });
+                    retVal.Add(new ArgumentInfo(
+                        shortName: (char)attribute.ConstructorArguments[0].Value,
+                        longName: (string)attribute.ConstructorArguments[1].Value,
+                        helpText: (string)attribute.ConstructorArguments[2].Value,
+                        property: property));
                 }
             }
 
@@ -413,16 +430,7 @@ namespace Utility.CommandLine
                     }
                     else if (propertyType.IsArray || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>)))
                     {
-                        // if the property is an array or list, convert the value to an array or list of the matching type. start
-                        // by converting atomic values to a list containing a single value, just to simplify processing.
-                        if (valueIsList)
-                        {
-                            convertedValue = value;
-                        }
-                        else
-                        {
-                            convertedValue = new List<object>(new object[] { value });
-                        }
+                        convertedValue = value;
 
                         // next, create a list with the same type as the target property
                         Type valueType;
@@ -524,6 +532,43 @@ namespace Utility.CommandLine
             {
                 properties[key].SetValue(null, null);
             }
+        }
+
+        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null)
+        {
+            var dict = new ConcurrentDictionary<string, object>();
+            var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
+
+            foreach (var arg in argumentList)
+            {
+                var info = argumentInfo.Where(i => i.ShortName.ToString() == arg.Key || i.LongName == arg.Key).SingleOrDefault();
+
+                if (info != default(ArgumentInfo))
+                {
+                    bool added = false;
+
+                    foreach (var k in new[] { info.ShortName.ToString(), info.LongName })
+                    {
+                        if (dict.ContainsKey(k))
+                        {
+                            dict.AddOrUpdate(k, arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : (object)arg.Value);
+                            added = true;
+                            break;
+                        }
+                    }
+
+                    if (!added)
+                    {
+                        dict.TryAdd(arg.Key, info.IsCollection ? new List<object>(new[] { arg.Value }) : (object)arg.Value);
+                    }
+                }
+                else
+                {
+                    dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                }
+            }
+
+            return dict.ToDictionary(a => a.Key, a => a.Value);
         }
 
         private static List<KeyValuePair<string, string>> GetArgumentList(string commandLineString)
@@ -638,37 +683,6 @@ namespace Utility.CommandLine
 
             return property;
         }
-    }
-
-    /// <summary>
-    ///     Encapsulates argument names and help text.
-    /// </summary>
-    public class ArgumentInfo
-    {
-        /// <summary>
-        ///     Gets or sets the help text for the argument.
-        /// </summary>
-        public string HelpText { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the long name of the argument.
-        /// </summary>
-        public string LongName { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the short name of the argument.
-        /// </summary>
-        public char ShortName { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the backing Type of the argument.
-        /// </summary>
-        public Type Type { get; set; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the argument backing Type is a collection.
-        /// </summary>
-        public bool IsCollection => Type.IsArray || (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(List<>));
     }
 
     /// <summary>

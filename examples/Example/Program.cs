@@ -8,16 +8,8 @@ namespace Examples
     /// <summary>
     ///     Provides an eval/print loop for command line argument strings.
     /// </summary>
-    internal class Program
+    internal static class Program
     {
-        #region Private Properties
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether show the help.
-        /// </summary>
-        [Argument('h', "help", "Gets or sets a value indicating whether show the help.")]
-        private static bool Help { get; set; }
-
         /// <summary>
         ///     Gets or sets a value indicating whether the Bool argument was supplied.
         /// </summary>
@@ -29,6 +21,12 @@ namespace Examples
         /// </summary>
         [Argument('f', "float", "Gets or sets the value of the Double argument.")]
         private static double Double { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether show the help.
+        /// </summary>
+        [Argument('h', "help", "Gets or sets a value indicating whether show the help.")]
+        private static bool Help { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the Int argument.
@@ -54,9 +52,16 @@ namespace Examples
         [Argument('s', "string")]
         private static string String { get; set; }
 
-        #endregion Private Properties
-
-        #region Private Methods
+        /// <summary>
+        ///     Returns a "pretty" string representation of the provided Type; specifically, corrects the naming of generic Types
+        ///     and appends the type parameters for the type to the name as it appears in the code editor.
+        /// </summary>
+        /// <param name="type">The type for which the colloquial name should be created.</param>
+        /// <returns>A "pretty" string representation of the provided Type.</returns>
+        public static string ToColloquialString(this Type type)
+        {
+            return (!type.IsGenericType ? type.Name : type.Name.Split('`')[0] + "<" + String.Join(", ", type.GetGenericArguments().Select(a => a.ToColloquialString())) + ">");
+        }
 
         /// <summary>
         ///     Application entry point
@@ -152,22 +157,22 @@ namespace Examples
         }
 
         /// <summary>
-        /// Show help for arguments.
+        ///     Show help for arguments.
         /// </summary>
         private static void ShowHelp()
         {
             var helpAttributes = Arguments.GetArgumentInfo(typeof(Program));
 
-            Console.WriteLine("Short\tLong\tFunction");
-            Console.WriteLine("-----\t----\t--------");
+            var maxLen = helpAttributes.Select(a => a.Property.PropertyType.ToColloquialString()).OrderByDescending(s => s.Length).FirstOrDefault().Length;
+
+            Console.WriteLine($"Short\tLong\t{"Type".PadRight(maxLen)}\tFunction");
+            Console.WriteLine($"-----\t----\t{"----".PadRight(maxLen)}\t--------");
 
             foreach (var item in helpAttributes)
             {
-                var result = item.ShortName + "\t" + item.LongName + "\t" + item.HelpText;
+                var result = item.ShortName + "\t" + item.LongName + "\t" + item.Property.PropertyType.ToColloquialString().PadRight(maxLen) + "\t" + item.HelpText;
                 Console.WriteLine(result);
             }
         }
-
-        #endregion Private Methods
     }
 }

@@ -889,6 +889,76 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
+        public void Value_Is_Replaced_Given_Multiple_Long_No_Type()
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("bb", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
+
+            var a = Arguments.Parse("--bb 1 --bb 2");
+            var dict = a.ArgumentDictionary;
+
+            Assert.Single(dict);
+            Assert.Equal("2", dict["bb"]);
+
+            Assert.Equal(2, a.ArgumentList.Count);
+            Assert.True(a.ArgumentList.Where(r => r.Key == "bb" && r.Value == "1").Any());
+            Assert.True(a.ArgumentList.Where(r => r.Key == "bb" && r.Value == "2").Any());
+        }
+
+        [Fact]
+        public void ArgumentList_Retains_Replaced_Arguments()
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("bb", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
+
+            var a = Arguments.Parse("--bb 1 --bb 2");
+
+            Assert.Equal(2, a.ArgumentList.Count);
+            Assert.True(a.ArgumentList.Where(r => r.Key == "bb" && r.Value == "1").Any());
+            Assert.True(a.ArgumentList.Where(r => r.Key == "bb" && r.Value == "2").Any());
+        }
+
+        [Fact]
+        public void Arguments_Returns_ArgumentList_Elements_Via_Indexer()
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("bb", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
+
+            var a = Arguments.Parse("--bb 1 --bb 2");
+
+            Assert.Equal("1", a[0]);
+            Assert.Equal("2", a[1]);
+        }
+
+        [Fact]
+        public void Arguments_Sets_TargetType_Given_Type()
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("bb", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
+
+            var a = Arguments.Parse("--bb 1 --bb 2", GetType());
+
+            Assert.NotNull(a.TargetType);
+            Assert.Equal(GetType(), a.TargetType);
+        }
+
+        [Fact]
+        public void Arguments_Does_Not_Set_TargetType_Given_No_Type()
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("bb", "1"));
+            list.Add(new KeyValuePair<string, string>("bb", "2"));
+
+            var a = Arguments.Parse("--bb 1 --bb 2");
+
+            Assert.Null(a.TargetType);
+        }
+
+        [Fact]
         public void Value_Is_Replaced_Given_Mixed_Args_Long_First()
         {
             var list = new List<KeyValuePair<string, string>>();

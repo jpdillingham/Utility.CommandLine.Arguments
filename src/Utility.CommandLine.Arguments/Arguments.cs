@@ -430,16 +430,7 @@ namespace Utility.CommandLine
                     }
                     else if (propertyType.IsArray || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>)))
                     {
-                        // if the property is an array or list, convert the value to an array or list of the matching type. start
-                        // by converting atomic values to a list containing a single value, just to simplify processing.
-                        if (valueIsList)
-                        {
-                            convertedValue = value;
-                        }
-                        else
-                        {
-                            convertedValue = new List<object>(new object[] { value });
-                        }
+                        convertedValue = value;
 
                         // next, create a list with the same type as the target property
                         Type valueType;

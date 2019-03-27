@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>Utility.CommandLine.Arguments</id>
-    <version>2.0.1</version>
+    <version>3.0.0</version>
     <authors>JP Dillingham</authors>
     <owners>JP Dillingham</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/jpdillingham/Utility.CommandLine.Arguments/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/jpdillingham/Utility.CommandLine.Arguments</projectUrl>
     <description>A C# .NET Class Library containing tools for parsing the command line arguments of console applications.</description>
-    <releaseNotes>Fix NuGet targeting of .NETStard2.0.</releaseNotes>
+    <releaseNotes>Fix Type identification in async contexts, allow list arguments using mix of short and long keys</releaseNotes>
     <copyright>Copyright (c) 2017-2018 JP Dillingham (jp@dillingham.ws)</copyright>
     <language>en-US</language>
     <dependencies>

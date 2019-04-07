@@ -38,6 +38,8 @@
     <Rule Id="SA1202" Action="None" />
     <Rule Id="SA1312" Action="None" />
     <Rule Id="SA1633" Action="None" />
+    <Rule Id="SA1402" Action="None" />
+    <Rule Id="SA1649" Action="None" />
   </Rules>
   <Rules AnalyzerId="SonarAnalyzer.CSharp" RuleNamespace="SonarAnalyzer.CSharp">
     <Rule Id="S3241" Action="None" />

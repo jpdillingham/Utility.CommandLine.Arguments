@@ -312,7 +312,7 @@ namespace Utility.CommandLine
         /// </returns>
         public static Arguments Parse(string commandLineString = default(string), Type type = null, [CallerMemberName] string caller = default(string))
         {
-            commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
+            commandLineString = commandLineString == default(string) || string.IsNullOrEmpty(commandLineString) ? Environment.CommandLine : commandLineString;
 
             List<KeyValuePair<string, string>> argumentList;
             List<string> operandList;
@@ -330,7 +330,7 @@ namespace Utility.CommandLine
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
                 // extract the operands from that string using the strict method.
-                if (matches[0].Groups[3].Value != string.Empty)
+                if (!string.IsNullOrEmpty(matches[0].Groups[3].Value))
                 {
                     List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[3].Value);
                     operandList.AddRange(operandListStrict);
@@ -423,7 +423,7 @@ namespace Utility.CommandLine
                         // if a value is specified, a bool flag was followed by an operand and the parser interpreted this as key
                         // value pair because it wasn't aware the flag was backed by a bool. remove the argument from the original
                         // string and re-parse operands from it to preserve order.
-                        if (value.ToString() != string.Empty)
+                        if (!string.IsNullOrEmpty(value.ToString()))
                         {
                             var arg = Regex.Matches(arguments.CommandLineString, "(?:[-]{1,2}|\\/)" + propertyName)[0].Value;
                             arguments.OperandList = GetOperandList(arguments.CommandLineString.Replace(arg, string.Empty));
@@ -579,7 +579,7 @@ namespace Utility.CommandLine
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
                 // the first match of the regular expression used to parse the string will contain the argument name, if one was matched.
-                if (match.Groups[1].Value == default(string) || match.Groups[1].Value == string.Empty)
+                if (match.Groups[1].Value == default(string) || string.IsNullOrEmpty(match.Groups[1].Value))
                 {
                     continue;
                 }
@@ -644,12 +644,11 @@ namespace Utility.CommandLine
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
                 // the 3rd match of the regular expression used to parse the string will contain the operand, if one was matched.
-                if (match.Groups[3].Value == default(string) || match.Groups[3].Value == string.Empty)
+                if (match.Groups[3].Value == default(string) || string.IsNullOrEmpty(match.Groups[3].Value))
                 {
                     continue;
                 }
 
-                string fullMatch = match.Groups[0].Value;
                 string operand = match.Groups[3].Value;
 
                 operands.Add(operand.TrimOuterQuotes());

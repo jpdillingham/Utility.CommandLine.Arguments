@@ -35,6 +35,7 @@ namespace Utility.CommandLine
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -72,11 +73,11 @@ namespace Utility.CommandLine
         /// <returns>The trimmed string.</returns>
         internal static string TrimOuterQuotes(this string value)
         {
-            if (value.StartsWith("\"") && value.EndsWith("\""))
+            if (value.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase) && value.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
             {
                 value = value.Trim('"');
             }
-            else if (value.StartsWith("'") && value.EndsWith("'"))
+            else if (value.StartsWith("'", StringComparison.InvariantCultureIgnoreCase) && value.EndsWith("'", StringComparison.InvariantCultureIgnoreCase))
             {
                 value = value.Trim('\'');
             }
@@ -515,7 +516,7 @@ namespace Utility.CommandLine
                     return Enum.Parse(toType, (string)value, true);
                 }
 
-                return Convert.ChangeType(value, toType);
+                return Convert.ChangeType(value, toType, CultureInfo.InvariantCulture);
             }
             catch (Exception ex)
             {
@@ -541,13 +542,13 @@ namespace Utility.CommandLine
 
             foreach (var arg in argumentList)
             {
-                var info = argumentInfo.Where(i => i.ShortName.ToString() == arg.Key || i.LongName == arg.Key).SingleOrDefault();
+                var info = argumentInfo.Where(i => i.ShortName.ToString(CultureInfo.InvariantCulture) == arg.Key || i.LongName == arg.Key).SingleOrDefault();
 
                 if (info != default(ArgumentInfo))
                 {
                     bool added = false;
 
-                    foreach (var k in new[] { info.ShortName.ToString(), info.LongName })
+                    foreach (var k in new[] { info.ShortName.ToString(CultureInfo.InvariantCulture), info.LongName })
                     {
                         if (dict.ContainsKey(k))
                         {
@@ -598,7 +599,7 @@ namespace Utility.CommandLine
                     // iterate over the characters backwards to more easily assign the value
                     for (int i = 0; i < charArray.Length; i++)
                     {
-                        argumentList.Add(new KeyValuePair<string, string>(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty));
+                        argumentList.Add(new KeyValuePair<string, string>(charArray[i].ToString(CultureInfo.InvariantCulture), i == charArray.Length - 1 ? value : string.Empty));
                     }
                 }
                 else
@@ -625,9 +626,9 @@ namespace Utility.CommandLine
                     char shortName = (char)attribute.ConstructorArguments[0].Value;
                     string longName = (string)attribute.ConstructorArguments[1].Value;
 
-                    if (!properties.ContainsKey(shortName.ToString()) && !properties.ContainsKey(longName))
+                    if (!properties.ContainsKey(shortName.ToString(CultureInfo.InvariantCulture)) && !properties.ContainsKey(longName))
                     {
-                        properties.Add(shortName.ToString(), property);
+                        properties.Add(shortName.ToString(CultureInfo.InvariantCulture), property);
                         properties.Add(longName, property);
                     }
                 }

@@ -35,6 +35,7 @@ namespace Utility.CommandLine
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -54,8 +55,7 @@ namespace Utility.CommandLine
         {
             var callingMethod = new StackTrace().GetFrames()
                 .Select(f => f.GetMethod())
-                .Where(m => m.Name == caller)
-                .FirstOrDefault();
+                .FirstOrDefault(m => m.Name == caller);
 
             if (callingMethod == default(MethodBase))
             {
@@ -72,11 +72,11 @@ namespace Utility.CommandLine
         /// <returns>The trimmed string.</returns>
         internal static string TrimOuterQuotes(this string value)
         {
-            if (value.StartsWith("\"") && value.EndsWith("\""))
+            if (value.StartsWith("\"", StringComparison.InvariantCultureIgnoreCase) && value.EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
             {
                 value = value.Trim('"');
             }
-            else if (value.StartsWith("'") && value.EndsWith("'"))
+            else if (value.StartsWith("'", StringComparison.InvariantCultureIgnoreCase) && value.EndsWith("'", StringComparison.InvariantCultureIgnoreCase))
             {
                 value = value.Trim('\'');
             }
@@ -283,7 +283,7 @@ namespace Utility.CommandLine
 
             foreach (PropertyInfo property in GetArgumentProperties(type).Values.Distinct())
             {
-                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
+                CustomAttributeData attribute = property.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name);
 
                 if (attribute != default(CustomAttributeData))
                 {
@@ -311,7 +311,7 @@ namespace Utility.CommandLine
         /// </returns>
         public static Arguments Parse(string commandLineString = default(string), Type type = null, [CallerMemberName] string caller = default(string))
         {
-            commandLineString = commandLineString == default(string) || commandLineString == string.Empty ? Environment.CommandLine : commandLineString;
+            commandLineString = commandLineString == default(string) || string.IsNullOrEmpty(commandLineString) ? Environment.CommandLine : commandLineString;
 
             List<KeyValuePair<string, string>> argumentList;
             List<string> operandList;
@@ -329,7 +329,7 @@ namespace Utility.CommandLine
 
                 // the first group of the second match will contain everything in the string after the strict operand delimiter, so
                 // extract the operands from that string using the strict method.
-                if (matches[0].Groups[3].Value != string.Empty)
+                if (!string.IsNullOrEmpty(matches[0].Groups[3].Value))
                 {
                     List<string> operandListStrict = GetOperandListStrict(matches[0].Groups[3].Value);
                     operandList.AddRange(operandListStrict);
@@ -422,7 +422,7 @@ namespace Utility.CommandLine
                         // if a value is specified, a bool flag was followed by an operand and the parser interpreted this as key
                         // value pair because it wasn't aware the flag was backed by a bool. remove the argument from the original
                         // string and re-parse operands from it to preserve order.
-                        if (value.ToString() != string.Empty)
+                        if (!string.IsNullOrEmpty(value.ToString()))
                         {
                             var arg = Regex.Matches(arguments.CommandLineString, "(?:[-]{1,2}|\\/)" + propertyName)[0].Value;
                             arguments.OperandList = GetOperandList(arguments.CommandLineString.Replace(arg, string.Empty));
@@ -515,9 +515,9 @@ namespace Utility.CommandLine
                     return Enum.Parse(toType, (string)value, true);
                 }
 
-                return Convert.ChangeType(value, toType);
+                return Convert.ChangeType(value, toType, CultureInfo.InvariantCulture);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException || ex is ArgumentNullException)
             {
                 string message = $"Specified value '{value}' for argument '{argument}' (expected type: {toType}).  ";
                 message += "See inner exception for details.";
@@ -541,13 +541,13 @@ namespace Utility.CommandLine
 
             foreach (var arg in argumentList)
             {
-                var info = argumentInfo.Where(i => i.ShortName.ToString() == arg.Key || i.LongName == arg.Key).SingleOrDefault();
+                var info = argumentInfo.SingleOrDefault(i => i.ShortName.ToString(CultureInfo.InvariantCulture) == arg.Key || i.LongName == arg.Key);
 
                 if (info != default(ArgumentInfo))
                 {
                     bool added = false;
 
-                    foreach (var k in new[] { info.ShortName.ToString(), info.LongName })
+                    foreach (var k in new[] { info.ShortName.ToString(CultureInfo.InvariantCulture), info.LongName })
                     {
                         if (dict.ContainsKey(k))
                         {
@@ -578,7 +578,7 @@ namespace Utility.CommandLine
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
                 // the first match of the regular expression used to parse the string will contain the argument name, if one was matched.
-                if (match.Groups[1].Value == default(string) || match.Groups[1].Value == string.Empty)
+                if (match.Groups[1].Value == default(string) || string.IsNullOrEmpty(match.Groups[1].Value))
                 {
                     continue;
                 }
@@ -598,7 +598,7 @@ namespace Utility.CommandLine
                     // iterate over the characters backwards to more easily assign the value
                     for (int i = 0; i < charArray.Length; i++)
                     {
-                        argumentList.Add(new KeyValuePair<string, string>(charArray[i].ToString(), i == charArray.Length - 1 ? value : string.Empty));
+                        argumentList.Add(new KeyValuePair<string, string>(charArray[i].ToString(CultureInfo.InvariantCulture), i == charArray.Length - 1 ? value : string.Empty));
                     }
                 }
                 else
@@ -617,7 +617,7 @@ namespace Utility.CommandLine
             foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
             {
                 // attempt to fetch the ArgumentAttribute of the property
-                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
+                CustomAttributeData attribute = property.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name);
 
                 // if found, extract the Name property and add it to the dictionary
                 if (attribute != default(CustomAttributeData))
@@ -625,9 +625,9 @@ namespace Utility.CommandLine
                     char shortName = (char)attribute.ConstructorArguments[0].Value;
                     string longName = (string)attribute.ConstructorArguments[1].Value;
 
-                    if (!properties.ContainsKey(shortName.ToString()) && !properties.ContainsKey(longName))
+                    if (!properties.ContainsKey(shortName.ToString(CultureInfo.InvariantCulture)) && !properties.ContainsKey(longName))
                     {
-                        properties.Add(shortName.ToString(), property);
+                        properties.Add(shortName.ToString(CultureInfo.InvariantCulture), property);
                         properties.Add(longName, property);
                     }
                 }
@@ -643,12 +643,11 @@ namespace Utility.CommandLine
             foreach (Match match in Regex.Matches(commandLineString, ArgumentRegEx))
             {
                 // the 3rd match of the regular expression used to parse the string will contain the operand, if one was matched.
-                if (match.Groups[3].Value == default(string) || match.Groups[3].Value == string.Empty)
+                if (match.Groups[3].Value == default(string) || string.IsNullOrEmpty(match.Groups[3].Value))
                 {
                     continue;
                 }
 
-                string fullMatch = match.Groups[0].Value;
                 string operand = match.Groups[3].Value;
 
                 operands.Add(operand.TrimOuterQuotes());
@@ -672,9 +671,8 @@ namespace Utility.CommandLine
         private static PropertyInfo GetOperandsProperty(Type type)
         {
             PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                .Where(p => p.CustomAttributes
-                    .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name))
-                        .FirstOrDefault();
+                .FirstOrDefault(p => p.CustomAttributes
+                    .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name));
 
             if (property != default(PropertyInfo) && property.PropertyType != typeof(string[]) && property.PropertyType != typeof(List<string>))
             {

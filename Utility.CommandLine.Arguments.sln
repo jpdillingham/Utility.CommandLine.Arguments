@@ -9,15 +9,29 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility.CommandLine.Argumen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C1B0ADA1-91A1-4009-86EF-C619771367DC}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
 		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE = LICENSE
-		tools\pack.sh = tools\pack.sh
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example", "examples\Example\Example.csproj", "{57E43670-9A19-4235-8552-EAB69404B56C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{94A8FBCD-26E6-4BF4-B4EB-EEA56BE1626B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{370AF284-4DF8-4A9C-8A76-EF15D523F45D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B16DDE41-6A3F-489E-874C-BD0C9F0339CB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{52A632BE-5095-4EA5-B024-59427FA4262B}"
+	ProjectSection(SolutionItems) = preProject
+		build\build.sh = build\build.sh
+		build\ci.sh = build\ci.sh
+		build\deploy.sh = build\deploy.sh
+		build\test.sh = build\test.sh
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +54,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9E7684E0-A2E1-4F55-B492-12F4EDAD68C8} = {370AF284-4DF8-4A9C-8A76-EF15D523F45D}
+		{2A63EB98-9E4F-4CC5-8390-4342B10E228D} = {B16DDE41-6A3F-489E-874C-BD0C9F0339CB}
+		{57E43670-9A19-4235-8552-EAB69404B56C} = {94A8FBCD-26E6-4BF4-B4EB-EEA56BE1626B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {30778115-B18C-4585-866D-0D36417F35DD}

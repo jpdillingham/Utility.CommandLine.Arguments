@@ -27,7 +27,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B16DDE41
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{52A632BE-5095-4EA5-B024-59427FA4262B}"
 	ProjectSection(SolutionItems) = preProject
-		build\pack.sh = build\pack.sh
+		build\build.sh = build\build.sh
+		build\ci.sh = build\ci.sh
+		build\deploy.sh = build\deploy.sh
+		build\test.sh = build\test.sh
 	EndProjectSection
 EndProject
 Global

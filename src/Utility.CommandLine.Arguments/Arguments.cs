@@ -55,8 +55,7 @@ namespace Utility.CommandLine
         {
             var callingMethod = new StackTrace().GetFrames()
                 .Select(f => f.GetMethod())
-                .Where(m => m.Name == caller)
-                .FirstOrDefault();
+                .FirstOrDefault(m => m.Name == caller);
 
             if (callingMethod == default(MethodBase))
             {
@@ -284,7 +283,7 @@ namespace Utility.CommandLine
 
             foreach (PropertyInfo property in GetArgumentProperties(type).Values.Distinct())
             {
-                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
+                CustomAttributeData attribute = property.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name);
 
                 if (attribute != default(CustomAttributeData))
                 {
@@ -518,7 +517,7 @@ namespace Utility.CommandLine
 
                 return Convert.ChangeType(value, toType, CultureInfo.InvariantCulture);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException || ex is ArgumentNullException)
             {
                 string message = $"Specified value '{value}' for argument '{argument}' (expected type: {toType}).  ";
                 message += "See inner exception for details.";
@@ -542,7 +541,7 @@ namespace Utility.CommandLine
 
             foreach (var arg in argumentList)
             {
-                var info = argumentInfo.Where(i => i.ShortName.ToString(CultureInfo.InvariantCulture) == arg.Key || i.LongName == arg.Key).SingleOrDefault();
+                var info = argumentInfo.SingleOrDefault(i => i.ShortName.ToString(CultureInfo.InvariantCulture) == arg.Key || i.LongName == arg.Key);
 
                 if (info != default(ArgumentInfo))
                 {
@@ -618,7 +617,7 @@ namespace Utility.CommandLine
             foreach (PropertyInfo property in type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
             {
                 // attempt to fetch the ArgumentAttribute of the property
-                CustomAttributeData attribute = property.CustomAttributes.Where(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name).FirstOrDefault();
+                CustomAttributeData attribute = property.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == typeof(ArgumentAttribute).Name);
 
                 // if found, extract the Name property and add it to the dictionary
                 if (attribute != default(CustomAttributeData))
@@ -672,9 +671,8 @@ namespace Utility.CommandLine
         private static PropertyInfo GetOperandsProperty(Type type)
         {
             PropertyInfo property = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                .Where(p => p.CustomAttributes
-                    .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name))
-                        .FirstOrDefault();
+                .FirstOrDefault(p => p.CustomAttributes
+                    .Any(a => a.AttributeType.Name == typeof(OperandsAttribute).Name));
 
             if (property != default(PropertyInfo) && property.PropertyType != typeof(string[]) && property.PropertyType != typeof(List<string>))
             {

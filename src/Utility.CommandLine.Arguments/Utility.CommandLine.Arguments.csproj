@@ -2,30 +2,49 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\CodeAnalysis\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>3.0.0</Version>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <LangVersion>7</LangVersion>
+    <Authors>JP Dillingham</Authors>
+    <Product>Utility.CommandLine.Arguments</Product>
+    <PackageProjectUrl>https://github.com/jpdillingham/Utility.CommandLine.Arguments</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>A C# .NET Class Library containing tools for parsing the command line arguments of console applications.</Description>
+    <Copyright>Copyright (c) JP Dillingham (jp@dillingham.ws)</Copyright>
+    <RepositoryUrl>https://github.com/jpdillingham/Utility.CommandLine.Arguments</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>csharp command-line command-line-parser commandline dotnet arguments-parser flags</PackageTags>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CodeAnalysisRuleSet>stylecop.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Release\netstandard2.0\Utility.CommandLine.Arguments.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CodeAnalysisRuleSet>stylecop.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\netstandard2.0\Utility.CommandLine.Arguments.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="stylecop.ruleset" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="stylecop.ruleset" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="7.12.0.8217">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

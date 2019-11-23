@@ -383,6 +383,25 @@ namespace Utility.CommandLine.Tests
             Assert.Equal("test2.test2", test["test2"]);
         }
 
+        [Theory]
+        [InlineData(".")]
+        [InlineData("..")]
+        [InlineData("..\\")]
+        [InlineData(".\\foo")]
+        [InlineData("..\\foo")]
+        [InlineData("..\\..")]
+        [InlineData("\\")]
+        [InlineData("\\foo")]
+        [InlineData("\\foo\\bar")]
+        [InlineData("\\\\foo")]
+        [InlineData("\\\\foo\\bar")]
+        public void ParseValueStartingWithNonWord(string value)
+        {
+            Dictionary<string, object> test = Arguments.Parse($"-f {value}").ArgumentDictionary;
+
+            Assert.Equal(value, test["f"]);
+        }
+
         [Fact]
         public void Populate()
         {

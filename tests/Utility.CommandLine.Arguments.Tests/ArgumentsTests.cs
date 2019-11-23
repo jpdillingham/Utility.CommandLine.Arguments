@@ -369,7 +369,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseValueBeginningWithSlash()
         {
-            Dictionary<string, object> test = Arguments.Parse("--file=/mnt/data/test.xml").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--file='/mnt/data/test.xml'").ArgumentDictionary;
 
             Assert.Equal("/mnt/data/test.xml", test["file"]);
         }
@@ -1081,6 +1081,36 @@ namespace Utility.CommandLine.Tests
             Assert.Equal(2, Operands.Count);
             Assert.Equal("operand1", Operands[0]);
             Assert.Equal("operand2", Operands[1]);
+        }
+    }
+
+    [Collection("Arguments")]
+    public class TestWithAllBools
+    {
+        [Argument('a', "aa")]
+        private static bool A { get; set; }
+
+        [Argument('b', "bb")]
+        private static bool B { get; set; }
+
+        [Argument('c', "cc")]
+        private static bool C { get; set; }
+
+        [Theory]
+        [InlineData("-abc")]
+        [InlineData("-a -b -c")]
+        [InlineData("--aa --bb --cc")]
+        [InlineData("/a /b /c")]
+        [InlineData("/aa /bb /cc")]
+        [InlineData("-a --bb /c")]
+        [InlineData("--aa -b /c")]
+        [InlineData("/a /b -c")]
+        [InlineData("-a /bb --cc")]
+        public void PopulateStackedBools(string str)
+        {
+            Arguments.Populate(GetType(), str);
+
+            Assert.True(A && B && C);
         }
     }
 }

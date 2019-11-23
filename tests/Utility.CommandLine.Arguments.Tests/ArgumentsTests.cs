@@ -1113,4 +1113,34 @@ namespace Utility.CommandLine.Tests
             Assert.True(A && B && C);
         }
     }
+
+    [Collection("Arguments")]
+    public class TestListProp
+    {
+        [Argument('a', "aa")]
+        private static string A { get; set; }
+
+        [Argument('b', "bb")]
+        private static List<string> B { get; set; }
+
+        [Fact]
+        public void PopulateSingle()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--aa one --aa two"));
+
+            Assert.Null(ex);
+            Assert.Equal("two", A);
+        }
+
+        [Fact]
+        public void PopulateList()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--bb one --bb two"));
+
+            Assert.Null(ex);
+            Assert.Equal(2, B.Count);
+            Assert.Equal("one", B[0]);
+            Assert.Equal("two", B[1]);
+        }
+    }
 }

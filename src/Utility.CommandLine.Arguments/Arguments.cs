@@ -176,7 +176,7 @@ namespace Utility.CommandLine
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
-        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([^=: ]+)[=: ]?(\\/?[^-'\"]\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
+        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([^=: ]+)[=: ]?([^-'\"\\/]\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
 
         /// <summary>
         ///     The regular expression with which to parse argument-value groups.
@@ -474,13 +474,6 @@ namespace Utility.CommandLine
                     }
                     else
                     {
-                        // if the target property Type is an atomic (non-array or list) Type, convert the value and populate it,
-                        // but not if the value is an array or list.
-                        if (valueIsList)
-                        {
-                            throw new InvalidCastException($"Multiple values were specified for argument '{propertyName}', however it is not backed by an array or List<T>.  Specify only one value.");
-                        }
-
                         convertedValue = ChangeType(value, propertyName, propertyType);
                     }
 

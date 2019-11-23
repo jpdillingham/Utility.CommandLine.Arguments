@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2016
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility.CommandLine.Arguments", "src\Utility.CommandLine.Arguments\Utility.CommandLine.Arguments.csproj", "{9E7684E0-A2E1-4F55-B492-12F4EDAD68C8}"
 EndProject
@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{52A632BE
 		build\test.sh = build\test.sh
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Echo", "examples\Echo\Echo.csproj", "{7D3FD9E0-5E64-4103-A53C-8EF03B91D651}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{57E43670-9A19-4235-8552-EAB69404B56C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57E43670-9A19-4235-8552-EAB69404B56C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57E43670-9A19-4235-8552-EAB69404B56C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D3FD9E0-5E64-4103-A53C-8EF03B91D651}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D3FD9E0-5E64-4103-A53C-8EF03B91D651}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D3FD9E0-5E64-4103-A53C-8EF03B91D651}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D3FD9E0-5E64-4103-A53C-8EF03B91D651}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{9E7684E0-A2E1-4F55-B492-12F4EDAD68C8} = {370AF284-4DF8-4A9C-8A76-EF15D523F45D}
 		{2A63EB98-9E4F-4CC5-8390-4342B10E228D} = {B16DDE41-6A3F-489E-874C-BD0C9F0339CB}
 		{57E43670-9A19-4235-8552-EAB69404B56C} = {94A8FBCD-26E6-4BF4-B4EB-EEA56BE1626B}
+		{7D3FD9E0-5E64-4103-A53C-8EF03B91D651} = {94A8FBCD-26E6-4BF4-B4EB-EEA56BE1626B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {30778115-B18C-4585-866D-0D36417F35DD}

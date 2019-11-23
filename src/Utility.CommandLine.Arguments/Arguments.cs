@@ -409,8 +409,6 @@ namespace Utility.CommandLine
                     // retrieve the value from the argument dictionary
                     object value = arguments.ArgumentDictionary[propertyName];
 
-                    bool valueIsList = value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>);
-
                     object convertedValue;
 
                     // if the type of the property is bool and the argument value is empty set the property value to true,

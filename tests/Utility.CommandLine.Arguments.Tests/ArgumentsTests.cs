@@ -197,7 +197,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseLongAndShortMix()
         {
-            Dictionary<string, object> test = Arguments.Parse("--one=1 -ab 2 /three:3 -4 4").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--one=1 -ab 2 --three:3 -4 4").ArgumentDictionary;
 
             Assert.Equal("1", test["one"]);
             Assert.True(test.ContainsKey("a"));
@@ -355,7 +355,7 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void ParseStringOfLongs()
         {
-            Dictionary<string, object> test = Arguments.Parse("--one 1 --two=2 /three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
+            Dictionary<string, object> test = Arguments.Parse("--one 1 --two=2 --three:3 --four \"4 4\" --five='5 5'").ArgumentDictionary;
 
             Assert.NotEmpty(test);
             Assert.Equal(5, test.Count);
@@ -395,6 +395,15 @@ namespace Utility.CommandLine.Tests
         [InlineData("\\foo\\bar")]
         [InlineData("\\\\foo")]
         [InlineData("\\\\foo\\bar")]
+        [InlineData("..//")]
+        [InlineData(".//foo")]
+        [InlineData("..//foo")]
+        [InlineData("..//..")]
+        [InlineData("//")]
+        [InlineData("//foo")]
+        [InlineData("//foo//bar")]
+        [InlineData("////foo")]
+        [InlineData("////foo//bar")]
         public void ParseValueStartingWithNonWord(string value)
         {
             Dictionary<string, object> test = Arguments.Parse($"-f {value}").ArgumentDictionary;
@@ -1100,12 +1109,11 @@ namespace Utility.CommandLine.Tests
         [InlineData("-abc")]
         [InlineData("-a -b -c")]
         [InlineData("--aa --bb --cc")]
-        [InlineData("/a /b /c")]
-        [InlineData("/aa /bb /cc")]
-        [InlineData("-a --bb /c")]
-        [InlineData("--aa -b /c")]
-        [InlineData("/a /b -c")]
-        [InlineData("-a /bb --cc")]
+        [InlineData("-a -b -c")]
+        [InlineData("--aa --bb --cc")]
+        [InlineData("-a --bb -c")]
+        [InlineData("--aa -b -c")]
+        [InlineData("-a --bb --cc")]
         public void PopulateStackedBools(string str)
         {
             Arguments.Populate(GetType(), str);

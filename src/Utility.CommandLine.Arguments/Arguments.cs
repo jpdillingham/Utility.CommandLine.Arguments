@@ -176,7 +176,12 @@ namespace Utility.CommandLine
         /// <summary>
         ///     The regular expression with which to parse the command line string.
         /// </summary>
-        private const string ArgumentRegEx = "(?:[-]{1,2}|\\/)([^=: ]+)[=: ]?([^-'\"\\/]\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
+        private const string ArgumentRegExWithoutForwardSlash = "(?:[-]{1,2})([^=: ]+)[=: ]?([^-'\"]\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
+
+        /// <summary>
+        ///     The regular expression with which to parse the command line string, including the ability to specify forward slashes.
+        /// </summary>
+        private const string ArgumentRegExWithForwardSlash = "(?:[-]{1,2}|\\/)([^=: ]+)[=: ]?([^-'\"\\/]\\S*|\\\"[^\"]*\\\"|\\\'[^']*\\\')?|([^ ([^'\\\"]+|\"[^\\\"]+\"|\\\'[^']+\\\')";
 
         /// <summary>
         ///     The regular expression with which to parse argument-value groups.
@@ -206,6 +211,11 @@ namespace Utility.CommandLine
             OperandList = operandList;
             TargetType = targetType;
         }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether forward slashes are processed as argument delimiters.
+        /// </summary>
+        public static bool EnableForwardSlash { get; set; } = false;
 
         /// <summary>
         ///     Gets a dictionary containing the arguments and values specified in the command line arguments with which the
@@ -241,6 +251,8 @@ namespace Utility.CommandLine
         ///     Gets the target Type, if applicable.
         /// </summary>
         public Type TargetType { get; }
+
+        private static string ArgumentRegEx => EnableForwardSlash ? ArgumentRegExWithForwardSlash : ArgumentRegExWithoutForwardSlash;
 
         /// <summary>
         ///     Gets the argument value corresponding to the specified <paramref name="index"/>.

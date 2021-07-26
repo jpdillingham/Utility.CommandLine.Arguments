@@ -321,7 +321,7 @@ namespace Utility.CommandLine
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Arguments Parse(string commandLineString = default(string), Type type = null, [CallerMemberName] string caller = default(string))
+        public static Arguments Parse(string commandLineString = default(string), Type type = null, bool appendRepeatedValuesForUnmatchedArguments = false, [CallerMemberName] string caller = default(string))
         {
             commandLineString = commandLineString == default(string) || string.IsNullOrEmpty(commandLineString) ? Environment.CommandLine : commandLineString;
 
@@ -353,7 +353,7 @@ namespace Utility.CommandLine
                 operandList = GetOperandList(commandLineString);
             }
 
-            var argumentDictionary = GetArgumentDictionary(argumentList, type);
+            var argumentDictionary = GetArgumentDictionary(argumentList, type, appendRepeatedValuesForUnmatchedArguments);
             return new Arguments(commandLineString, argumentList, argumentDictionary, operandList, type);
         }
 
@@ -537,7 +537,7 @@ namespace Utility.CommandLine
             }
         }
 
-        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null)
+        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null, bool appendRepeatedValuesForUnmatchedArguments = false)
         {
             var dict = new ConcurrentDictionary<string, object>();
             var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
@@ -567,7 +567,15 @@ namespace Utility.CommandLine
                 }
                 else
                 {
-                    dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                    if (!appendRepeatedValuesForUnmatchedArguments)
+                    {
+                        dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                    }
+                    else
+                    {
+                        // todo: check if key exists.  if so, check if value is a List.  if so, append this value to the existing list
+                        // if existing value is not a List, convert it to a list containing the existing value, and this value.
+                    }
                 }
             }
 

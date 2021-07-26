@@ -367,6 +367,16 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
+        public void ParseMultiples()
+        {
+            Dictionary<string, object> test = Arguments.Parse("--test 1 --test 2").ArgumentDictionary;
+
+            Assert.NotEmpty(test);
+            Assert.Single(test);
+            Assert.Equal("1,2", test["test"]);
+        }
+
+        [Fact]
         public void ParseValueBeginningWithSlash()
         {
             Dictionary<string, object> test = Arguments.Parse("--file='/mnt/data/test.xml'").ArgumentDictionary;

@@ -344,15 +344,49 @@ namespace Utility.CommandLine
         ///     Returns a dictionary containing the values specified in the command line arguments with which the application was
         ///     started, keyed by argument name.
         /// </summary>
-        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        /// <param name="type">The <see cref="Type"/> for which the command line string is to be parsed.</param>
-        /// <param name="caller">Internal parameter used to identify the calling method.</param>
+        /// <param name="configure">An action to configure the provided <see cref="ArgumentParseOptions"/> instance.</param>
         /// <returns>
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Arguments Parse(string commandLineString = default(string), Type type = null, bool appendRepeatedValuesForUnmatchedArguments = false, [CallerMemberName] string caller = default(string))
+        public static Arguments Parse(Action<ArgumentParseOptions> configure = null)
         {
+            return Parse(null, configure);
+        }
+
+        /// <summary>
+        ///     Returns a dictionary containing the values specified in the command line arguments with which the application was
+        ///     started, keyed by argument name.
+        /// </summary>
+        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
+        /// <param name="configure">An action to configure the provided <see cref="ArgumentParseOptions"/> instance.</param>
+        /// <returns>
+        ///     The dictionary containing the arguments and values specified in the command line arguments with which the
+        ///     application was started.
+        /// </returns>
+        public static Arguments Parse(string commandLineString, Action<ArgumentParseOptions> configure = null)
+        {
+            configure = configure ?? new Action<ArgumentParseOptions>((_) => { });
+            var options = new ArgumentParseOptions();
+            configure(options);
+            
+            return Parse(commandLineString, options);
+        }
+
+        /// <summary>
+        ///     Returns a dictionary containing the values specified in the command line arguments with which the application was
+        ///     started, keyed by argument name.
+        /// </summary>
+        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
+        /// <param name="options">Parser options.</param>
+        /// <returns>
+        ///     The dictionary containing the arguments and values specified in the command line arguments with which the
+        ///     application was started.
+        /// </returns>
+        public static Arguments Parse(string commandLineString, ArgumentParseOptions options)
+        {
+            options = options ?? new ArgumentParseOptions();
+
             commandLineString = commandLineString == default(string) || string.IsNullOrEmpty(commandLineString) ? Environment.CommandLine : commandLineString;
 
             List<KeyValuePair<string, string>> argumentList;

@@ -367,6 +367,48 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
+        public void ParseMultiples_No_CombineAllMultiples()
+        {
+            Dictionary<string, object> test = Arguments.Parse("--test 1 --test 2", options => options.CombineAllMultiples = false).ArgumentDictionary;
+
+            Assert.NotEmpty(test);
+            Assert.Single(test);
+            Assert.Equal("2", test["test"]);
+        }
+
+        [Fact]
+        public void ParseMultiples_With_CombineAllMultiples()
+        {
+            Dictionary<string, object> test = Arguments.Parse("--test 1 --test 2", options => options.CombineAllMultiples = true).ArgumentDictionary;
+
+            Assert.NotEmpty(test);
+            Assert.Single(test);
+
+            var values = (List<object>)test["test"];
+
+            Assert.Equal(2, values.Count);
+            Assert.Equal("1", values[0]);
+            Assert.Equal("2", values[1]);
+        }
+
+        [Fact]
+        public void ParseMultiples_With_Specific_CombinableArguments()
+        {
+            Dictionary<string, object> test = Arguments.Parse("--test 1 --test 2 --foo foo --foo bar", options => options.CombinableArguments = new[] { "test" }).ArgumentDictionary;
+
+            Assert.NotEmpty(test);
+            Assert.Equal(2, test.Count);
+
+            var values = (List<object>)test["test"];
+
+            Assert.Equal(2, values.Count);
+            Assert.Equal("1", values[0]);
+            Assert.Equal("2", values[1]);
+
+            Assert.Equal("bar", test["foo"]);
+        }
+
+        [Fact]
         public void ParseValueBeginningWithSlash()
         {
             Dictionary<string, object> test = Arguments.Parse("--file='/mnt/data/test.xml'").ArgumentDictionary;
@@ -790,7 +832,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("l", "bar")
             };
 
-            var a = Arguments.Parse("-l foo -l bar", GetType());
+            var a = Arguments.Parse("-l foo -l bar", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -813,7 +855,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("list", "bar")
             };
 
-            var a = Arguments.Parse("--list foo --list bar", GetType());
+            var a = Arguments.Parse("--list foo --list bar", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -836,7 +878,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("list", "bar")
             };
 
-            var a = Arguments.Parse("-l foo --list bar", GetType());
+            var a = Arguments.Parse("-l foo --list bar", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -859,7 +901,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("l", "bar")
             };
 
-            var a = Arguments.Parse("--list foo -l bar", GetType());
+            var a = Arguments.Parse("--list foo -l bar", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             List<object> argList = null;
@@ -901,7 +943,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("b", "2")
             };
 
-            var a = Arguments.Parse("-b 1 -b 2", GetType());
+            var a = Arguments.Parse("-b 1 -b 2", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -918,7 +960,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("bb", "2")
             };
 
-            var a = Arguments.Parse("--bb 1 --bb 2", GetType());
+            var a = Arguments.Parse("--bb 1 --bb 2", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -986,7 +1028,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("bb", "2")
             };
 
-            var a = Arguments.Parse("--bb 1 --bb 2", GetType());
+            var a = Arguments.Parse("--bb 1 --bb 2", options => options.TargetType = GetType());
 
             Assert.NotNull(a.TargetType);
             Assert.Equal(GetType(), a.TargetType);
@@ -1015,7 +1057,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("b", "2")
             };
 
-            var a = Arguments.Parse("--bb 1 -b 2", GetType());
+            var a = Arguments.Parse("--bb 1 -b 2", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);
@@ -1032,7 +1074,7 @@ namespace Utility.CommandLine.Tests
                 new KeyValuePair<string, string>("bb", "2")
             };
 
-            var a = Arguments.Parse("-b 1 --bb 2", GetType());
+            var a = Arguments.Parse("-b 1 --bb 2", options => options.TargetType = GetType());
             var dict = a.ArgumentDictionary;
 
             Assert.Single(dict);

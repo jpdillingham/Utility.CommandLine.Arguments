@@ -168,6 +168,36 @@ namespace Utility.CommandLine
     }
 
     /// <summary>
+    ///     Parsing options.
+    /// </summary>
+    public class ArgumentParseOptions
+    {
+        /// <summary>
+        ///     Gets or sets the <see cref="Type"/> for which the command line string is to be parsed.
+        /// </summary>
+        /// <remarks>
+        ///     Supersedes combination options; arguments backed by properties of a collection type are combined, while those that aren't are not.
+        /// </remarks>
+        public Type TargetType { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether duplicate argument values should be combined into a list.
+        /// </summary>
+        /// <remarks>
+        ///     Only applicable if <see cref="TargetType"/> is not specified.
+        /// </remarks>
+        public bool CombineAllMultiples { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether duplicate argument values for arguments in the array should be combined into a list.
+        /// </summary>
+        /// <remarks>
+        ///     Only applicable if <see cref="TargetType"/> is not specified.
+        /// </remarks>
+        public string[] CombinableArguments { get; set; } = Array.Empty<string>();
+    }
+
+    /// <summary>
     ///     Provides static methods used to retrieve the command line arguments and operands with which the application was
     ///     started, as well as a Type to contain them.
     /// </summary>
@@ -314,15 +344,49 @@ namespace Utility.CommandLine
         ///     Returns a dictionary containing the values specified in the command line arguments with which the application was
         ///     started, keyed by argument name.
         /// </summary>
-        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
-        /// <param name="type">The <see cref="Type"/> for which the command line string is to be parsed.</param>
-        /// <param name="caller">Internal parameter used to identify the calling method.</param>
+        /// <param name="configure">An action to configure the provided <see cref="ArgumentParseOptions"/> instance.</param>
         /// <returns>
         ///     The dictionary containing the arguments and values specified in the command line arguments with which the
         ///     application was started.
         /// </returns>
-        public static Arguments Parse(string commandLineString = default(string), Type type = null, [CallerMemberName] string caller = default(string))
+        public static Arguments Parse(Action<ArgumentParseOptions> configure = null)
         {
+            return Parse(null, configure);
+        }
+
+        /// <summary>
+        ///     Returns a dictionary containing the values specified in the command line arguments with which the application was
+        ///     started, keyed by argument name.
+        /// </summary>
+        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
+        /// <param name="configure">An action to configure the provided <see cref="ArgumentParseOptions"/> instance.</param>
+        /// <returns>
+        ///     The dictionary containing the arguments and values specified in the command line arguments with which the
+        ///     application was started.
+        /// </returns>
+        public static Arguments Parse(string commandLineString, Action<ArgumentParseOptions> configure = null)
+        {
+            configure = configure ?? new Action<ArgumentParseOptions>((_) => { });
+            var options = new ArgumentParseOptions();
+            configure(options);
+            
+            return Parse(commandLineString, options);
+        }
+
+        /// <summary>
+        ///     Returns a dictionary containing the values specified in the command line arguments with which the application was
+        ///     started, keyed by argument name.
+        /// </summary>
+        /// <param name="commandLineString">The command line arguments with which the application was started.</param>
+        /// <param name="options">Parser options.</param>
+        /// <returns>
+        ///     The dictionary containing the arguments and values specified in the command line arguments with which the
+        ///     application was started.
+        /// </returns>
+        public static Arguments Parse(string commandLineString, ArgumentParseOptions options)
+        {
+            options = options ?? new ArgumentParseOptions();
+
             commandLineString = commandLineString == default(string) || string.IsNullOrEmpty(commandLineString) ? Environment.CommandLine : commandLineString;
 
             List<KeyValuePair<string, string>> argumentList;
@@ -353,8 +417,8 @@ namespace Utility.CommandLine
                 operandList = GetOperandList(commandLineString);
             }
 
-            var argumentDictionary = GetArgumentDictionary(argumentList, type);
-            return new Arguments(commandLineString, argumentList, argumentDictionary, operandList, type);
+            var argumentDictionary = GetArgumentDictionary(argumentList, options);
+            return new Arguments(commandLineString, argumentList, argumentDictionary, operandList, options.TargetType);
         }
 
         /// <summary>
@@ -368,7 +432,7 @@ namespace Utility.CommandLine
         public static void Populate(string commandLineString = default(string), bool clearExistingValues = true, [CallerMemberName] string caller = default(string))
         {
             var type = ArgumentsExtensions.GetCallingType(caller);
-            Populate(type, Parse(commandLineString, type), clearExistingValues);
+            Populate(type, Parse(commandLineString, options => options.TargetType = type), clearExistingValues);
         }
 
         /// <summary>
@@ -383,7 +447,7 @@ namespace Utility.CommandLine
         /// <param name="clearExistingValues">Whether to clear the properties before populating them. Defaults to true.</param>
         public static void Populate(Type type, string commandLineString = default(string), bool clearExistingValues = true)
         {
-            Populate(type, Parse(commandLineString, type), clearExistingValues);
+            Populate(type, Parse(commandLineString, options => options.TargetType = type), clearExistingValues);
         }
 
         /// <summary>
@@ -537,10 +601,10 @@ namespace Utility.CommandLine
             }
         }
 
-        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null)
+        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, ArgumentParseOptions options)
         {
             var dict = new ConcurrentDictionary<string, object>();
-            var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
+            var argumentInfo = options.TargetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(options.TargetType);
 
             foreach (var arg in argumentList)
             {
@@ -567,7 +631,22 @@ namespace Utility.CommandLine
                 }
                 else
                 {
-                    dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                    if (dict.ContainsKey(arg.Key) && (options.CombineAllMultiples || options.CombinableArguments.Contains(arg.Key)))
+                    {
+                        dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) =>
+                        {
+                            if (existingValue.GetType() == typeof(List<object>))
+                            {
+                                return ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList();
+                            }
+
+                            return new List<object>() { existingValue, arg.Value };
+                        });
+                    }
+                    else
+                    {
+                        dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                    }
                 }
             }
 

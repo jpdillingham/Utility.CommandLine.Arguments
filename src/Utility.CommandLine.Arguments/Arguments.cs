@@ -1,4 +1,4 @@
-/*
+﻿/*
   █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀  ▀  ▀      ▀▀
   █  The MIT License (MIT)
   █
@@ -417,8 +417,8 @@ namespace Utility.CommandLine
                 operandList = GetOperandList(commandLineString);
             }
 
-            var argumentDictionary = GetArgumentDictionary(argumentList, type, appendRepeatedValuesForUnmatchedArguments);
-            return new Arguments(commandLineString, argumentList, argumentDictionary, operandList, type);
+            var argumentDictionary = GetArgumentDictionary(argumentList, options);
+            return new Arguments(commandLineString, argumentList, argumentDictionary, operandList, options.TargetType);
         }
 
         /// <summary>
@@ -432,7 +432,7 @@ namespace Utility.CommandLine
         public static void Populate(string commandLineString = default(string), bool clearExistingValues = true, [CallerMemberName] string caller = default(string))
         {
             var type = ArgumentsExtensions.GetCallingType(caller);
-            Populate(type, Parse(commandLineString, type), clearExistingValues);
+            Populate(type, Parse(commandLineString, options => options.TargetType = type), clearExistingValues);
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace Utility.CommandLine
         /// <param name="clearExistingValues">Whether to clear the properties before populating them. Defaults to true.</param>
         public static void Populate(Type type, string commandLineString = default(string), bool clearExistingValues = true)
         {
-            Populate(type, Parse(commandLineString, type), clearExistingValues);
+            Populate(type, Parse(commandLineString, options => options.TargetType = type), clearExistingValues);
         }
 
         /// <summary>
@@ -601,10 +601,10 @@ namespace Utility.CommandLine
             }
         }
 
-        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, Type targetType = null, bool appendRepeatedValuesForUnmatchedArguments = false)
+        private static Dictionary<string, object> GetArgumentDictionary(List<KeyValuePair<string, string>> argumentList, ArgumentParseOptions options)
         {
             var dict = new ConcurrentDictionary<string, object>();
-            var argumentInfo = targetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(targetType);
+            var argumentInfo = options.TargetType == null ? new List<ArgumentInfo>() : GetArgumentInfo(options.TargetType);
 
             foreach (var arg in argumentList)
             {
@@ -631,14 +631,21 @@ namespace Utility.CommandLine
                 }
                 else
                 {
-                    if (!appendRepeatedValuesForUnmatchedArguments)
+                    if (dict.ContainsKey(arg.Key) && (options.CombineAllMultiples || options.CombinableArguments.Contains(arg.Key)))
                     {
-                        dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
+                        dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) =>
+                        {
+                            if (existingValue.GetType() == typeof(List<object>))
+                            {
+                                return ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList();
+                            }
+
+                            return new List<object>() { existingValue, arg.Value };
+                        });
                     }
                     else
                     {
-                        // todo: check if key exists.  if so, check if value is a List.  if so, append this value to the existing list
-                        // if existing value is not a List, convert it to a list containing the existing value, and this value.
+                        dict.AddOrUpdate(arg.Key, arg.Value, (key, existingValue) => arg.Value);
                     }
                 }
             }

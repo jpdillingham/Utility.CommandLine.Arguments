@@ -1,4 +1,4 @@
-﻿/*
+/*
   █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀▀▀  ▀  ▀      ▀▀
   █  The MIT License (MIT)
   █
@@ -165,6 +165,36 @@ namespace Utility.CommandLine
         ///     Gets the short name of the argument.
         /// </summary>
         public char ShortName { get; }
+    }
+
+    /// <summary>
+    ///     Parsing options.
+    /// </summary>
+    public class ArgumentParseOptions
+    {
+        /// <summary>
+        ///     Gets or sets the <see cref="Type"/> for which the command line string is to be parsed.
+        /// </summary>
+        /// <remarks>
+        ///     Supersedes combination options; arguments backed by properties of a collection type are combined, while those that aren't are not.
+        /// </remarks>
+        public Type TargetType { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether duplicate argument values should be combined into a list.
+        /// </summary>
+        /// <remarks>
+        ///     Only applicable if <see cref="TargetType"/> is not specified.
+        /// </remarks>
+        public bool CombineAllMultiples { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether duplicate argument values for arguments in the array should be combined into a list.
+        /// </summary>
+        /// <remarks>
+        ///     Only applicable if <see cref="TargetType"/> is not specified.
+        /// </remarks>
+        public string[] CombinableArguments { get; set; } = Array.Empty<string>();
     }
 
     /// <summary>

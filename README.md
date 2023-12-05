@@ -280,14 +280,16 @@ A collection of `ArgumentHelp` containing the short and long names and help text
 ```c#
 private static void ShowHelp()
 {
-    var helpAttributes = Arguments.GetArgumentHelp(typeof(Program));
+    var helpAttributes = Arguments.GetArgumentInfo(typeof(Program));
 
-    Console.WriteLine("Short\tLong\tFunction");
-    Console.WriteLine("-----\t----\t--------");
+    var maxLen = helpAttributes.Select(a => a..Name).OrderByDescending(s => s.Length).FirstOrDefault()!.Length;
+
+    Console.WriteLine($"Short\tLong\t{"Type".PadRight(maxLen)}\tFunction");
+    Console.WriteLine($"-----\t----\t{"----".PadRight(maxLen)}\t--------");
 
     foreach (var item in helpAttributes)
     {
-        var result = item.ShortName + "\t" + item.LongName + "\t" + item.HelpText;
+        var result = item.ShortName + "\t" + item.LongName + "\t" + item.Property.PropertyType.ToColloquialString().PadRight(maxLen) + "\t" + item.HelpText;
         Console.WriteLine(result);
     }
 }

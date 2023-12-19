@@ -282,7 +282,7 @@ private static void ShowHelp()
 {
     var helpAttributes = Arguments.GetArgumentInfo(typeof(Program));
 
-    var maxLen = helpAttributes.Select(a => a..Name).OrderByDescending(s => s.Length).FirstOrDefault()!.Length;
+    var maxLen = helpAttributes.Select(a => a.Property.Name).OrderByDescending(s => s.Length).FirstOrDefault()!.Length;
 
     Console.WriteLine($"Short\tLong\t{"Type".PadRight(maxLen)}\tFunction");
     Console.WriteLine($"-----\t----\t{"----".PadRight(maxLen)}\t--------");

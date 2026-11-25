@@ -1,7 +1,0 @@
-version: 1.0.0{build}
-before_build:
-- dotnet restore
-build_script:
-- dotnet build --no-restore --no-incremental
-test_script:
-- dotnet test -p:CollectCoverage=true -p:CoverletOutput="../opencover.xml" -p:CoverletOutputFormat=opencover tests/Utility.CommandLine.Arguments.Tests -p:Include="[Utility.CommandLine.Arguments*]*" -p:Exclude="[*.Tests]*"

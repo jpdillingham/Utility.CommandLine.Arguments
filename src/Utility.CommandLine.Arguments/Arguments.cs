@@ -369,7 +369,7 @@ namespace Utility.CommandLine
             configure = configure ?? new Action<ArgumentParseOptions>((_) => { });
             var options = new ArgumentParseOptions();
             configure(options);
-            
+
             return Parse(commandLineString, options);
         }
 
@@ -608,7 +608,7 @@ namespace Utility.CommandLine
 
             foreach (var arg in argumentList)
             {
-                var info = argumentInfo.SingleOrDefault(i => i.ShortName.ToString(CultureInfo.InvariantCulture) == arg.Key || i.LongName == arg.Key);
+                var info = argumentInfo.SingleOrDefault(i => (i.ShortName != default && i.ShortName.ToString(CultureInfo.InvariantCulture) == arg.Key) || i.LongName == arg.Key);
 
                 if (info != default(ArgumentInfo))
                 {
@@ -616,6 +616,11 @@ namespace Utility.CommandLine
 
                     foreach (var k in new[] { info.ShortName.ToString(CultureInfo.InvariantCulture), info.LongName })
                     {
+                        if (string.IsNullOrWhiteSpace(k))
+                        {
+                            continue;
+                        }
+
                         if (dict.ContainsKey(k))
                         {
                             dict.AddOrUpdate(k, arg.Value, (key, existingValue) => info.IsCollection ? ((List<object>)existingValue).Concat(new[] { arg.Value }).ToList() : (object)arg.Value);
@@ -707,9 +712,13 @@ namespace Utility.CommandLine
                     char shortName = (char)attribute.ConstructorArguments[0].Value;
                     string longName = (string)attribute.ConstructorArguments[1].Value;
 
-                    if (!properties.ContainsKey(shortName.ToString(CultureInfo.InvariantCulture)) && !properties.ContainsKey(longName))
+                    if (shortName != default && !properties.ContainsKey(shortName.ToString(CultureInfo.InvariantCulture)))
                     {
                         properties.Add(shortName.ToString(CultureInfo.InvariantCulture), property);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(longName) && !properties.ContainsKey(longName))
+                    {
                         properties.Add(longName, property);
                     }
                 }

@@ -111,8 +111,8 @@ namespace Utility.CommandLine.Tests
             var help = Arguments.GetArgumentInfo(typeof(ArgumentsTests)).ToList();
 
             Assert.Equal(7, help.Count);
-            Assert.Single(help.Where(h => h.ShortName == 'b'));
-            Assert.Single(help.Where(h => h.LongName == "test-prop"));
+            Assert.Single(help, h => h.ShortName == 'b');
+            Assert.Single(help, h => h.LongName == "test-prop");
             Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
         }
 
@@ -122,7 +122,7 @@ namespace Utility.CommandLine.Tests
             var help = Arguments.GetArgumentInfo().ToList();
 
             Assert.Equal(7, help.Count);
-            Assert.Single(help.Where(h => h.ShortName == 'b'));
+            Assert.Single(help, h => h.ShortName == 'b');
             Assert.Equal("help", help.Where(h => h.ShortName == 'b').FirstOrDefault().HelpText);
         }
 
@@ -1151,8 +1151,6 @@ namespace Utility.CommandLine.Tests
         [InlineData("-abc")]
         [InlineData("-a -b -c")]
         [InlineData("--aa --bb --cc")]
-        [InlineData("-a -b -c")]
-        [InlineData("--aa --bb --cc")]
         [InlineData("-a --bb -c")]
         [InlineData("--aa -b -c")]
         [InlineData("-a --bb --cc")]
@@ -1191,6 +1189,128 @@ namespace Utility.CommandLine.Tests
             Assert.Equal(2, B.Count);
             Assert.Equal("one", B[0]);
             Assert.Equal("two", B[1]);
+        }
+    }
+
+    [Collection("Arguments")]
+    public class TestClassWithDefaultShortNames
+    {
+        [Argument(default, "aa", "help a")]
+        private static string A { get; set; }
+
+        [Argument(default, "bb", "help b")]
+        private static string B { get; set; }
+
+        [Argument(default, "cc")]
+        private static bool C { get; set; }
+
+        [Argument(default, "dd")]
+        private static List<string> D { get; set; }
+
+        [Argument('e', "ee")]
+        private static string E { get; set; }
+
+        [Operands]
+        private static List<string> Operands { get; set; }
+
+        [Fact]
+        public void GetArgumentInfoIncludesAllDefaultShortNameArguments()
+        {
+            var info = Arguments.GetArgumentInfo(GetType()).ToList();
+
+            Assert.Equal(5, info.Count);
+            Assert.Single(info, i => i.LongName == "aa");
+            Assert.Single(info, i => i.LongName == "bb");
+            Assert.Single(info, i => i.LongName == "cc");
+            Assert.Single(info, i => i.LongName == "dd");
+            Assert.Single(info, i => i.LongName == "ee");
+            Assert.Equal("help b", info.Single(i => i.LongName == "bb").HelpText);
+        }
+
+        [Fact]
+        public void PopulatesAllDefaultShortNameStrings()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--aa one --bb two"));
+
+            Assert.Null(ex);
+            Assert.Equal("one", A);
+            Assert.Equal("two", B);
+        }
+
+        [Fact]
+        public void PopulatesDefaultShortNameStringsInReverseOrder()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--bb two --aa one"));
+
+            Assert.Null(ex);
+            Assert.Equal("one", A);
+            Assert.Equal("two", B);
+        }
+
+        [Fact]
+        public void PopulatesSecondDefaultShortNameStringAlone()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--bb two"));
+
+            Assert.Null(ex);
+            Assert.Null(A);
+            Assert.Equal("two", B);
+        }
+
+        [Fact]
+        public void PopulatesDefaultShortNameBool()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--aa one --cc"));
+
+            Assert.Null(ex);
+            Assert.Equal("one", A);
+            Assert.True(C);
+        }
+
+        [Fact]
+        public void PopulatesDefaultShortNameBoolFollowedByOperand()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--cc operand"));
+
+            Assert.Null(ex);
+            Assert.True(C);
+            Assert.Single(Operands);
+            Assert.Equal("operand", Operands[0]);
+        }
+
+        [Fact]
+        public void PopulatesDefaultShortNameList()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "--aa one --dd x --dd y"));
+
+            Assert.Null(ex);
+            Assert.Equal("one", A);
+            Assert.Equal(2, D.Count);
+            Assert.Equal("x", D[0]);
+            Assert.Equal("y", D[1]);
+        }
+
+        [Fact]
+        public void ParseCombinesDefaultShortNameListWithTargetType()
+        {
+            var a = Arguments.Parse("--dd x --dd y", options => options.TargetType = GetType());
+
+            var list = Assert.IsType<List<object>>(a.ArgumentDictionary["dd"]);
+            Assert.Equal(new object[] { "x", "y" }, list);
+        }
+
+        [Fact]
+        public void PopulatesDefaultShortNamesAlongsideExplicitShortName()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(GetType(), "-e five --aa one --bb two --cc --dd x"));
+
+            Assert.Null(ex);
+            Assert.Equal("five", E);
+            Assert.Equal("one", A);
+            Assert.Equal("two", B);
+            Assert.True(C);
+            Assert.Single(D);
+            Assert.Equal("x", D[0]);
         }
     }
 }

@@ -25,24 +25,20 @@ jobs:
             8.0.x
 
       - name: Set up Java (SonarCloud)
-        if: false # temporarily disabled
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
       - name: Install SonarScanner
-        if: false # temporarily disabled
         run: dotnet tool install --global dotnet-sonarscanner
 
       - name: Build and test
-        # SonarCloud is temporarily disabled; ci.sh skips analysis when TOKEN_SONARCLOUD is unset.
-        # env:
-        #   TOKEN_SONARCLOUD: ${{ secrets.TOKEN_SONARCLOUD }}
+        env:
+          TOKEN_SONARCLOUD: ${{ secrets.TOKEN_SONARCLOUD }}
         run: bash build/ci.sh
 
       - name: Upload coverage to Codecov
-        if: false # temporarily disabled
         uses: codecov/codecov-action@v5
         with:
           files: tests/opencover.xml

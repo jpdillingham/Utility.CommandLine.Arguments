@@ -1,7 +1,6 @@
 # Utility.CommandLine.Arguments
 
-[![Build status](https://ci.appveyor.com/api/projects/status/936bilffko47p63b?svg=true)](https://ci.appveyor.com/project/jpdillingham/utility-commandline-arguments)
-[![Build Status](https://travis-ci.org/jpdillingham/Utility.CommandLine.Arguments.svg?branch=master)](https://travis-ci.org/jpdillingham/Utility.CommandLine.Arguments)
+[![Build Status](https://github.com/jpdillingham/Utility.CommandLine.Arguments/actions/workflows/ci.yml/badge.svg)](https://github.com/jpdillingham/Utility.CommandLine.Arguments/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/jpdillingham/Utility.CommandLine.Arguments/branch/master/graph/badge.svg)](https://codecov.io/gh/jpdillingham/Utility.CommandLine.Arguments)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jpdillingham_Utility.CommandLine.Arguments&metric=alert_status)](https://sonarcloud.io/dashboard?id=jpdillingham_Utility.CommandLine.Arguments)
 [![NuGet version](https://img.shields.io/nuget/v/Utility.CommandLine.Arguments.svg)](https://www.nuget.org/packages/Utility.CommandLine.Arguments/)

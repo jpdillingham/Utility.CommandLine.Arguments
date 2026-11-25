@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for SonarCloud analysis
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+
+      - name: Set up Java (SonarCloud)
+        if: false # temporarily disabled
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install SonarScanner
+        if: false # temporarily disabled
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Build and test
+        # SonarCloud is temporarily disabled; ci.sh skips analysis when TOKEN_SONARCLOUD is unset.
+        # env:
+        #   TOKEN_SONARCLOUD: ${{ secrets.TOKEN_SONARCLOUD }}
+        run: bash build/ci.sh
+
+      - name: Upload coverage to Codecov
+        if: false # temporarily disabled
+        uses: codecov/codecov-action@v5
+        with:
+          files: tests/opencover.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

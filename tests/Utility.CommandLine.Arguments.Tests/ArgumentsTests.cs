@@ -264,6 +264,62 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
+        public void ParseOperandFollowingArgumentIsParsedAsValue()
+        {
+            Arguments test = Arguments.Parse("-a operand");
+
+            Assert.Equal("operand", test.ArgumentDictionary["a"]);
+            Assert.Empty(test.OperandList);
+        }
+
+        [Fact]
+        public void ParseOperandFollowingLongArgumentIsParsedAsValue()
+        {
+            Arguments test = Arguments.Parse("--aa operand");
+
+            Assert.Equal("operand", test.ArgumentDictionary["aa"]);
+            Assert.Empty(test.OperandList);
+        }
+
+        [Fact]
+        public void ParseOperandFollowingGroupIsParsedAsValueOfLastArgumentInGroup()
+        {
+            Arguments test = Arguments.Parse("-ab operand");
+
+            Assert.Equal(string.Empty, test.ArgumentDictionary["a"]);
+            Assert.Equal("operand", test.ArgumentDictionary["b"]);
+            Assert.Empty(test.OperandList);
+        }
+
+        [Fact]
+        public void ParseOperandsFollowingMultipleArgumentsAreParsedAsValues()
+        {
+            Arguments test = Arguments.Parse("-a op1 -b op2");
+
+            Assert.Equal("op1", test.ArgumentDictionary["a"]);
+            Assert.Equal("op2", test.ArgumentDictionary["b"]);
+            Assert.Empty(test.OperandList);
+        }
+
+        [Fact]
+        public void ParseOperandFollowingArgumentValueIsParsedAsOperand()
+        {
+            Arguments test = Arguments.Parse("-a value operand");
+
+            Assert.Equal("value", test.ArgumentDictionary["a"]);
+            Assert.Equal(new[] { "operand" }, test.OperandList);
+        }
+
+        [Fact]
+        public void ParseOperandFollowingStrictOperandDelimiterIsParsedAsOperand()
+        {
+            Arguments test = Arguments.Parse("-a -- operand");
+
+            Assert.Equal(string.Empty, test.ArgumentDictionary["a"]);
+            Assert.Equal(new[] { "operand" }, test.OperandList);
+        }
+
+        [Fact]
         public void ParseSingleCharacterLong()
         {
             Arguments test = Arguments.Parse("--t one");
@@ -606,7 +662,12 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Constructor()
         {
-            OperandsAttribute test = new CommandLine.OperandsAttribute();
+            Exception ex = Record.Exception(() =>
+            {
+                OperandsAttribute test = new CommandLine.OperandsAttribute();
+            });
+
+            Assert.Null(ex);
         }
     }
 

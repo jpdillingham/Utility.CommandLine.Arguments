@@ -86,7 +86,7 @@ The value delimiter may be an equals sign, a colon, or a space.
 
 Values may be any alphanumeric sequence, however if a value contains a space it must be enclosed in either single or double quotes.
 
-Any word, or phrase enclosed in single or double quotes, will be parsed as an operand.  The official specification requires operands to appear last, however this library will parse them in any position.
+Any word, or phrase enclosed in single or double quotes, will be parsed as an operand, unless it immediately follows an argument, in which case it is parsed as that argument's value.
 
 A double-hyphen ```--``` not enclosed in single or double quotes and appearing with whitespace on either side designates the end of the argument list and beginning of the explicit operand list.  Anything appearing after this delimiter is treated as an operand, even if it begins with a hyphen, double-hyphen or forward slash.
 

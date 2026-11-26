@@ -515,17 +515,6 @@ namespace Utility.CommandLine.Tests
         }
 
         [Fact]
-        public void PopulateDuplicateProperties()
-        {
-            Exception ex = Record.Exception(() => Arguments.Populate(typeof(TestClassDuplicateProperties), "--hello world"));
-
-            Assert.Null(ex);
-
-            Assert.Equal("world", TestClassDuplicateProperties.Test1);
-            Assert.Equal(default(string), TestClassDuplicateProperties.Test2);
-        }
-
-        [Fact]
         public void PopulateExternalClass()
         {
             Arguments.Populate(typeof(TestClassPublicProperties), "--test test! operand1 operand2");
@@ -1311,6 +1300,158 @@ namespace Utility.CommandLine.Tests
             Assert.True(C);
             Assert.Single(D);
             Assert.Equal("x", D[0]);
+        }
+    }
+
+    public class TestClassDuplicateShortName
+    {
+        [Argument('a', "alpha")]
+        public static string Alpha { get; set; }
+
+        [Argument('a', "apple")]
+        public static string Apple { get; set; }
+    }
+
+    public class TestClassDuplicateLongName
+    {
+        [Argument('a', "name")]
+        public static string First { get; set; }
+
+        [Argument('b', "name")]
+        public static string Second { get; set; }
+    }
+
+    public class TestClassLongNameCollidesWithShortName
+    {
+        [Argument('x', "extra")]
+        public static string Extra { get; set; }
+
+        [Argument('y', "x")]
+        public static string Other { get; set; }
+    }
+
+    public class TestClassShortNameEqualsLongName
+    {
+        [Argument('v', "v")]
+        public static bool Verbose { get; set; }
+    }
+
+    public class TestClassShortNameEqualsLongNameDifferentCase
+    {
+        [Argument('v', "V")]
+        public static bool Verbose { get; set; }
+    }
+
+    [Collection("Arguments")]
+    public class DuplicateArgumentNameTests
+    {
+        public static IEnumerable<object[]> DuplicateTypes => new List<object[]>
+        {
+            new object[] { typeof(TestClassDuplicateShortName), "Short name 'a'" },
+            new object[] { typeof(TestClassDuplicateLongName), "Long name 'name'" },
+            new object[] { typeof(TestClassLongNameCollidesWithShortName), "Long name 'x'" },
+            new object[] { typeof(TestClassDuplicateProperties), "Short name 'h'" },
+        };
+
+        [Theory]
+        [MemberData(nameof(DuplicateTypes))]
+        public void PopulateThrowsMeaningfulExceptionOnDuplicateName(Type type, string expectedName)
+        {
+            var ex = Record.Exception(() => Arguments.Populate(type, string.Empty));
+
+            AssertMeaningfulDuplicateException(ex, type, expectedName);
+        }
+
+        [Theory]
+        [MemberData(nameof(DuplicateTypes))]
+        public void ParseWithTargetTypeThrowsMeaningfulExceptionOnDuplicateName(Type type, string expectedName)
+        {
+            var ex = Record.Exception(() => Arguments.Parse(string.Empty, options => options.TargetType = type));
+
+            AssertMeaningfulDuplicateException(ex, type, expectedName);
+        }
+
+        [Theory]
+        [MemberData(nameof(DuplicateTypes))]
+        public void GetArgumentInfoThrowsMeaningfulExceptionOnDuplicateName(Type type, string expectedName)
+        {
+            var ex = Record.Exception(() => Arguments.GetArgumentInfo(type).ToList());
+
+            AssertMeaningfulDuplicateException(ex, type, expectedName);
+        }
+
+        [Fact]
+        public void PopulateThrowsOnDuplicateShortNameWhenArgumentIsSupplied()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(typeof(TestClassDuplicateShortName), "-a value"));
+
+            AssertMeaningfulDuplicateException(ex, typeof(TestClassDuplicateShortName), "Short name 'a'");
+        }
+
+        [Fact]
+        public void PopulateThrowsOnDuplicateLongNameWhenArgumentIsSupplied()
+        {
+            var ex = Record.Exception(() => Arguments.Populate(typeof(TestClassDuplicateLongName), "--name value"));
+
+            AssertMeaningfulDuplicateException(ex, typeof(TestClassDuplicateLongName), "Long name 'name'");
+        }
+
+        public static IEnumerable<object[]> RepeatedNameTypes => new List<object[]>
+        {
+            new object[] { typeof(TestClassShortNameEqualsLongName), "'v'" },
+            new object[] { typeof(TestClassShortNameEqualsLongNameDifferentCase), "'V'" },
+        };
+
+        [Theory]
+        [MemberData(nameof(RepeatedNameTypes))]
+        public void PopulateThrowsMeaningfulExceptionWhenShortNameEqualsLongName(Type type, string expectedName)
+        {
+            var ex = Record.Exception(() => Arguments.Populate(type, string.Empty));
+
+            AssertMeaningfulRepeatedNameException(ex, type, expectedName);
+        }
+
+        [Theory]
+        [MemberData(nameof(RepeatedNameTypes))]
+        public void ParseWithTargetTypeThrowsMeaningfulExceptionWhenShortNameEqualsLongName(Type type, string expectedName)
+        {
+            var ex = Record.Exception(() => Arguments.Parse(string.Empty, options => options.TargetType = type));
+
+            AssertMeaningfulRepeatedNameException(ex, type, expectedName);
+        }
+
+        [Theory]
+        [MemberData(nameof(RepeatedNameTypes))]
+        public void GetArgumentInfoThrowsMeaningfulExceptionWhenShortNameEqualsLongName(Type type, string expectedName)
+        {
+            var ex = Record.Exception(() => Arguments.GetArgumentInfo(type).ToList());
+
+            AssertMeaningfulRepeatedNameException(ex, type, expectedName);
+        }
+
+        [Fact]
+        public void DefaultShortNamesAreNotConsideredDuplicates()
+        {
+            var ex = Record.Exception(() => Arguments.GetArgumentInfo(typeof(TestClassWithDefaultShortNames)).ToList());
+
+            Assert.Null(ex);
+        }
+
+        private static void AssertMeaningfulRepeatedNameException(Exception ex, Type type, string expectedName)
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidOperationException>(ex);
+            Assert.Contains(expectedName, ex.Message, StringComparison.Ordinal);
+            Assert.Contains(nameof(TestClassShortNameEqualsLongName.Verbose), ex.Message, StringComparison.Ordinal);
+            Assert.Contains(type.FullName, ex.Message, StringComparison.Ordinal);
+        }
+
+        private static void AssertMeaningfulDuplicateException(Exception ex, Type type, string expectedName)
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidOperationException>(ex);
+            Assert.Contains(expectedName, ex.Message, StringComparison.Ordinal);
+            Assert.Contains(type.FullName, ex.Message, StringComparison.Ordinal);
         }
     }
 }

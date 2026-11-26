@@ -662,7 +662,12 @@ namespace Utility.CommandLine.Tests
         [Fact]
         public void Constructor()
         {
-            OperandsAttribute test = new CommandLine.OperandsAttribute();
+            Exception ex = Record.Exception(() =>
+            {
+                OperandsAttribute test = new CommandLine.OperandsAttribute();
+            });
+
+            Assert.Null(ex);
         }
     }
 

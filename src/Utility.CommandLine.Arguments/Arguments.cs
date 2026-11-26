@@ -712,13 +712,28 @@ namespace Utility.CommandLine
                     char shortName = (char)attribute.ConstructorArguments[0].Value;
                     string longName = (string)attribute.ConstructorArguments[1].Value;
 
-                    if (shortName != default && !properties.ContainsKey(shortName.ToString(CultureInfo.InvariantCulture)))
+                    if (shortName.ToString(CultureInfo.InvariantCulture).Equals(longName, StringComparison.OrdinalIgnoreCase))
                     {
+                        throw new InvalidOperationException($"Argument name '{longName}' repeated for property {property.Name} on target Type {type.FullName}");
+                    }
+
+                    if (shortName != default)
+                    {
+                        if (properties.ContainsKey(shortName.ToString(CultureInfo.InvariantCulture)))
+                        {
+                            throw new InvalidOperationException($"Short name '{shortName}' assigned to multiple properties on target Type {type.FullName}");
+                        }
+
                         properties.Add(shortName.ToString(CultureInfo.InvariantCulture), property);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(longName) && !properties.ContainsKey(longName))
+                    if (!string.IsNullOrWhiteSpace(longName))
                     {
+                        if (properties.ContainsKey(longName))
+                        {
+                            throw new InvalidOperationException($"Long name '{longName}' assigned to multiple properties on target Type {type.FullName}");
+                        }
+
                         properties.Add(longName, property);
                     }
                 }

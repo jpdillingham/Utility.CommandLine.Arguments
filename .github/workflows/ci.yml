@@ -65,7 +65,9 @@ jobs:
 
     permissions:
       contents: write # upload assets to the release
-      id-token: write # NuGet trusted publishing (OIDC)
+      id-token: write # NuGet trusted publishing (OIDC) and attestation signing
+      attestations: write # persist attestations
+      artifact-metadata: write # attestation storage records
 
     env:
       TAG: ${{ github.event.release.tag_name }}
@@ -79,6 +81,14 @@ jobs:
 
       - name: Verify package version matches tag
         run: test -f "release/Utility.CommandLine.Arguments.${TAG#v}.nupkg"
+
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            release/*.nupkg
+            release/*.snupkg
+            release/netstandard2.0/Utility.CommandLine.Arguments.dll
 
       - name: Log in to NuGet (trusted publishing)
         id: login

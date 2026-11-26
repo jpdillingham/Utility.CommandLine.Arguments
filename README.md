@@ -20,6 +20,18 @@ Install from the NuGet gallery GUI or with the Package Manager Console using the
 
 The code is also designed to be incorporated into your project as a single source file (Arguments.cs).
 
+### Verifying Releases
+
+Releases are built and published by GitHub Actions, which creates a signed [build provenance attestation](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds) for the `.nupkg`, `.snupkg` and `.dll` attached to each [GitHub release](https://github.com/jpdillingham/Utility.CommandLine.Arguments/releases).  Version 6.0.1 and earlier are not attested.
+
+To verify a file downloaded from a release, use the [GitHub CLI](https://cli.github.com/):
+
+```
+gh attestation verify Utility.CommandLine.Arguments.dll --repo jpdillingham/Utility.CommandLine.Arguments
+```
+
+NuGet.org adds its own signature to each package it receives, so a `.nupkg` downloaded from NuGet.org will not match the attestation.  Instead, extract it (it is a zip file) and verify the `.dll` inside, located at `lib/netstandard2.0/Utility.CommandLine.Arguments.dll`.
+
 ## Quick Start
 
 Create private static properties in the class containing your ```Main()``` and mark them with the ```Argument``` attribute, assigning short and long names.  Invoke

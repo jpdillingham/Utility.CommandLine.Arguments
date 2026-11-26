@@ -5,6 +5,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  release:
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
@@ -15,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # full history for SonarCloud analysis
+          fetch-depth: 0 # full history for SonarCloud analysis and tags for versioning
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
@@ -44,3 +46,55 @@ jobs:
           files: tests/opencover.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: |
+            src/Utility.CommandLine.Arguments/bin/Release/*.nupkg
+            src/Utility.CommandLine.Arguments/bin/Release/*.snupkg
+            src/Utility.CommandLine.Arguments/bin/Release/netstandard2.0/Utility.CommandLine.Arguments.dll
+            src/Utility.CommandLine.Arguments/bin/Release/netstandard2.0/Utility.CommandLine.Arguments.xml
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # upload assets to the release
+      id-token: write # NuGet trusted publishing (OIDC)
+
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+
+    steps:
+      - name: Download build output
+        uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: release
+
+      - name: Verify package version matches tag
+        run: test -f "release/Utility.CommandLine.Arguments.${TAG#v}.nupkg"
+
+      - name: Log in to NuGet (trusted publishing)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: jpdillingham
+
+      - name: Push to NuGet
+        run: dotnet nuget push "release/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber
+          release/*.nupkg
+          release/*.snupkg
+          release/netstandard2.0/Utility.CommandLine.Arguments.dll
+          release/netstandard2.0/Utility.CommandLine.Arguments.xml
